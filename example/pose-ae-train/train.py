@@ -78,7 +78,7 @@ def save(config):
 
 def train(train_func, data_func, config, post_epoch=None):
     while True:
-        print('epoch: ', config['train']['epoch'])
+        print('epoch: {}/{}'.format(config['train']['epoch'],config['train']['epoch_num']))
         if 'epoch_num' in config['train']:
             if config['train']['epoch'] > config['train']['epoch_num']:
                 break
@@ -86,7 +86,7 @@ def train(train_func, data_func, config, post_epoch=None):
         for phase in ['train', 'valid']:
             num_step = config['train']['{}_iters'.format(phase)]
             generator = data_func(phase)
-            print('start', phase, config['opt'].exp)
+            print('start {}  {}'.format(phase, config['opt'].exp))
 
             show_range = range(num_step)
             show_range = tqdm.tqdm(show_range, total = num_step, ascii=True)
