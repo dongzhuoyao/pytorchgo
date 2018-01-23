@@ -93,9 +93,13 @@ class Dataset(torch.utils.data.Dataset):
         aug_rot = (np.random.random() * 2 - 1) * 30.
         aug_scale = np.random.random() * (1.25 - 0.75) + 0.75
         scale *= aug_scale
-
-        dx = np.random.randint(-40 * scale, 40 * scale)/center[0]
-        dy = np.random.randint(-40 * scale, 40 * scale)/center[1]
+        try:
+            dx = np.random.randint(-40 * scale, 40 * scale)/center[0]
+            dy = np.random.randint(-40 * scale, 40 * scale)/center[1]
+        except:
+            import ipdb
+            ipdb.set_trace()
+            raise#for debug
         center[0] += dx * center[0]
         center[1] += dy * center[1]
 
