@@ -96,10 +96,11 @@ class Dataset(torch.utils.data.Dataset):
         try:
             dx = np.random.randint(-40 * scale, 40 * scale)/center[0]
             dy = np.random.randint(-40 * scale, 40 * scale)/center[1]
-        except:
+        except Exception:
             import ipdb
             ipdb.set_trace()
-            raise#for debug
+            print("error happened")
+            #raise#for debug
         center[0] += dx * center[0]
         center[1] += dy * center[1]
 

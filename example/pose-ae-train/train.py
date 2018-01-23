@@ -78,7 +78,7 @@ def save(config):
 
 def train(train_func, data_func, config, post_epoch=None):
     while True:
-        print('epoch: {}/{}'.format(config['train']['epoch'],config['train']['epoch_num']))
+        print('epoch: {}/{}'.format(config['train']['epoch'],'unkown'))
         if 'epoch_num' in config['train']:
             if config['train']['epoch'] > config['train']['epoch_num']:
                 break
