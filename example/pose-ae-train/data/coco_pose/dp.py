@@ -85,7 +85,7 @@ class Dataset(torch.utils.data.Dataset):
 
         height, width = inp.shape[0:2]
         center = np.array((width/2, height/2))
-        scale = max(height, width)/200
+        scale = max(height, width)*1.0/200 #bugfixed by dongzhuoyao, because difference between  python 2 and 3
 
         inp_res = self.input_res
         res = (inp_res, inp_res)
@@ -97,9 +97,12 @@ class Dataset(torch.utils.data.Dataset):
             dx = np.random.randint(-40 * scale, 40 * scale)/center[0]
             dy = np.random.randint(-40 * scale, 40 * scale)/center[1]
         except Exception:
+            print("error happened")
+            print(scale)
+            print(height)
+            print(width)
             import ipdb
             ipdb.set_trace()
-            print("error happened")
             #raise#for debug
         center[0] += dx * center[0]
         center[1] += dy * center[1]
