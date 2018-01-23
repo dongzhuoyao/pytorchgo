@@ -329,7 +329,7 @@ if __name__ == '__main__':
     parser.add_argument('--momentum', default=0, type=float, metavar='M',
                         help='momentum')
     parser.add_argument('--weight-decay', '--wd', default=0, type=float,
-                        metavar='W', help='weight decay (default: 0)')
+                        metavar='W', help='weight decay (default: 0)') #TODO wd=0?
     parser.add_argument('--schedule', type=int, nargs='+', default=[60, 90],
                         help='Decrease learning rate at these epochs.')
     parser.add_argument('--gamma', type=float, default=0.1,
