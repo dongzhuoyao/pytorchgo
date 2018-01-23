@@ -13,11 +13,16 @@ import torch
 import importlib
 import argparse
 
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
+
 def parse_command_line():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--task', type=str, default='pose', help='task to be trained')
     parser.add_argument('-c', '--continue_exp', type=str, help='continue exp')
-    parser.add_argument('-e', '--exp', type=str, default='pose', help='experiments name')
+    parser.add_argument('-e', '--exp', type=str, default='test_run_001', help='experiments name')
     parser.add_argument('-m', '--mode', type=str, default='single', help='scale mode')
     args = parser.parse_args()
     return args
@@ -106,8 +111,10 @@ def init():
     exp_path = os.path.join('exp', opt.exp)
 
     config = task.__config__
-    try: os.makedirs(exp_path)
-    except FileExistsError: pass
+    try:
+        os.makedirs(exp_path)
+    except:
+        pass
 
     config['opt'] = opt
     config['data_provider'] = importlib.import_module(config['data_provider'])

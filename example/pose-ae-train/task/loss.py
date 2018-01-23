@@ -64,8 +64,10 @@ def tagLoss(tags, keypoints):
     return torch.stack(pushes), torch.stack(pulls)
 
 def test_tag_loss():
+    def myhook(x):
+        print('t', x)
     t = make_input( torch.Tensor((1, 2)), requires_grad=True )
-    t.register_hook(lambda x: print('t', x))
+    t.register_hook(myhook)
     loss = singleTagLoss((t, [[[0,1]], [[1,1]]]))[0]
     loss.backward()
     print(loss)

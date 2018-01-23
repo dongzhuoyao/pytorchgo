@@ -6,8 +6,8 @@ import os
 from pycocotools.coco import COCO
 from pycocotools import mask 
 
-data_dir = 'coco/images'
-ann_path = 'coco/annotations/person_keypoints_train2014.json'
+data_dir = '/data2/dataset/coco/images'
+ann_path = '/data2/dataset/coco/annotations/person_keypoints_train2014.json'
 ref_dir = os.path.dirname(__file__)
 
 assert os.path.exists(data_dir)

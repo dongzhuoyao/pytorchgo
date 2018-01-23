@@ -12,3 +12,8 @@ six==1.11.0
 subprocess32==3.2.7
 torch==0.3.0.post4
 torchvision==0.2.0
+cffi==1.11.4
+cython==0.27.3
+tqdm==4.19.5
+opencv-python==3.4.0.12
+h5py==2.7.1
