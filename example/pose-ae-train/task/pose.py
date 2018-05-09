@@ -29,6 +29,7 @@ __config__ = {
         'valid_iters': 10,
         'learning_rate': 2e-4,
         'num_loss': 4,
+        'epoch_num' : 60,
 
         'loss': [
             ['push_loss', 1e-3],

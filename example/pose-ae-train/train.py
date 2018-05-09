@@ -3,6 +3,7 @@ import time
 import os
 import tqdm
 from os.path import dirname
+import shutil
 
 import torch.backends.cudnn as cudnn
 cudnn.benchmark = True
