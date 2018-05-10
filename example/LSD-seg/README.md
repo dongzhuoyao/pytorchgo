@@ -17,6 +17,11 @@ Please download SYNTHIA-RAND-CITYSCAPES subset of the SYNTHIA dataset.
 
 	CITYSCAPES: https://www.cityscapes-dataset.com/
 
+cd  into ./data, and run the following:
+
+    ln -s /your-path/RAND_CITYSCAPES/ RAND_CITYSCAPES
+    ln -s /your-path/cityscapes/ cityscapes
+
 To run the code, go to code folder and run the following command:
 
 	python run_script.py

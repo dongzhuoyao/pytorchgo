@@ -301,7 +301,8 @@ class _netD(nn.Module):
             ResnetBlock(ndf*2, norm_type=2, bias=True, relu_type=2),                            
         )
         self.out_s = nn.Sequential(nn.Conv2d(ndf*2, 4, 3, padding=1))
-        self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))
+        #discriminate for source real, source fake, target_real, target_fake
+        self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
 
     def forward(self, input):   
         output = self.feature(input) 

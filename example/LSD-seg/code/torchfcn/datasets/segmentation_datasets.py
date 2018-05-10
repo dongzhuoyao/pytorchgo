@@ -144,7 +144,7 @@ class SegmentationData_BaseClass(data.Dataset):
     def transform_label_forD(self, label_orig, sz):
             
         label = copy.deepcopy(label_orig.data.cpu().numpy())
-        label[label == -1] = 19 
+        label[label == -1] = 19 # a little trick
         label = Image.fromarray(label.squeeze().astype(np.uint8))
         label = label.resize((sz[0],sz[1]),Image.NEAREST)
         label=np.array(label, dtype=np.int32)

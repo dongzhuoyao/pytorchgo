@@ -1,4 +1,4 @@
 import os
-root = '/scratch0/swamiviv/GTA_Segnet/data/'
-cmd = 'python train.py --dataroot ' + root + ' --gpu 0 --method LSD'
+root = '/home/hutao/lab/pytorchgo/example/LSD-seg/data'
+cmd = 'python train.py --dataroot ' + root + ' --gpu 2 --method LSD'
 os.system(cmd)
