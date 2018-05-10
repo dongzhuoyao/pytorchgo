@@ -33,3 +33,7 @@ Please change the dataroot path, and logdir path accordingly. This will run the 
 To evaluate the trained model, run 
 
 	python eval_cityscapes.py --dataroot [] --model\_file [] -- method []
+
+## TODO
+
+GTAV dataset preparation
