@@ -10,7 +10,7 @@ from util_fns import weights_init
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', required=True, help='Path to source dataset')
+    parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
     parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
     parser.add_argument('--num_iters', type=int, default=100000, help='Number of training iterations')
     parser.add_argument('--optimizer', type=str, default='Adam', help='Optimizer to use | SGD, Adam')
@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--l1_weight', type=float, default=1, help='L1 weight')
     parser.add_argument('--adv_weight', type=float, default=0.1, help='Adv_weight')
     parser.add_argument('--c_weight', type=float, default=0.1, help='C_weight')
-    parser.add_argument('--gpu', type=int, required=True)
+    parser.add_argument('--gpu', type=int, default=2)
     args = parser.parse_args()
     print(args)
 

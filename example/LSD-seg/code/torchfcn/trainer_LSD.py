@@ -226,7 +226,7 @@ class Trainer_LSD(object):
             
             # Labels for classifier branch 
             Dout_sz = outD_src_real_s.size()
-            label_forD = torch.zeros((outD_tgt_fake_c.size()[0], outD_tgt_fake_c.size()[2], outD_tgt_fake_c.size()[3]))
+            label_forD = torch.zeros((outD_tgt_fake_c.size()[0], outD_tgt_fake_c.size()[2], outD_tgt_fake_c.size()[3]))#[1,40,80]
             for i in range(label_forD.size()[0]):
                 label_forD[i] = self.train_loader.dataset.transform_label_forD(labels_source[i], (outD_tgt_fake_c.size()[2], outD_tgt_fake_c.size()[3]))
             if self.cuda:

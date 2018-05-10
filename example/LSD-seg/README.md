@@ -5,6 +5,7 @@ Code for Semantic Segmentation for Unsupervised Domain Adaptation
 Prerequisites:
 
 	Install pytorch (Version 0.2) and torchvision
+	pip install  http://download.pytorch.org/whl/cu80/torch-0.2.0.post2-cp27-cp27mu-manylinux1_x86_64.whl
 	Install fcn (pip install fcn)
 	Install OpenCV (pip install opencv-python)
 
@@ -37,3 +38,5 @@ To evaluate the trained model, run
 ## TODO
 
 GTAV dataset preparation
+
+    https://github.com/VisionLearningGroup/taskcv-2017-public/tree/master/segmentation
