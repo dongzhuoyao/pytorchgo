@@ -229,6 +229,7 @@ class SYNTHIA(SegmentationData_BaseClass):
                 'img': img_file,
                 'lbl': lbl_file,
             })
+        #self.files[split] = self.files[split][:100]
 
     def image_label_loader(self, img_path, label_path, data_size, random_crop=False):
         """

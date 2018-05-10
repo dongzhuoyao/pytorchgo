@@ -8,6 +8,8 @@ from util_fns import get_log_dir
 from util_fns import get_parameters
 from util_fns import weights_init
 
+class_num = 19
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
@@ -57,9 +59,9 @@ def main():
     start_epoch = 0
     start_iteration = 0
     if args.method == 'sourceonly':
-        model = torchfcn.models.FCN8s_sourceonly(n_class=19)
+        model = torchfcn.models.FCN8s_sourceonly(n_class=class_num)
     elif args.method == 'LSD':
-        model = torchfcn.models.FCN8s_LSD(n_class=19)
+        model = torchfcn.models.FCN8s_LSD(n_class=class_num)
         netG = torchfcn.models._netG()
         netD = torchfcn.models._netD()
         netD.apply(weights_init)
