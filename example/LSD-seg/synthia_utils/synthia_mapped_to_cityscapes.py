@@ -19,7 +19,7 @@ def synthia_mapped_to_cityscapes():
         for class_id in synthiaid2label.keys():
             img[img==class_id] = synthiaid2label[class_id].synthia_trainid
         print np.unique(img)
-        cv2.imwrite(os.path.join(target_dir,f),img)
+        cv2.imwrite(os.path.join(target_dir,f),img.astype(np.uint8))
 
 
 synthia_mapped_to_cityscapes()

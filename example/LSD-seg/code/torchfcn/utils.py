@@ -43,7 +43,8 @@ def cross_entropy2d(input, target, weight=None, size_average=True):
             by the number of pixels in the image 
     """
     
-    # input: (n, c, h, w), target: (n, h, w)
+    # input: (n, c, h, w),
+    # target: (n, h, w),1x40x80
     n, c, h, w = input.size()
     
     # log_p: (n, c, h, w)
@@ -61,7 +62,15 @@ def cross_entropy2d(input, target, weight=None, size_average=True):
     mask = target >= 0
     target = target[mask]
     target = torch.squeeze(target)
-    loss = F.nll_loss(log_p, target, weight=weight, size_average=False)
+    try:
+        loss = F.nll_loss(log_p, target, weight=weight, size_average=False)
+    except:
+        import traceback
+        traceback.print_exc()
+        import ipdb
+        ipdb.set_trace()
+        # log_p: 1x19x40x80
+        # target: Variable containing:[torch.cuda.LongTensor with no dimension]
     if size_average:
         loss /= mask.data.sum()
 

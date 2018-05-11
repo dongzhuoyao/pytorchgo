@@ -251,7 +251,7 @@ class Trainer_LSD(object):
             # (1) Discriminator updates
             lossD_src_real_s = cross_entropy2d(outD_src_real_s, domain_labels_src_real, size_average=self.size_average)
             lossD_src_fake_s = cross_entropy2d(outD_src_fake_s, domain_labels_src_fake, size_average=self.size_average)
-            lossD_src_real_c = cross_entropy2d(outD_src_real_c, label_forD, size_average=self.size_average)
+            lossD_src_real_c = cross_entropy2d(outD_src_real_c, label_forD, size_average=self.size_average)#TODO,buggy
             lossD_tgt_real = cross_entropy2d(outD_tgt_real_s, domain_labels_tgt_real, size_average=self.size_average)
             lossD_tgt_fake = cross_entropy2d(outD_tgt_fake_s, domain_labels_tgt_fake, size_average=self.size_average)           
             

@@ -231,6 +231,7 @@ class SYNTHIA(SegmentationData_BaseClass):
             })
         #self.files[split] = self.files[split][:100]
 
+
     def image_label_loader(self, img_path, label_path, data_size, random_crop=False):
         """
         Function for loading a single (image, label) pair
@@ -238,7 +239,7 @@ class SYNTHIA(SegmentationData_BaseClass):
             img_path: Image path to load
             label_path: Corresponding label path
             data_size: Required size. Aspect ratio needs to be 2:1 (Cityscapes aspect ratio)
-            random_crop: Boolean variable to indicate if random crop needs to be performed. 
+            random_crop: Boolean variable to indicate if random crop needs to be performed.
                          If False, centercrop is done
         Returns:
             Loaded image (numpy array)
@@ -261,6 +262,8 @@ class SYNTHIA(SegmentationData_BaseClass):
             label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
             label_[label_ > 18] = -1
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
+            print "synthia:"
+            print np.unique(label_)
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
             label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
@@ -426,6 +429,8 @@ class CityScapes(SegmentationData_BaseClass):
             y_rand = np.random.randint(low=0,high=im_.shape[1]-50-data_size[0]) #buffer of 50
             label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
+            print "cityscapes:"
+            print np.unique(label)
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
             im_ = np.array(im, dtype=np.float64)
