@@ -53,7 +53,7 @@ def cross_entropy2d(input, target, class_num=19, weight=None, size_average=True)
     # log_p: (n*h*w, c)
     log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
     try:
-        log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) < class_num]
+        log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) >= 0]
     except:
         import traceback
         traceback.print_exc()
@@ -61,7 +61,7 @@ def cross_entropy2d(input, target, class_num=19, weight=None, size_average=True)
     log_p = log_p.view(-1, c)
     
     # target: (n*h*w,)
-    mask = target < class_num
+    mask = target >= 0
     target = target[mask]
     target = torch.squeeze(target)
     try:

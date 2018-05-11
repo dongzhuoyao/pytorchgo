@@ -53,7 +53,7 @@ class SegmentationData_BaseClass(data.Dataset):
         img = img.transpose(2, 0, 1)
         
         if self.dset != 'cityscapes':
-            lbl[lbl >= CLASS_NUM] = 255
+            lbl[lbl >= CLASS_NUM] = -1
 
         print "processed:"
         print np.unique(lbl)
@@ -150,9 +150,11 @@ class SegmentationData_BaseClass(data.Dataset):
     def transform_label_forD(self, label_orig, sz):
             
         label = copy.deepcopy(label_orig.data.cpu().numpy())
+        label[label == -1] = CLASS_NUM # a little trick
         label = Image.fromarray(label.squeeze().astype(np.uint8))
         label = label.resize((sz[0],sz[1]),Image.NEAREST)
         label=np.array(label, dtype=np.int32)
+        label[label >= CLASS_NUM] = -1
         label = torch.from_numpy(label.copy()).long()
         label = label.cuda()
         return label
@@ -264,7 +266,7 @@ class SYNTHIA(SegmentationData_BaseClass):
             x_rand = np.random.randint(low=0,high=im_.shape[0]-data_size[1])
             y_rand = np.random.randint(low=0,high=im_.shape[1]-data_size[0])
             label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
-
+            label_[label_ >= CLASS_NUM] = -1
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
             print "synthia:"
             print np.unique(label_)
@@ -353,7 +355,7 @@ class GTA5(SegmentationData_BaseClass):
                 #check bounds for the labels/dimensions of the cropped frame
                 if min_val <= 18 and tmp.shape[0] == data_size[1] and tmp.shape[1] == data_size[0]:
                     done = True
-                    tmp[tmp > 18] = 255
+                    tmp[tmp > 18] = -1
                     label_ = tmp
                 if not done:
                     print label_.sum()

@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--l1_weight', type=float, default=1, help='L1 weight')
     parser.add_argument('--adv_weight', type=float, default=0.1, help='Adv_weight')
     parser.add_argument('--c_weight', type=float, default=0.1, help='C_weight')
-    parser.add_argument('--gpu', type=int, default=2)
+    parser.add_argument('--gpu', type=int, default=0)
     args = parser.parse_args()
     print(args)
 
