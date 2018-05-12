@@ -18,6 +18,7 @@ import torch.nn as nn
 from util_fns import get_parameters
 from utils import cross_entropy2d, step_scheduler
 
+CLASS_NUM = 19
 class Trainer_LSD(object):
 
     def __init__(self, cuda, model, netD, netG, optimizer, optimizerD,
@@ -123,6 +124,7 @@ class Trainer_LSD(object):
                 label_trues.append(lt)
                 label_preds.append(lp)
                 if len(visualizations) < num_vis:
+                    lt[lt >= CLASS_NUM] = -1# to make fcn.utils.visualize_segmentation work!
                     viz = fcn.utils.visualize_segmentation(
                         lbl_pred=lp, lbl_true=lt, img=img, n_class=self.n_class)
                     visualizations.append(viz)
