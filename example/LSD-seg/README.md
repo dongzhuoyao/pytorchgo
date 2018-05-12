@@ -40,3 +40,5 @@ To evaluate the trained model, run
 GTAV dataset preparation
 
     https://github.com/VisionLearningGroup/taskcv-2017-public/tree/master/segmentation
+    
+Cityscapes image should rescaled!!!
