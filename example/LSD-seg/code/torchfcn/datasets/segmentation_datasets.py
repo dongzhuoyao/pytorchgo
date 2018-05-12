@@ -8,6 +8,7 @@ from torch.utils import data
 import cv2
 import copy
 import random
+from tqdm import tqdm
 
 CLASS_NUM = 19
 class SegmentationData_BaseClass(data.Dataset):
@@ -51,17 +52,21 @@ class SegmentationData_BaseClass(data.Dataset):
         img = img[:,:,::-1]
         img -= self.mean_bgr
         img = img.transpose(2, 0, 1)
-        
-        if self.dset != 'cityscapes':
-            lbl[lbl >= CLASS_NUM] = 255
-
-        print "processed:"
-        print np.unique(lbl)
 
 
+        #if self.dset != 'cityscapes':
+            #mask = lbl > CLASS_NUM-1
+            #lbl[mask] = 255
+            #lbl[lbl>=CLASS_NUM] = 255, wrong writing!!!!
+
+
+        #print 'from main {}\n'.format(str(np.unique(lbl)))
+        if np.unique(lbl).shape[0]==1 and (np.unique(lbl))[0]==255:
+            raise
 
         img = torch.from_numpy(img.copy()).float() 
         lbl = torch.from_numpy(lbl.copy()).long()
+
 
         return img,lbl
 
@@ -233,7 +238,7 @@ class SYNTHIA(SegmentationData_BaseClass):
                 'img': img_file,
                 'lbl': lbl_file,
             })
-        #self.files[split] = self.files[split][:100]
+
 
 
     def image_label_loader(self, img_path, label_path, data_size, random_crop=False):
@@ -252,22 +257,33 @@ class SYNTHIA(SegmentationData_BaseClass):
         if data_size[0] != data_size[1]*2:
             raise ValueError('Specified aspect ratio not 2:1')
             
-        im = Image.open(img_path).convert('RGB')
-        label = Image.open(label_path)
-        w = im.size[0]
-        h = im.size[1]
+        im = cv2.imread(img_path,cv2.IMREAD_COLOR)
+        label = cv2.imread(label_path,cv2.IMREAD_GRAYSCALE)
+        MAX_TRY = 10
         #random crop only for train
         if self.split == 'train':
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
+            #print np.unique(label)
             #randomizing the left corner point to select a random crop
-            x_rand = np.random.randint(low=0,high=im_.shape[0]-data_size[1])
-            y_rand = np.random.randint(low=0,high=im_.shape[1]-data_size[0])
-            label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
+            #TODO,buggy, synthia_mapped_to_cityscapes/0006372.png
+            i = 0
+            while i < MAX_TRY:
+                x_rand = np.random.randint(low=0,high=im_.shape[0]-data_size[1])
+                y_rand = np.random.randint(low=0,high=im_.shape[1]-data_size[0])
+                label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
+                if np.unique(label_).shape[0]==1 and (np.unique(label_))[0]==255:
+                    i += 1
+                else:
+                    break
+
+            if i>=MAX_TRY:
+                print "current image is not normal, max try: {}".format(i)
+                raise
 
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
-            print "synthia:"
-            print np.unique(label_)
+            #print "synthia:"
+            #print np.unique(label_)
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
             label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
@@ -433,13 +449,33 @@ class CityScapes(SegmentationData_BaseClass):
             y_rand = np.random.randint(low=0,high=im_.shape[1]-50-data_size[0]) #buffer of 50
             label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
-            print "cityscapes:"
-            print np.unique(label)
+
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
 
         return im_, label_
-    
+
+
+
+if __name__ == '__main__':
+    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
+    def get_data(ds, idx):
+        data_file = ds.files[ds.split][idx]
+        img, label = ds.image_label_loader(data_file['img'], data_file['lbl'], ds.image_size, random_crop=True)
+        return img, label
+    dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[640, 320])
+    cs = CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True,
+                      image_size=[640, 320])
+
+    for i in range(len(dataset)):
+        img,label = get_data(dataset, i)
+        cs_img, cs_label= get_data(cs, i)
+        print np.unique(label)
+        cv2.imshow("source image",img.astype(np.uint8))
+        cv2.imshow("source label",visualize_label(label))
+        cv2.imshow("target image",cs_img.astype(np.uint8))
+        cv2.imshow("target label", visualize_label(cs_label))
+        cv2.waitKey(10000)
 

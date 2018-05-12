@@ -52,7 +52,7 @@ def main():
         batch_size=args.batchSize, shuffle=False, **kwargs)
     target_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='train', transform=True, image_size=image_size),
-        batch_size=1, shuffle=True)
+        batch_size=args.batchSize, shuffle=True)
 
     # Defining models
 
