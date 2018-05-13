@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+import torch
 import argparse
 import os
 import os.path as osp
 import fcn
 import numpy as np
 import skimage.io
-import torch
 from torch.autograd import Variable
 import torchfcn
 import tqdm
@@ -45,14 +45,11 @@ def compute_mIoU(pred_imgs, gt_imgs, json_path):
     num_classes = np.int(info['classes'])
     print('Num classes', num_classes)
     name_classes = np.array(info['label'], dtype=np.str)
-    mapping = np.array(info['label2train'], dtype=np.int)
-    palette = np.array(info['palette'], dtype=np.uint8)
     hist = np.zeros((num_classes, num_classes))
     
     for ind in range(len(gt_imgs)):
         pred = pred_imgs[ind]
         label = gt_imgs[ind]
-        label = label_mapping(label, mapping)
         if len(label.flatten()) != len(pred.flatten()):
             print('Skipping: len(gt) = {:d}, len(pred) = {:d}, {:s}, {:s}'.format(len(label.flatten()), len(pred.flatten()), gt_imgs[ind], pred_imgs[ind]))
             continue
@@ -78,8 +75,8 @@ def transform_label(label_orig, sz):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', required=True, help='Path to source dataset')
-    parser.add_argument('--model_file',default=None, help='Model path')
+    parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
+    parser.add_argument('--model_file',default='logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar', help='Model path')
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
@@ -91,7 +88,7 @@ def main():
     dset = 'cityscapes'
     val_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.CityScapes(dset, args.dataroot, split='val', transform=True, image_size=image_size),
-        batch_size=1, shuffle=True)
+        batch_size=1, shuffle=False)
     
     # Defining and loading model
     
@@ -119,6 +116,9 @@ def main():
     
     print('==> Evaluating with CityScapes validation')
     visualizations = []
+    from tensorpack.utils.stats import MIoUStatistics
+    stat = MIoUStatistics(n_class)
+
     label_trues, label_preds = [], []
     for batch_idx, (data, target) in tqdm.tqdm(enumerate(val_loader),
                                                total=len(val_loader),
@@ -138,6 +138,11 @@ def main():
 
         label_trues.append(target.data.cpu().numpy().squeeze())
         label_preds.append(lbl_pred_new.squeeze())
+        stat.feed(label_preds[-1], label_trues[-1])
+
+    print("tensorpack mIoU: {}".format(stat.mIoU))
+    print("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
+    print("tensorpack accuracy: {}".format(stat.accuracy))
 
     # Computing mIoU
     json_path = osp.join(args.dataroot, 'cityscapes_info.json')

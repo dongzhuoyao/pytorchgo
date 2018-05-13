@@ -60,9 +60,6 @@ class SegmentationData_BaseClass(data.Dataset):
             #lbl[lbl>=CLASS_NUM] = 255, wrong writing!!!!
 
 
-        #print 'from main {}\n'.format(str(np.unique(lbl)))
-        if np.unique(lbl).shape[0]==1 and (np.unique(lbl))[0]==255:
-            raise
 
         img = torch.from_numpy(img.copy()).float() 
         lbl = torch.from_numpy(lbl.copy()).long()
@@ -161,47 +158,7 @@ class SegmentationData_BaseClass(data.Dataset):
         label = torch.from_numpy(label.copy()).long()
         label = label.cuda()
         return label
-    
-    def image_label_loader(self, img_path, label_path, data_size, random_crop=False):
-        """
-        Function for loading a single (image, label) pair
-        Args:
-            img_path: Image path to load
-            label_path: Corresponding label path
-            data_size: Required size. Aspect ratio needs to be 2:1 (Cityscapes aspect ratio)
-            random_crop: Boolean variable to indicate if random crop needs to be performed. 
-                         If False, centercrop is done
-        Returns:
-            Loaded image (numpy array)
-        """
-        
-        if data_size[0] != data_size[1]*2:
-            raise ValueError('Specified aspect ratio not 2:1')
-            
-        im = Image.open(img_path).convert('RGB')
-        label = Image.open(label_path)
-        w = im.size[0]
-        h = im.size[1]
-        asp_rat = float(w)/float(h)
-        
-        if asp_rat>2:
-            wnew = h*2
-            hnew = h
-            start_ind = random.randint(0, w-wnew)
-            im = im.crop((start_ind, 0, wnew, hnew))
-            label = label.crop((start_ind, 0, wnew, hnew))
-        else:
-            wnew = w
-            hnew = w/2
-            start_ind = random.randint(0, h-hnew)
-            im = im.crop((0, start_ind, wnew, hnew))
-            label = label.crop((0, start_ind, wnew, hnew))
-             
-        im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
-        label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
-        im_ = np.array(im, dtype=np.float64)
-        label_= np.array(label, dtype=np.int32)
-        return im_, label_
+
 
 class SYNTHIA(SegmentationData_BaseClass):
     
@@ -257,8 +214,8 @@ class SYNTHIA(SegmentationData_BaseClass):
         if data_size[0] != data_size[1]*2:
             raise ValueError('Specified aspect ratio not 2:1')
             
-        im = cv2.imread(img_path,cv2.IMREAD_COLOR)
-        label = cv2.imread(label_path,cv2.IMREAD_GRAYSCALE)
+        im = Image.open(img_path).convert('RGB')
+        label = Image.open(label_path)
         MAX_TRY = 10
         #random crop only for train
         if self.split == 'train':
@@ -273,6 +230,7 @@ class SYNTHIA(SegmentationData_BaseClass):
                 y_rand = np.random.randint(low=0,high=im_.shape[1]-data_size[0])
                 label_ = label_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0]]
                 if np.unique(label_).shape[0]==1 and (np.unique(label_))[0]==255:
+                    print "blank feature map, recrop.."
                     i += 1
                 else:
                     break
