@@ -11,6 +11,9 @@ import random
 from tqdm import tqdm
 
 CLASS_NUM = 19
+
+DEBUG_NUM = 0
+
 class SegmentationData_BaseClass(data.Dataset):
 
     class_names = np.array([
@@ -42,7 +45,10 @@ class SegmentationData_BaseClass(data.Dataset):
         self.files = collections.defaultdict(list)
 
     def __len__(self):
-        return len(self.files[self.split])
+        if DEBUG_NUM:
+            return DEBUG_NUM
+        else:
+            return len(self.files[self.split])
 
     def __getitem__(self, index):
         data_file = self.files[self.split][index]
@@ -210,9 +216,7 @@ class SYNTHIA(SegmentationData_BaseClass):
         Returns:
             Loaded image (numpy array)
         """
-        
-        #if data_size[0] != data_size[1]*2:
-        #    raise ValueError('Specified aspect ratio not 2:1')
+
             
         im = Image.open(img_path).convert('RGB')
         label = Image.open(label_path)
@@ -240,8 +244,7 @@ class SYNTHIA(SegmentationData_BaseClass):
                 raise
 
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
-            #print "synthia:"
-            #print np.unique(label_)
+
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
             label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
@@ -424,7 +427,7 @@ if __name__ == '__main__':
         return img, label
     dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[640, 320])
     cs = CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True,
-                      image_size=[640, 320])
+                      image_size=[321, 321])
 
     for i in range(len(dataset)):
         img,label = get_data(dataset, i)

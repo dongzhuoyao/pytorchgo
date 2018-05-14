@@ -65,7 +65,7 @@ def cross_entropy2d(input, target, class_num=19, weight=None, size_average=True)
     target = target[mask]
     target = torch.squeeze(target)
     try:
-        loss = F.nll_loss(log_p, target, weight=weight, size_average=False)
+        loss = F.nll_loss(log_p, target, weight=weight, size_average=size_average)
     except:
         import traceback
         traceback.print_exc()
@@ -73,8 +73,8 @@ def cross_entropy2d(input, target, class_num=19, weight=None, size_average=True)
         ipdb.set_trace()
         # log_p: 1x19x40x80
         # target: Variable containing:[torch.cuda.LongTensor with no dimension]
-    if size_average:
-        loss /= mask.data.sum()
+    #if size_average:
+    #    loss /= mask.data.sum()
 
     return loss
 

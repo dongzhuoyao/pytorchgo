@@ -19,6 +19,7 @@ from util_fns import get_parameters
 from utils import cross_entropy2d, step_scheduler
 from pytorchgo.loss import MSE_Loss
 from pytorchgo.function import grad_reverse
+from pytorchgo.utils import logger
 
 CLASS_NUM = 19
 
@@ -27,7 +28,7 @@ class MyTrainer_ROAD(object):
     def __init__(self, cuda, model,model_fix, netD, optimizer, optimizerD,
                   train_loader, target_loader, val_loader,
                 max_iter, image_size,
-                size_average=False, interval_validate=None):
+                size_average=True, interval_validate=None):
         self.cuda = cuda
         self.model = model
         self.model_fix = model_fix
@@ -62,14 +63,11 @@ class MyTrainer_ROAD(object):
         """
         Function to validate a training model on the val split.
         """
-        
+        logger.info("start validation....")
         self.model.eval()
 
 
         val_loss = 0
-        num_vis = 8
-        visualizations = []
-        generations = []
         label_trues, label_preds = [], []
         
         # Evaluation
@@ -82,17 +80,16 @@ class MyTrainer_ROAD(object):
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=True), Variable(target)
             
-            score, fc7, pool4, pool3 = self.model(data)
-            outG = self.netG(fc7, pool4, pool3)
+            score = self.model(data)
+
 
             loss = cross_entropy2d(score, target, size_average=self.size_average)
             if np.isnan(float(loss.data[0])):
                 raise ValueError('loss is nan while validating')
             val_loss += float(loss.data[0]) / len(data)
 
-            imgs = data.data.cpu()
             lbl_pred = score.data.max(1)[1].cpu().numpy()[:, :, :]
-            lbl_true = target.data.cpu()
+            lbl_true = target.data.cpu().numpy()
 
             label_trues.append(lbl_true)
             label_preds.append(lbl_pred)
@@ -100,36 +97,15 @@ class MyTrainer_ROAD(object):
 
 
         # Computing the metrics
-        metrics = torchfcn.utils.label_accuracy_score(
+        acc, acc_cls, mean_iu,_ = torchfcn.utils.label_accuracy_score(
             label_trues, label_preds, self.n_class)
         val_loss /= len(self.val_loader)
 
-
-        #TODO LOG
-        """
-        # Saving the label visualizations and generations
-        out = osp.join(self.out, 'visualization_viz')
-        if not osp.exists(out):
-            os.makedirs(out)
-        out_file = osp.join(out, 'iter%012d_labelmap.jpg' % self.iteration)
-        scipy.misc.imsave(out_file, fcn.utils.get_tile_image(visualizations))
-        out_file = osp.join(out, 'iter%012d_generations.jpg' % self.iteration)
-        scipy.misc.imsave(out_file, fcn.utils.get_tile_image(generations))
-
-        # Logging
-        with open(osp.join(self.out, 'log.csv'), 'a') as f:
-         elapsed_time = \
-             datetime.datetime.now(pytz.timezone('Asia/Tokyo')) - \
-             self.timestamp_start
-         log = [self.epoch, self.iteration] + [''] * 5 + \
-               [val_loss] + list(metrics) + [elapsed_time]
-         log = map(str, log)
-         f.write(','.join(log) + '\n')
-         """
+        logger.info("validation mIoU = {}".format(mean_iu))
 
 
-        # Saving the models
-        mean_iu = metrics[2]
+
+
         is_best = mean_iu > self.best_mean_iu
         if is_best:
             self.best_mean_iu = mean_iu
@@ -140,10 +116,10 @@ class MyTrainer_ROAD(object):
          'optim_state_dict': self.optim.state_dict(),
          'model_state_dict': self.model.state_dict(),
          'best_mean_iu': self.best_mean_iu,
-        }, osp.join(self.out, 'checkpoint.pth.tar'))
+        }, osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'))
         if is_best:
-            shutil.copy(osp.join(self.out, 'checkpoint.pth.tar'),
-                     osp.join(self.out, 'model_best.pth.tar'))
+            shutil.copy(osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'),
+                     osp.join(logger.get_logger_dir(), 'model_best.pth.tar'))
 
     
     def train_epoch(self):
@@ -195,9 +171,12 @@ class MyTrainer_ROAD(object):
             distill_loss = MSE_Loss(score,tscore)
 
             self.optim.zero_grad()
-            total_loss = l_seg + distill_loss
+            total_loss = l_seg + 0.1*distill_loss
             total_loss.backward(retain_graph=True)
             self.optim.step()
+
+            logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0],distill_loss.data[0],total_loss.data[0]))
+
 
 
 
@@ -210,7 +189,8 @@ class MyTrainer_ROAD(object):
             if np.isnan(float(total_loss.data[0])):
                 raise ValueError('total_loss is nan while training')
 
-           
+
+            """
             # Computing metrics for logging
             metrics = []
             lbl_pred = score.data.max(1)[1].cpu().numpy()[:, :, :]
@@ -221,17 +201,6 @@ class MyTrainer_ROAD(object):
                         [lt], [lp], n_class=self.n_class)
                 metrics.append((acc, acc_cls, mean_iu, fwavacc))
             metrics = np.mean(metrics, axis=0)
-
-            #TODO LOG
-            """
-            with open(osp.join(self.out, 'log.csv'), 'a') as f:
-                elapsed_time = (
-                    datetime.datetime.now(pytz.timezone('Asia/Tokyo')) -
-                    self.timestamp_start).total_seconds()
-                log = [self.epoch, self.iteration] + [lossF.data[0]] + \
-                    metrics.tolist() + [''] * 5 + [elapsed_time]
-                log = map(str, log)
-                f.write(','.join(log) + '\n')
             """
 
             if self.iteration >= self.max_iter:
