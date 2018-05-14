@@ -313,8 +313,9 @@ if __name__ == '__main__':
     parser.add_argument('--num-classes', default=16, type=int, metavar='N',
                         help='Number of keypoints')
     # Training strategy
-    parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+    parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
+    #4 workers will be stuck!!!  https://github.com/pytorch/pytorch/issues/1355
     parser.add_argument('--epochs', default=90, type=int, metavar='N',
                         help='number of total epochs to run')
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N',

@@ -172,9 +172,25 @@ class MyTrainer_ROAD(object):
             total_loss.backward(retain_graph=True)
             self.optim.step()
 
-            logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0],distill_loss.data[0],total_loss.data[0]))
+            if self.iteration%50 == 0:
+                logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0],distill_loss.data[0],total_loss.data[0]))
 
-            no_0_0 = 1
+            def get_grid(feat):
+                w = self.image_size_forD
+                n_0_0 = feat[:w/3, :w/3]
+                n_0_1 = feat[:w/3, w/3:w*2/3]
+                n_0_2 = feat[:w/3, w*2/3:]
+
+                n_1_0 = feat[w/3:w*2/3, :w/3]
+                n_1_1 = feat[w/3:w*2/3, w/3:w*2/3]
+                n_1_2 = feat[w/3:w*2/3, w*2/3:]
+
+                n_2_0 = feat[w*2/3:, :w/3]
+                n_2_1 = feat[w*2/3:, w/3:w*2/3]
+                n_2_2 = feat[w*2/3:, w*2/3:]
+
+
+
 
 
             #TODO, GRL layer
