@@ -154,23 +154,23 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = Variable(source_data), Variable(source_labels)
             target_data = Variable(target_data)
 
-
-            #TODO,split to 3x3
-            # Source domain 
+            # TODO,split to 3x3
+            # Source domain
             score = self.model(source_data)
             l_seg = cross_entropy2d(score, source_labels, size_average=self.size_average)
 
-            #outD_src_real_s, outD_src_real_c = self.netD(score)
-            
+            # outD_src_real_s, outD_src_real_c = self.netD(score)
+
             # target domain
-            tscore= self.model_fix(target_data)
-            #outD_tgt_fake_s, outD_tgt_fake_c = self.netD(tscore)
+            seg_target_score = self.model(target_data)
+            modelfix_target_score = self.model_fix(target_data)
+            # outD_tgt_fake_s, outD_tgt_fake_c = self.netD(tscore)
 
 
-            distill_loss = MSE_Loss(score,tscore)
+            distill_loss = MSE_Loss(seg_target_score, modelfix_target_score)
 
             self.optim.zero_grad()
-            total_loss = l_seg + 0.1*distill_loss
+            total_loss = l_seg + 0.1 * distill_loss
             total_loss.backward(retain_graph=True)
             self.optim.step()
 

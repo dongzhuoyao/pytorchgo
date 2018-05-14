@@ -43,8 +43,6 @@ class MyTrainer_ROAD(object):
         self.image_size_forD = tuple(image_size)
         self.n_class = len(self.train_loader.dataset.class_names)
 
-        self.timestamp_start = \
-            datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
         self.size_average = size_average
 
         if interval_validate is None:
@@ -64,7 +62,6 @@ class MyTrainer_ROAD(object):
         """
         logger.info("start validation....")
         self.model.eval()
-
 
         val_loss = 0
         label_trues, label_preds = [], []
@@ -163,11 +160,12 @@ class MyTrainer_ROAD(object):
             #outD_src_real_s, outD_src_real_c = self.netD(score)
             
             # target domain
-            tscore= self.model_fix(target_data)
+            seg_target_score = self.model(target_data)
+            modelfix_target_score= self.model_fix(target_data)
             #outD_tgt_fake_s, outD_tgt_fake_c = self.netD(tscore)
 
 
-            distill_loss = MSE_Loss(score,tscore)
+            distill_loss = MSE_Loss(seg_target_score,modelfix_target_score)
 
             self.optim.zero_grad()
             total_loss = l_seg + 0.1*distill_loss
@@ -176,13 +174,13 @@ class MyTrainer_ROAD(object):
 
             logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0],distill_loss.data[0],total_loss.data[0]))
 
+            no_0_0 = 1
 
-
-
-            # TODO, spatial loss
 
             #TODO, GRL layer
             #grad_reverse()
+
+            #TODO, spatial loss
 
             
             if np.isnan(float(total_loss.data[0])):
