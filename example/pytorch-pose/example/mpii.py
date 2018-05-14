@@ -24,7 +24,7 @@ import pose.datasets as datasets
 
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="5"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
 model_names = sorted(name for name in models.__dict__

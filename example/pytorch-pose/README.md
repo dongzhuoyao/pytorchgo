@@ -11,8 +11,11 @@ Some codes for data preparation and augmentation are brought from the [Stacked h
 - Training/testing results visualization
 
 ## Installation
-1. PyTorch (>= 0.2.0): Please follow the [installation instruction of PyTorch](http://pytorch.org/). Note that the code is developed with Python2 and has not been tested with Python3 yet.
-
+1. PyTorch (== 0.2.0): Please follow the [installation instruction of PyTorch](http://pytorch.org/). Note that the code is developed with Python2 and has not been tested with Python3 yet.
+    ```
+    pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post2-cp27-cp27mu-manylinux1_x86_64.whl -i http://pypi.doubanio.com/simple/ --trusted-host pypi.doubanio.com
+    ```
+    
 2. Clone the repository with submodule
    ```
    git clone --recursive https://github.com/bearpaw/pytorch-pose.git
