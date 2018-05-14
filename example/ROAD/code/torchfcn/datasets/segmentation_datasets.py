@@ -412,6 +412,7 @@ class CityScapes(SegmentationData_BaseClass):
 
         else:
             im = im.resize((data_size[0], data_size[1]), Image.LANCZOS)
+            label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
 
