@@ -10,13 +10,14 @@ from util_fns import weights_init
 from pytorchgo.utils import logger
 from torchfcn.trainer_ROAD_distill import MyTrainer_ROAD
 class_num = 19
+image_size=[641,641]#[640, 320]
 
 
 def main():
     logger.auto_set_dir()
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/ROAD/data', help='Path to source dataset')
-    parser.add_argument('--batchSize', type=int, default=3, help='input batch size')
+    parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
     parser.add_argument('--num_iters', type=int, default=100000, help='Number of training iterations')
     parser.add_argument('--optimizer', type=str, default='Adam', help='Optimizer to use | SGD, Adam')
     parser.add_argument('--lr', type=float, default=1.0e-5, help='learning rate')
@@ -40,7 +41,7 @@ def main():
 
     # Defining data loaders
     
-    image_size=[321,321]#[640, 320]
+
     kwargs = {'num_workers': 4, 'pin_memory': True,'drop_last':True} if cuda else {}
     train_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.SYNTHIA('SYNTHIA', args.dataroot, split='train', transform=True, image_size=image_size),
