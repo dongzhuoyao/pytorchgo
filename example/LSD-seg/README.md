@@ -1,5 +1,7 @@
 # README #
 
+**my running result is 28% mIoU**
+
 Code for Semantic Segmentation for Unsupervised Domain Adaptation
 
 Prerequisites:
