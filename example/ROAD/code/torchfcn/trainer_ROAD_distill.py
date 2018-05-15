@@ -41,7 +41,7 @@ class MyTrainer_ROAD(object):
         self.target_loader = target_loader
         self.val_loader = val_loader
 
-        self.image_size_forD = tuple(image_size)
+        self.image_size = tuple(image_size)
         self.n_class = len(self.train_loader.dataset.class_names)
 
         self.size_average = size_average
@@ -118,26 +118,29 @@ class MyTrainer_ROAD(object):
         self.model.train()
         self.netD.train()
 
-        iters_per_epoch = min(len(self.target_loader), len(self.train_loader))
-        iters_per_epoch = iters_per_epoch - (iters_per_epoch%self.batch_size)
+
         for batch_idx, (datas, datat) in tqdm.tqdm(
                 enumerate(itertools.izip(self.train_loader, self.target_loader)),
-                total=iters_per_epoch,
+                total=self.iters_per_epoch,
                 desc='Train epoch = %d' % self.epoch, ncols=80, leave=False):
 
             source_data, source_labels = datas
             target_data, __ = datat
+
+
+
+            #continue
             # source =0, target = 1
-            source_data_forD = torch.zeros((source_data.size()[0], 3, self.image_size_forD[1], self.image_size_forD[0]))
-            target_data_forD = torch.zeros((target_data.size()[0], 3, self.image_size_forD[1], self.image_size_forD[0]))
+            source_data_forD = torch.zeros((self.batch_size, 3, self.image_size[1], self.image_size[0]))
+            target_data_forD = torch.zeros((self.batch_size, 3, self.image_size[1], self.image_size[0]))
 
             # We pass the unnormalized data to the discriminator. So, the GANs produce images without data normalization
             try:
 
-                for i in range(source_data.size()[0]):
-                    source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size_forD,
+                for i in range(self.batch_size):
+                    source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size,
                                                                                    resize=False, mean_add=True)
-                    target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size_forD,
+                    target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size,
                                                                                    resize=False, mean_add=True)
             except:
                 import traceback
@@ -145,7 +148,7 @@ class MyTrainer_ROAD(object):
                 import ipdb
                 ipdb.set_trace()
 
-            iteration = batch_idx + self.epoch * min(len(self.train_loader), len(self.target_loader))
+            iteration = batch_idx + self.epoch * self.iters_per_epoch
             self.iteration = iteration
 
             if self.cuda:
@@ -175,7 +178,7 @@ class MyTrainer_ROAD(object):
             total_loss.backward(retain_graph=True)
             self.optim.step()
 
-            if self.iteration % 50 == 0:
+            if self.iteration % 1 == 0:
                 logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
                                                                                total_loss.data[0]))
 
@@ -216,12 +219,20 @@ class MyTrainer_ROAD(object):
         Function to train our model. Calls train_epoch function every epoch.
         Also performs learning rate annhealing
         """
-        max_epoch = int(math.ceil(self.max_iter / min(len(self.train_loader), len(self.target_loader))))
+        logger.info("train_loader length: {}".format(len(self.train_loader)))
+        logger.info("target_loader length: {}".format(len(self.target_loader)))
+        iters_per_epoch = min(len(self.target_loader), len(self.train_loader))
+
+        self.iters_per_epoch = iters_per_epoch - (iters_per_epoch % self.batch_size) - 1
+
+        logger.info("iters_per_epoch :{}".format(self.iters_per_epoch))
+        max_epoch = int(math.ceil(self.max_iter / self.iters_per_epoch))
         for epoch in tqdm.trange(self.epoch, max_epoch,
                                  desc='Train', ncols=80):
             self.epoch = epoch
             if self.epoch % 8 == 0 and self.epoch > 0:
                 self.optim = step_scheduler(self.optim, self.epoch)
+
 
             self.train_epoch()
             if self.iteration >= self.max_iter:
