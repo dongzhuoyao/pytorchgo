@@ -27,7 +27,7 @@ CLASS_NUM = 19
 class MyTrainer_ROAD(object):
     def __init__(self, cuda, model, model_fix, netD, optimizer, optimizerD,
                  train_loader, target_loader, val_loader,
-                 max_iter, image_size,
+                 max_iter, image_size,batch_size,
                  size_average=True, interval_validate=None):
         self.cuda = cuda
         self.model = model
@@ -35,6 +35,7 @@ class MyTrainer_ROAD(object):
         self.netD = netD
         self.optim = optimizer
         self.optimD = optimizerD
+        self.batch_size = batch_size
 
         self.train_loader = train_loader
         self.target_loader = target_loader
@@ -117,9 +118,11 @@ class MyTrainer_ROAD(object):
         self.model.train()
         self.netD.train()
 
+        iters_per_epoch = min(len(self.target_loader), len(self.train_loader))
+        iters_per_epoch = iters_per_epoch - (iters_per_epoch%self.batch_size)
         for batch_idx, (datas, datat) in tqdm.tqdm(
                 enumerate(itertools.izip(self.train_loader, self.target_loader)),
-                total=min(len(self.target_loader), len(self.train_loader)),
+                total=iters_per_epoch,
                 desc='Train epoch = %d' % self.epoch, ncols=80, leave=False):
 
             source_data, source_labels = datas
@@ -129,11 +132,18 @@ class MyTrainer_ROAD(object):
             target_data_forD = torch.zeros((target_data.size()[0], 3, self.image_size_forD[1], self.image_size_forD[0]))
 
             # We pass the unnormalized data to the discriminator. So, the GANs produce images without data normalization
-            for i in range(source_data.size()[0]):
-                source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size_forD,
-                                                                               resize=False, mean_add=True)
-                target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size_forD,
-                                                                               resize=False, mean_add=True)
+            try:
+
+                for i in range(source_data.size()[0]):
+                    source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size_forD,
+                                                                                   resize=False, mean_add=True)
+                    target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size_forD,
+                                                                                   resize=False, mean_add=True)
+            except:
+                import traceback
+                traceback.print_exc()
+                import ipdb
+                ipdb.set_trace()
 
             iteration = batch_idx + self.epoch * min(len(self.train_loader), len(self.target_loader))
             self.iteration = iteration

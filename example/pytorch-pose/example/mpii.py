@@ -22,6 +22,12 @@ from pose.utils.transforms import fliplr, flip_back
 import pose.models as models
 import pose.datasets as datasets
 
+
+import cv2
+cv2.setNumThreads(0)
+#from multiprocessing import set_start_method
+#set_start_method('spawn')
+
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="2"
@@ -100,6 +106,9 @@ def main(args):
 
     lr = args.lr
     for epoch in range(args.start_epoch, args.epochs):
+        from time import sleep
+        sleep(2)
+
         lr = adjust_learning_rate(optimizer, epoch, lr, args.schedule, args.gamma)
         print('\nEpoch: %d | LR: %.8f' % (epoch + 1, lr))
 
@@ -313,9 +322,9 @@ if __name__ == '__main__':
     parser.add_argument('--num-classes', default=16, type=int, metavar='N',
                         help='Number of keypoints')
     # Training strategy
-    parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
+    parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
-    #4 workers will be stuck!!!  https://github.com/pytorch/pytorch/issues/1355
+    #2 ro 4 workers will be stuck!!!  https://github.com/pytorch/pytorch/issues/1355
     parser.add_argument('--epochs', default=90, type=int, metavar='N',
                         help='number of total epochs to run')
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N',

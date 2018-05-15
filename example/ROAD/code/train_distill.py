@@ -41,7 +41,7 @@ def main():
     # Defining data loaders
     
     image_size=[321,321]#[640, 320]
-    kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
+    kwargs = {'num_workers': 4, 'pin_memory': True,'drop_last':True} if cuda else {}
     train_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.SYNTHIA('SYNTHIA', args.dataroot, split='train', transform=True, image_size=image_size),
         batch_size=args.batchSize, shuffle=True, **kwargs)
@@ -120,6 +120,7 @@ def main():
         target_loader=target_loader,
         val_loader=val_loader,
         max_iter=args.num_iters,
+        batch_size=args.batchSize,
         interval_validate=args.interval_validate,
         image_size=image_size
     )
