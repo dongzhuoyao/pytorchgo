@@ -24,8 +24,8 @@ headboxes_src = dict['headboxes_src']
 
 
 #predictions
-model_name = 'hg4'
-predfile = 'checkpoint/mpii/' + model_name + '/preds_valid.mat'
+model_name = 'hg8'
+predfile = 'checkpoint/mpii/' + model_name + '/preds_best.mat'
 preds = loadmat(predfile)['preds']
 pos_pred_src = transpose(preds, [1, 2, 0])
 
