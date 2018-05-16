@@ -21,6 +21,14 @@ best_prec1 = 0
 def main():
     global args, best_prec1
     args = parser.parse_args()
+    args.dataset = "something"
+    args.modality = "RGB"
+    args.arch = "BNInception"
+    args.num_segments = 3
+    args.consensus_type = "TRN"
+    args.batch_size = 64
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+
     check_rootfolders()
 
     categories, args.train_list, args.val_list, args.root_path, prefix = datasets_video.return_dataset(args.dataset, args.modality)
