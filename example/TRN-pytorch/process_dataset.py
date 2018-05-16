@@ -9,7 +9,7 @@
 #
 import os
 import pdb
-dataset_name = 'something-something-v1' # 'jester-v1'
+dataset_name = 'data/something-something-v1' # 'jester-v1'
 with open('%s-labels.csv'% dataset_name) as f:
     lines = f.readlines()
 categories = []
