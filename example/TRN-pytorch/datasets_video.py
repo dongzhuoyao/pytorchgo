@@ -4,20 +4,20 @@ import torchvision
 import torchvision.datasets as datasets
 
 
-ROOT_DATASET= 'video_datasets'
+ROOT_DATASET= ''
 
 def return_something(modality):
-    filename_categories = 'something/category.txt'
+    filename_categories = 'data/something-something-v1/category.txt'
     if modality == 'RGB':
-        root_data = '/data/vision/oliva/scratch/bzhou/video/something-something/20bn-something-something-v1'
-        filename_imglist_train = 'something/train_videofolder.txt'
-        filename_imglist_val = 'something/val_videofolder.txt'
+        root_data = 'data/something-something-v1/something-something-v1'
+        filename_imglist_train = 'data/something-something-v1/train_videofolder.txt'
+        filename_imglist_val = 'data/something-something-v1/val_videofolder.txt'
         prefix = '{:05d}.jpg'
     elif modality == 'Flow':
         #root_data = '/data/vision/oliva/scratch/bzhou/video/something-something/flow'
-        root_data = '/mnt/localssd1/bzhou/something/flow'
-        filename_imglist_train = 'something/train_videofolder.txt'
-        filename_imglist_val = 'something/val_videofolder.txt'
+        root_data = '/mnt/localssd1/bzhou/something/flow' #TODO
+        filename_imglist_train = 'data/something-something-v1/train_videofolder.txt'
+        filename_imglist_val = 'data/something-something-v1/val_videofolder.txt'
         prefix = '{:05d}.jpg'
     else:
         print('no such modality:'+modality)
