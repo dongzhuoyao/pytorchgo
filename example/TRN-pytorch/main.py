@@ -14,11 +14,12 @@ from models import TSN
 from transforms import *
 from opts import parser
 import datasets_video
-
+from pytorchgo.utils import logger
 
 best_prec1 = 0
 
 def main():
+    logger.auto_set_dir()
     global args, best_prec1
     args = parser.parse_args()
     args.dataset = "something"
@@ -29,7 +30,9 @@ def main():
     args.batch_size = 100
     os.environ['CUDA_VISIBLE_DEVICES'] = '3,5'
 
-    check_rootfolders()
+    args.root_log = logger.get_logger_dir()
+    args.root_model = logger.get_logger_dir()
+    args.root_output = logger.get_logger_dir()
 
     categories, args.train_list, args.val_list, args.root_path, prefix = datasets_video.return_dataset(args.dataset, args.modality)
     num_class = len(categories)
@@ -116,8 +119,8 @@ def main():
         raise ValueError("Unknown loss type")
 
     for group in policies:
-        print(('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
-            group['name'], len(group['params']), group['lr_mult'], group['decay_mult'])))
+        logger.info('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
+            group['name'], len(group['params']), group['lr_mult'], group['decay_mult']))
 
     optimizer = torch.optim.SGD(policies,
                                 args.lr,
@@ -193,7 +196,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log):
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)
             if total_norm > args.clip_gradient:
-                print("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
+                logger.info("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
 
         optimizer.step()
 
@@ -210,7 +213,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log):
                     'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                         epoch, i, len(train_loader), batch_time=batch_time,
                         data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr']))
-            print(output)
+            logger.info(output)
             log.write(output + '\n')
             log.flush()
 
@@ -254,15 +257,15 @@ def validate(val_loader, model, criterion, iter, log):
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    i, len(val_loader), batch_time=batch_time, loss=losses,
                    top1=top1, top5=top5))
-            print(output)
+            logger.info(output)
             log.write(output + '\n')
             log.flush()
 
     output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
           .format(top1=top1, top5=top5, loss=losses))
-    print(output)
+    logger.info(output)
     output_best = '\nBest Prec@1: %.3f'%(best_prec1)
-    print(output_best)
+    logger.info(output_best)
     log.write(output + ' ' + output_best + '\n')
     log.flush()
 
@@ -317,13 +320,7 @@ def accuracy(output, target, topk=(1,)):
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
 
-def check_rootfolders():
-    """Create log and model folder"""
-    folders_util = [args.root_log, args.root_model, args.root_output]
-    for folder in folders_util:
-        if not os.path.exists(folder):
-            print('creating folder ' + folder)
-            os.mkdir(folder)
+
 
 
 if __name__ == '__main__':
