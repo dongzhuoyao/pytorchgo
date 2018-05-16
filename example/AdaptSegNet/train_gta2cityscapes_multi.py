@@ -20,6 +20,7 @@ from model.discriminator import FCDiscriminator
 from utils.loss import CrossEntropy2d
 from dataset.gta5_dataset import GTA5DataSet
 from dataset.cityscapes_dataset import cityscapesDataSet
+from pytorchgo.utils import logger
 
 IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
 
@@ -212,8 +213,7 @@ def main():
     model_D2.train()
     model_D2.cuda(args.gpu)
 
-    if not os.path.exists(args.snapshot_dir):
-        os.makedirs(args.snapshot_dir)
+
 
     trainloader = data.DataLoader(
         GTA5DataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.iter_size * args.batch_size,
@@ -388,24 +388,25 @@ def main():
         optimizer_D1.step()
         optimizer_D2.step()
 
-        print('exp = {}'.format(args.snapshot_dir))
+        print('exp = {}'.format(logger.get_logger_dir()))
         print(
         'iter = {0:8d}/{1:8d}, loss_seg1 = {2:.3f} loss_seg2 = {3:.3f} loss_adv1 = {4:.3f}, loss_adv2 = {5:.3f} loss_D1 = {6:.3f} loss_D2 = {7:.3f}'.format(
             i_iter, args.num_steps, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
 
         if i_iter >= args.num_steps_stop - 1:
             print 'save model ...'
-            torch.save(model.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(args.num_steps) + '.pth'))
-            torch.save(model_D1.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(args.num_steps) + '_D1.pth'))
-            torch.save(model_D2.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(args.num_steps) + '_D2.pth'))
+            torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '.pth'))
+            torch.save(model_D1.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '_D1.pth'))
+            torch.save(model_D2.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '_D2.pth'))
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             print 'taking snapshot ...'
-            torch.save(model.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(i_iter) + '.pth'))
-            torch.save(model_D1.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(i_iter) + '_D1.pth'))
-            torch.save(model_D2.state_dict(), osp.join(args.snapshot_dir, 'GTA5_' + str(i_iter) + '_D2.pth'))
+            torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '.pth'))
+            torch.save(model_D1.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '_D1.pth'))
+            torch.save(model_D2.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '_D2.pth'))
 
 
 if __name__ == '__main__':
+    logger.auto_set_dir()
     main()
