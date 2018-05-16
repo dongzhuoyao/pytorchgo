@@ -28,8 +28,7 @@ MODEL = 'DeepLab'
 BATCH_SIZE = 1
 ITER_SIZE = 1
 NUM_WORKERS = 4
-DATA_DIRECTORY = './data/GTA5'
-DATA_LIST_PATH = './dataset/gta5_list/train.txt'
+
 IGNORE_LABEL = 255
 INPUT_SIZE = '1280,720'
 DATA_DIRECTORY_TARGET = './data/cityscapes'
@@ -55,6 +54,17 @@ LAMBDA_ADV_TARGET2 = 0.001
 
 TARGET = 'cityscapes'
 SET = 'train'
+
+SOURCE_DATA = "GTA5"
+
+if SOURCE_DATA == "GTA5":
+    DATA_DIRECTORY = './data/GTA5'
+    DATA_LIST_PATH = './dataset/gta5_list/train.txt'
+elif SOURCE_DATA == "SYNTHIA":
+    DATA_DIRECTORY = './data/GTA5'
+    DATA_LIST_PATH = './dataset/gta5_list/train.txt'
+else:
+    raise
 
 
 def get_arguments():
@@ -213,15 +223,24 @@ def main():
     model_D2.train()
     model_D2.cuda(args.gpu)
 
+    if SOURCE_DATA == "GTA5":
+        trainloader = data.DataLoader(
+            GTA5DataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.iter_size * args.batch_size,
+                        crop_size=input_size,
+                        scale=args.random_scale, mirror=args.random_mirror, mean=IMG_MEAN),
+            batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
+        trainloader_iter = enumerate(trainloader)
+    elif SOURCE_DATA == "SYNTHIA":
+        trainloader = data.DataLoader(
+            GTA5DataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.iter_size * args.batch_size,
+                        crop_size=input_size,
+                        scale=args.random_scale, mirror=args.random_mirror, mean=IMG_MEAN),
+            batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
+        trainloader_iter = enumerate(trainloader)
+    else:
+        raise
 
 
-    trainloader = data.DataLoader(
-        GTA5DataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.iter_size * args.batch_size,
-                    crop_size=input_size,
-                    scale=args.random_scale, mirror=args.random_mirror, mean=IMG_MEAN),
-        batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
-
-    trainloader_iter = enumerate(trainloader)
 
     targetloader = data.DataLoader(cityscapesDataSet(args.data_dir_target, args.data_list_target,
                                                      max_iters=args.num_steps * args.iter_size * args.batch_size,
@@ -388,23 +407,23 @@ def main():
         optimizer_D1.step()
         optimizer_D2.step()
 
-        print('exp = {}'.format(logger.get_logger_dir()))
-        print(
+        logger.info(
         'iter = {0:8d}/{1:8d}, loss_seg1 = {2:.3f} loss_seg2 = {3:.3f} loss_adv1 = {4:.3f}, loss_adv2 = {5:.3f} loss_D1 = {6:.3f} loss_D2 = {7:.3f}'.format(
             i_iter, args.num_steps, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
 
         if i_iter >= args.num_steps_stop - 1:
-            print 'save model ...'
-            torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '.pth'))
-            torch.save(model_D1.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '_D1.pth'))
-            torch.save(model_D2.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(args.num_steps) + '_D2.pth'))
+            logger.info('save model ...')
+            print "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps)
+            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
-            print 'taking snapshot ...'
-            torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '.pth'))
-            torch.save(model_D1.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '_D1.pth'))
-            torch.save(model_D2.state_dict(), osp.join(logger.get_logger_dir(), 'GTA5_' + str(i_iter) + '_D2.pth'))
+            logger.info('taking snapshot ...')
+            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
 
 
 if __name__ == '__main__':
