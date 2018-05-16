@@ -26,8 +26,8 @@ def main():
     args.arch = "BNInception"
     args.num_segments = 3
     args.consensus_type = "TRN"
-    args.batch_size = 64
-    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+    args.batch_size = 100
+    os.environ['CUDA_VISIBLE_DEVICES'] = '3,5'
 
     check_rootfolders()
 
