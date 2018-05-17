@@ -46,9 +46,6 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.SYNTHIA('SYNTHIA', args.dataroot, split='train', transform=True, image_size=image_size),
         batch_size=args.batchSize, shuffle=True, **kwargs)
-    #val_loader = torch.utils.data.DataLoader(
-    #    torchfcn.datasets.SYNTHIA('SYNTHIA', args.dataroot, split='val', transform=True, image_size=image_size),
-    #    batch_size=args.batchSize, shuffle=False, **kwargs)
 
     val_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=image_size),

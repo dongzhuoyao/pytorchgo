@@ -135,21 +135,14 @@ class MyTrainer_ROAD(object):
             target_data_forD = torch.zeros((self.batch_size, 3, self.image_size[1], self.image_size[0]))
 
             # We pass the unnormalized data to the discriminator. So, the GANs produce images without data normalization
-            try:
+            for i in range(self.batch_size):
+                source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size,
+                                                                               resize=False, mean_add=True)
+                target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size,
+                                                                               resize=False, mean_add=True)
 
-                for i in range(self.batch_size):
-                    source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size,
-                                                                                   resize=False, mean_add=True)
-                    target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size,
-                                                                                   resize=False, mean_add=True)
-            except:
-                import traceback
-                traceback.print_exc()
-                import ipdb
-                ipdb.set_trace()
+            self.iteration = batch_idx + self.epoch * self.iters_per_epoch
 
-            iteration = batch_idx + self.epoch * self.iters_per_epoch
-            self.iteration = iteration
 
             if self.cuda:
                 source_data, source_labels = source_data.cuda(), source_labels.cuda()

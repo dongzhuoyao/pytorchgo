@@ -3,6 +3,7 @@ from torch import nn
 from ops.basic_ops import ConsensusModule, Identity
 from transforms import *
 from torch.nn.init import normal, constant
+from pytorchgo.utils import  logger
 
 import TRNmodule
 
@@ -29,7 +30,7 @@ class TSN(nn.Module):
         else:
             self.new_length = new_length
         if print_spec == True:
-            print(("""
+            logger.info(("""
     Initializing TSN with base model: {}.
     TSN Configurations:
         input_modality:     {}

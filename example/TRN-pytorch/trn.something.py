@@ -46,7 +46,7 @@ def main():
     # ========================= Learning Configs ==========================
     parser.add_argument('--epochs', default=120, type=int, metavar='N',
                         help='number of total epochs to run')
-    parser.add_argument('-b', '--batch-size', default=128, type=int,
+    parser.add_argument('-b', '--batch_size', default=128, type=int,
                         metavar='N', help='mini-batch size (default: 256)')
     parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
                         metavar='LR', help='initial learning rate')
@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--snapshot_pref', type=str, default="")
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                         help='manual epoch number (useful on restarts)')
-    parser.add_argument('--gpu', type=str, default='5')
+    parser.add_argument('--gpu', type=str, default='4')
     parser.add_argument('--flow_prefix', default="", type=str)
     parser.add_argument('--root_log', type=str, default='log')
     parser.add_argument('--root_model', type=str, default='model')
@@ -86,6 +86,7 @@ def main():
 
     args.consensus_type = "TRN"
     args.batch_size = 100
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
     args.root_log = logger.get_logger_dir()
@@ -113,7 +114,11 @@ def main():
     policies = model.get_optim_policies()
     train_augmentation = model.get_augmentation()
 
-    model = torch.nn.DataParallel(model, device_ids=[int(id) for id in args.gpu.split(',')]).cuda()
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)#TODO, , device_ids=[int(id) for id in args.gpu.split(',')]
+
+    if torch.cuda.is_available():
+       model.cuda()
 
     if args.resume:
         if os.path.isfile(args.resume):
@@ -219,7 +224,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log):
     top5 = AverageMeter()
 
     if args.no_partialbn:
-        model.module.partialBN(False)
+        model.module.partialBN(False)#only data_parellel exists model.module object!!!
     else:
         model.module.partialBN(True)
 
