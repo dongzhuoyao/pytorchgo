@@ -17,6 +17,53 @@ class CrossEntropyLoss2d(nn.Module):
         return self.nll_loss(F.log_softmax(inputs), targets)
 
 
+def CrossEntropyLoss2d_Seg(input, target, class_num=19, weight=None, size_average=True):
+    """
+    Function to compute pixelwise cross-entropy for 2D image. This is the segmentation loss.
+    Args:
+        input: input tensor of shape (minibatch x num_channels x h x w)
+        target: 2D label map of shape (minibatch x h x w)
+        weight (optional): tensor of size 'C' specifying the weights to be given to each class
+        size_average (optional): boolean value indicating whether the NLL loss has to be normalized
+            by the number of pixels in the image
+    """
+
+    # input: (n, c, h, w),
+    # target: (n, h, w),1x40x80
+    n, c, h, w = input.size()
+
+    # log_p: (n, c, h, w)
+    log_p = F.log_softmax(input)
+
+    # log_p: (n*h*w, c)
+    log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
+    try:
+        log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) < class_num]
+    except:
+        import traceback
+        traceback.print_exc()
+        print "Exception: ", target.size()
+    log_p = log_p.view(-1, c)
+
+    # target: (n*h*w,)
+    mask = target < class_num
+    target = target[mask]
+    target = torch.squeeze(target)
+    try:
+        loss = F.nll_loss(log_p, target, weight=weight, size_average=size_average)
+    except:
+        import traceback
+        traceback.print_exc()
+        import ipdb
+        ipdb.set_trace()
+        # log_p: 1x19x40x80
+        # target: Variable containing:[torch.cuda.LongTensor with no dimension]
+    # if size_average:
+    #    loss /= mask.data.sum()
+
+    return loss
+
+
 class BalanceLoss2d(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super(BalanceLoss2d, self).__init__()
@@ -71,6 +118,11 @@ class Symkl2d(nn.Module):
                       + F.kl_div(self.log_prob2, self.prob1, size_average=self.size_average))
 
         return loss
+
+
+
+
+
 
 
 # this may be unstable sometimes.Notice set the size_average
