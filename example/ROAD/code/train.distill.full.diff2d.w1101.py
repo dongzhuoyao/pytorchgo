@@ -119,7 +119,7 @@ def main():
         raise ValueError('Invalid optmizer argument. Has to be SGD or Adam')
     
 
-    optimD = torch.optim.Adam(netD.parameters(), lr=0.0001, betas=(0.7, 0.999))
+    optimD = torch.optim.Adam(netD.parameters(), lr=1e-4, betas=(0.7, 0.999))
 
 
     trainer = MyTrainer_ROAD(
@@ -148,7 +148,7 @@ def main():
 class MyTrainer_ROAD(object):
     def __init__(self, cuda, model, model_fix, netD, optimizer, optimizerD,
                  train_loader, target_loader, val_loader,
-                 max_iter, image_size,batch_size,
+                 max_iter, image_size, batch_size,
                  size_average=True, interval_validate=None, loss_print_interval = 500):
         self.cuda = cuda
         self.model = model
@@ -189,7 +189,7 @@ class MyTrainer_ROAD(object):
         # Evaluation
         for batch_idx, (data, target) in tqdm.tqdm(
                 enumerate(self.val_loader), total=len(self.val_loader),
-                desc='Validation iteration = {}/{}'.format(self.iteration,len(self.val_loader)), ncols=80,
+                desc='Validation iteration = {}/{}'.format(self.iteration,len(self.val_loader)),
                 leave=False):
 
             if self.cuda:
@@ -305,7 +305,7 @@ class MyTrainer_ROAD(object):
 
 
             if self.iteration % self.loss_print_interval == 0:
-                logger.info("\nL_SEG={}, Distill_LOSS={}, Discriminater loss={}, TOTAL_LOSS={}".format(l_seg.data[0], distill_loss.data[0],
+                logger.info("L_SEG={}, Distill_LOSS={}, Discriminater loss={}, TOTAL_LOSS={}".format(l_seg.data[0], distill_loss.data[0],
                                                                                dis_loss.data[0],total_loss.data[0]))
 
             # TODO, spatial loss
