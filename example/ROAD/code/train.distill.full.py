@@ -8,7 +8,7 @@ from util_fns import get_log_dir
 from util_fns import get_parameters
 from util_fns import weights_init
 from pytorchgo.utils import logger
-from torchfcn.trainer_ROAD_distill import MyTrainer_ROAD
+from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
 from pytorchgo.utils.pytorch_utils import model_summary
 class_num = 19
 image_size=[641,641]#[640, 320]

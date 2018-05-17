@@ -173,15 +173,23 @@ class MyTrainer_ROAD(object):
 
             self.optim.zero_grad()
             total_loss = l_seg + 0.1 * distill_loss
-            total_loss.backward()#retain_graph=True
+            total_loss.backward(retain_graph=True)
             self.optim.step()
 
+            self.optimD.zero_grad()
+            src_dis_loss = cross_entropy2d(src_discriminate_result,src_discriminate_result_gt,size_average=self.size_average)
+            target_dis_loss = cross_entropy2d(target_discriminate_result, target_discriminate_result_gt,
+                                           size_average=self.size_average)
+            dis_loss = src_dis_loss + target_dis_loss
 
+
+            if np.isnan(float(dis_loss.data[0])):
+                raise ValueError('dis_loss is nan while training')
             if np.isnan(float(total_loss.data[0])):
                 raise ValueError('total_loss is nan while training')
 
 
-            if self.iteration % 500 == 0:
+            if self.iteration % 1 == 0:
                 logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
                                                                                total_loss.data[0]))
 

@@ -321,7 +321,7 @@ def validate(val_loader, model, criterion, iter, log):
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    i, len(val_loader), batch_time=batch_time, loss=losses,
                    top1=top1, top5=top5))
-            lo(output)
+            logger.info(output)
             log.write(output + '\n')
             log.flush()
 

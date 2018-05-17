@@ -1,3 +1,4 @@
+import torch
 import datetime
 import math
 import os
@@ -7,7 +8,6 @@ import fcn
 import numpy as np
 import pytz
 import scipy.misc
-import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
 import tqdm
@@ -18,7 +18,6 @@ import torch.nn as nn
 from util_fns import get_parameters
 from utils import cross_entropy2d, step_scheduler
 from pytorchgo.loss import MSE_Loss
-from pytorchgo.function import grad_reverse
 from pytorchgo.utils import logger
 
 CLASS_NUM = 19
@@ -28,7 +27,7 @@ class MyTrainer_ROAD(object):
     def __init__(self, cuda, model, model_fix, netD, optimizer, optimizerD,
                  train_loader, target_loader, val_loader,
                  max_iter, image_size,batch_size,
-                 size_average=True, interval_validate=None):
+                 size_average=True, interval_validate=None, loss_print_interval = 500):
         self.cuda = cuda
         self.model = model
         self.model_fix = model_fix
@@ -37,6 +36,7 @@ class MyTrainer_ROAD(object):
         self.optimD = optimizerD
         self.batch_size = batch_size
 
+        self.loss_print_interval =loss_print_interval
         self.train_loader = train_loader
         self.target_loader = target_loader
         self.val_loader = val_loader
@@ -122,7 +122,7 @@ class MyTrainer_ROAD(object):
         for batch_idx, (datas, datat) in tqdm.tqdm(
                 enumerate(itertools.izip(self.train_loader, self.target_loader)),
                 total=self.iters_per_epoch,
-                desc='Train epoch = %d' % self.epoch, ncols=80, leave=False):
+                desc='Train epoch = {}/{}'.format(self.epoch, self.max_epoch), ncols=80, leave=False):
 
             source_data, source_labels = datas
             target_data, __ = datat
@@ -169,26 +169,40 @@ class MyTrainer_ROAD(object):
             target_discriminate_result = self.netD(seg_target_score)
 
 
+
             distill_loss = MSE_Loss(seg_target_score, modelfix_target_score)
 
             self.optim.zero_grad()
-            total_loss = l_seg + 0.1 * distill_loss
-            total_loss.backward()#retain_graph=True
+            self.optimD.zero_grad()
+
+            bce_loss = torch.nn.BCEWithLogitsLoss()
+
+            src_dis_loss = bce_loss(src_discriminate_result,
+                                           Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(1)).cuda())
+
+
+            target_dis_loss = bce_loss(target_discriminate_result,
+                                              Variable(torch.FloatTensor(target_discriminate_result.data.size()).fill_(0)).cuda(),
+                                           )
+
+            dis_loss = src_dis_loss + target_dis_loss# this loss has been inversed!!
+
+            total_loss = l_seg +  distill_loss +  dis_loss
+            total_loss.backward()
+
             self.optim.step()
+            self.optimD.step()
 
 
+            if np.isnan(float(dis_loss.data[0])):
+                raise ValueError('dis_loss is nan while training')
             if np.isnan(float(total_loss.data[0])):
                 raise ValueError('total_loss is nan while training')
 
 
-            if self.iteration % 500 == 0:
-                logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
-                                                                               total_loss.data[0]))
-
-            no_0_0 = 1
-
-            # TODO, GRL layer
-            seg_target_score_reversed = grad_reverse(seg_target_score)
+            if self.iteration % self.loss_print_interval == 0:
+                logger.info("L_SEG={}, Distill_LOSS={}, Discriminater loss;{}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
+                                                                               dis_loss.data[0],total_loss.data[0]))
 
             # TODO, spatial loss
 
@@ -216,6 +230,7 @@ class MyTrainer_ROAD(object):
 
         logger.info("iters_per_epoch :{}".format(self.iters_per_epoch))
         max_epoch = int(math.ceil(self.max_iter / self.iters_per_epoch))
+        self.max_epoch = max_epoch
         for epoch in tqdm.trange(self.epoch, max_epoch,
                                  desc='Train', ncols=80):
             self.epoch = epoch

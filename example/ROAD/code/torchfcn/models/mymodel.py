@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from model_utils import get_upsampling_weight
 from model_utils import FCN8s
 from model_utils import ResnetBlock
-
+from pytorchgo.function import grad_reverse
 
 class Seg_model(FCN8s):
 
@@ -118,10 +118,11 @@ class Seg_model(FCN8s):
 
 
 class Domain_classifer(nn.Module):
-    def __init__(self, n_class=19):
-        nc = 3
+    def __init__(self, n_class=19,reverse =False):
+        nc = n_class
         ndf = 64
         super(Domain_classifer, self).__init__()
+        self.reverse = reverse
         self.feature = nn.Sequential(
             nn.Conv2d(nc, 2*ndf, 4, 2, 2),
             nn.InstanceNorm2d(2*ndf),
@@ -143,6 +144,8 @@ class Domain_classifer(nn.Module):
         #self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
 
     def forward(self, input):
+        if self.reverse:
+            input = grad_reverse(input)
         output = self.feature(input)
         out_s = self.out_s(output)
         #out_c = self.out_c(output)
