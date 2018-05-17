@@ -1,7 +1,19 @@
 # Author: Tao Hu <taohu620@gmail.com>
 from . import logger
+from termcolor import colored
+from tabulate import tabulate
+
 
 def model_summary(model):
+    state_dict = model.state_dict().copy()
+    params = filter(lambda p: p.requires_grad, model.parameters())
+
+    data = []
+    for key,value in state_dict.items():
+        data.append([key,list(value.size())])
+    table = tabulate(data, headers=['name', 'shape'])
+    logger.info(colored("Arg Parameters: \n", 'cyan') + table)
+
     logger.info(model)
 
 

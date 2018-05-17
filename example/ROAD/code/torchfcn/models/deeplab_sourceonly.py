@@ -133,6 +133,8 @@ class ResNet(nn.Module):
         self.layer5 = self._make_pred_layer(Classifier_Module, 1024, [6, 12, 18, 24], [6, 12, 18, 24], num_classes)
         self.layer6 = self._make_pred_layer(Classifier_Module, 2048, [6, 12, 18, 24], [6, 12, 18, 24], num_classes)
 
+        self.upsample = nn.Upsample(size=(641, 641), mode='bilinear')
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -140,8 +142,7 @@ class ResNet(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
-                #        for i in m.parameters():
-                #            i.requires_grad = False
+
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
         downsample = None
@@ -177,7 +178,8 @@ class ResNet(nn.Module):
         x2 = self.layer4(x)
         x2 = self.layer6(x2)
 
-        return x1, x2
+        #return x1, x2
+        return self.upsample(x2) #only need last output
 
     def get_1x_lr_params_NOscale(self):
         """
@@ -197,9 +199,7 @@ class ResNet(nn.Module):
 
         for i in range(len(b)):
             for j in b[i].modules():
-                jj = 0
                 for k in j.parameters():
-                    jj += 1
                     if k.requires_grad:
                         yield k
 

@@ -1,8 +1,10 @@
 import argparse
 import torch
-from util_fns import weights_init
+
 from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
 from pytorchgo.utils.pytorch_utils import model_summary
+from pytorchgo.utils.weight_init import weights_init
+
 
 from torch.utils import data, model_zoo
 import math
@@ -78,11 +80,11 @@ def main():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     if args.model == "vgg16":
-        model = torchfcn.models.Seg_model(n_class=class_num)
+        model = origin_model =  torchfcn.models.Seg_model(n_class=class_num)
         vgg16 = torchfcn.models.VGG16(pretrained=True)
         model.copy_params_from_vgg16(vgg16)
     elif args.model == "deeplabv2":
-        model = torchfcn.models.Res_Deeplab(num_classes=class_num)
+        model =  origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num)
         saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
         new_params = model.state_dict().copy()
         for i in saved_state_dict:
@@ -106,7 +108,7 @@ def main():
     netD = torchfcn.models.Domain_classifer(reverse=True)
     netD.apply(weights_init)
 
-    model_summary(model_fix)
+    model_summary(model)
     model_summary(netD)
 
 
@@ -128,14 +130,22 @@ def main():
             momentum=args.momentum,
             weight_decay=args.weight_decay)
     elif args.optimizer == 'Adam':
-        optim = torch.optim.Adam(
-            [
-                {'params': get_parameters(model, bias=False)},
-                {'params': get_parameters(model, bias=True),
-                 'lr': args.lr * 2},
-            ],
-            lr=args.lr,
-            betas=(args.beta1, 0.999))
+        if args.model == "vgg16":
+            optim = torch.optim.Adam(
+                [
+                    {'params': get_parameters(model, bias=False)},
+                    {'params': get_parameters(model, bias=True),
+                     'lr': args.lr * 2},
+                ],
+                lr=args.lr,
+                betas=(args.beta1, 0.999))
+        elif args.model == "deeplabv2":
+            optim = torch.optim.Adam(
+                origin_model.optim_parameters(args.lr),
+                lr=args.lr,
+                betas=(args.beta1, 0.999))
+        else:
+            raise
     else:
         raise ValueError('Invalid optmizer argument. Has to be SGD or Adam')
     

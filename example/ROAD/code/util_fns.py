@@ -30,8 +30,10 @@ def get_parameters(model, bias=False):
         nn.Sequential,
         torchfcn.models.Seg_model,
         torchfcn.models.Domain_classifer,
+        torchfcn.models.ResNet
     )
     for m in model.modules():
+        print m
         if isinstance(m, nn.Conv2d):
             if bias:
                 yield m.bias
@@ -47,14 +49,6 @@ def get_parameters(model, bias=False):
             raise ValueError('Unexpected module: %s' % str(m))
 
 
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
-        if m.bias is not None:
-            m.bias.data.uniform_(-0.01, 0.01)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
+
 
 
