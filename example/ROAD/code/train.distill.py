@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--momentum', type=float, default=0.99, help='Momentum for SGD')
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
-    parser.add_argument('--interval_validate', type=int, default=500, help='Period for validation. Model is validated every interval_validate iterations')
+    parser.add_argument('--interval_validate', type=int, default=3000, help='Period for validation. Model is validated every interval_validate iterations')
     parser.add_argument('--gpu', type=int, default=2)
     args = parser.parse_args()
     print(args)
@@ -64,7 +64,7 @@ def main():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     model = torchfcn.models.Seg_model(n_class=class_num)
-    model_fix = torchfcn.models.Seg_model(n_class=class_num) #TODO fix weight
+    model_fix = torchfcn.models.Seg_model(n_class=class_num)
     for param in model_fix.parameters():
         param.requires_grad = False
 

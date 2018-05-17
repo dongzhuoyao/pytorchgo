@@ -128,7 +128,7 @@ class Solver(object):
             loss_s2 = criterion(output_s2, label_s)
             loss_s = loss_s1 + loss_s2
             loss_dis = self.discrepancy(output_t1, output_t2)
-            loss = loss_s - loss_dis
+            loss = loss_s - loss_dis # because reversed_gradient!!!!
             loss.backward()
             self.opt_c1.step()
             self.opt_c2.step()

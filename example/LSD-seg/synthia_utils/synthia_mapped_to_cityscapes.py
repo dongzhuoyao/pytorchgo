@@ -3,11 +3,12 @@ import os,cv2
 from tqdm import tqdm
 import numpy as np
 from synthia2cityscapes import synthiaid2label
-data_dir = "/home/hutao/lab/pytorchgo/example/LSD-seg/data/RAND_CITYSCAPES"
+#data_dir = "/home/hutao/lab/pytorchgo/example/LSD-seg/data/RAND_CITYSCAPES"
+data_dir = '/data4/hutao/dataset/RAND_CITYSCAPES'
 src_dir = os.path.join(data_dir,"GT/LABELS")
 target_dir = os.path.join(data_dir,"synthia_mapped_to_cityscapes")
 
-#os.mkdir(target_dir)
+os.mkdir(target_dir)
 
 def synthia_mapped_to_cityscapes():
     #print synthiaid2label[8].synthia_trainid

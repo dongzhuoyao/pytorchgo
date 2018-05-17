@@ -151,17 +151,22 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = Variable(source_data), Variable(source_labels)
             target_data = Variable(target_data)
 
+            src_discriminate_result_gt = None
+            target_discriminate_result_gt = None#TODO
+
             # TODO,split to 3x3
             # Source domain
             score = self.model(source_data)
             l_seg = cross_entropy2d(score, source_labels, size_average=self.size_average)
 
-            # outD_src_real_s, outD_src_real_c = self.netD(score)
+            src_discriminate_result = self.netD(score)
+
 
             # target domain
             seg_target_score = self.model(target_data)
             modelfix_target_score = self.model_fix(target_data)
-            # outD_tgt_fake_s, outD_tgt_fake_c = self.netD(tscore)
+
+            target_discriminate_result = self.netD(seg_target_score)
 
 
             distill_loss = MSE_Loss(seg_target_score, modelfix_target_score)
@@ -171,6 +176,19 @@ class MyTrainer_ROAD(object):
             total_loss.backward(retain_graph=True)
             self.optim.step()
 
+            self.optimD.zero_grad()
+            src_dis_loss = cross_entropy2d(src_discriminate_result,src_discriminate_result_gt,size_average=self.size_average)
+            target_dis_loss = cross_entropy2d(target_discriminate_result, target_discriminate_result_gt,
+                                           size_average=self.size_average)
+            dis_loss = src_dis_loss + target_dis_loss
+
+
+            if np.isnan(float(dis_loss.data[0])):
+                raise ValueError('dis_loss is nan while training')
+            if np.isnan(float(total_loss.data[0])):
+                raise ValueError('total_loss is nan while training')
+
+
             if self.iteration % 1 == 0:
                 logger.info("L_SEG={}, Distill_LOSS={}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
                                                                                total_loss.data[0]))
@@ -178,7 +196,7 @@ class MyTrainer_ROAD(object):
             no_0_0 = 1
 
             # TODO, GRL layer
-            # grad_reverse()
+            seg_target_score_reversed = grad_reverse(seg_target_score)
 
             # TODO, spatial loss
 

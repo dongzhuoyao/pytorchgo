@@ -121,7 +121,6 @@ class Domain_classifer(nn.Module):
     def __init__(self, n_class=19):
         nc = 3
         ndf = 64
-        n_layers=3
         super(Domain_classifer, self).__init__()
         self.feature = nn.Sequential(
             nn.Conv2d(nc, 2*ndf, 4, 2, 2),
@@ -139,14 +138,14 @@ class Domain_classifer(nn.Module):
             ResnetBlock(ndf*2, norm_type=2, bias=True, relu_type=2),
             ResnetBlock(ndf*2, norm_type=2, bias=True, relu_type=2),
         )
-        self.out_s = nn.Sequential(nn.Conv2d(ndf*2, 4, 3, padding=1))
+        self.out_s = nn.Sequential(nn.Conv2d(ndf*2, 2, 3, padding=1))
         #discriminate for source real, source fake, target_real, target_fake
-        self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
+        #self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
 
     def forward(self, input):
         output = self.feature(input)
         out_s = self.out_s(output)
-        out_c = self.out_c(output)
-        return out_s,out_c
+        #out_c = self.out_c(output)
+        return out_s
 
 
