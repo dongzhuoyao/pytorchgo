@@ -31,8 +31,6 @@ ITER_SIZE = 1
 NUM_WORKERS = 4
 
 IGNORE_LABEL = 255
-DATA_DIRECTORY_TARGET = './data/cityscapes'
-DATA_LIST_PATH_TARGET = './dataset/cityscapes_list/train.txt'
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_CLASSES = 19
@@ -105,10 +103,6 @@ def get_arguments():
                         help="The index of the label to ignore during the training.")
     parser.add_argument("--input_size", type=str, default=INPUT_SIZE,
                         help="Comma-separated string with height and width of source images.")
-    parser.add_argument("--data_dir_target", type=str, default=DATA_DIRECTORY_TARGET,
-                        help="Path to the directory containing the target dataset.")
-    parser.add_argument("--data_list_target", type=str, default=DATA_LIST_PATH_TARGET,
-                        help="Path to the file listing the images in the target dataset.")
     parser.add_argument("--input_size_target", type=str, default=INPUT_SIZE_TARGET,
                         help="Comma-separated string with height and width of target images.")
     parser.add_argument("--is_training", action="store_true",
@@ -255,7 +249,7 @@ def main():
 
 
 
-    targetloader = data.DataLoader(cityscapesDataSet(args.data_dir_target, args.data_list_target,
+    targetloader = data.DataLoader(cityscapesDataSet(
                                                      max_iters=args.num_steps * args.iter_size * args.batch_size,
                                                      crop_size=input_size_target,
                                                      scale=False, mirror=args.random_mirror, mean=IMG_MEAN,
@@ -339,7 +333,7 @@ def main():
             # train with target
 
             _, batch = targetloader_iter.next()
-            images, _, _ = batch
+            images, _, _ ,_ = batch
             images = Variable(images).cuda(args.gpu)
 
             pred_target1, pred_target2 = model(images)
