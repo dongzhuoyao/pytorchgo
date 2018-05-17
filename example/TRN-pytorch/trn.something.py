@@ -85,9 +85,10 @@ def main():
     args = parser.parse_args()
 
     args.consensus_type = "TRN"
-    args.batch_size = 100
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    device_ids = [int(id) for id in args.gpu.split(',')]
+    assert len(device_ids) >1, "TRN must run with GPU_num > 1"
 
     args.root_log = logger.get_logger_dir()
     args.root_model = logger.get_logger_dir()
