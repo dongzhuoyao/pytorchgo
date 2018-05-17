@@ -189,22 +189,8 @@ class MyTrainer_ROAD(object):
 
             # TODO, spatial loss
 
-
             if np.isnan(float(total_loss.data[0])):
                 raise ValueError('total_loss is nan while training')
-
-            """
-            # Computing metrics for logging
-            metrics = []
-            lbl_pred = score.data.max(1)[1].cpu().numpy()[:, :, :]
-            lbl_true = source_labels.data.cpu().numpy()
-            for lt, lp in zip(lbl_true, lbl_pred):
-                acc, acc_cls, mean_iu, fwavacc = \
-                    torchfcn.utils.label_accuracy_score(
-                        [lt], [lp], n_class=self.n_class)
-                metrics.append((acc, acc_cls, mean_iu, fwavacc))
-            metrics = np.mean(metrics, axis=0)
-            """
 
             if self.iteration >= self.max_iter:
                 break
