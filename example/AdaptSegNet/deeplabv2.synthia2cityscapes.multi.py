@@ -445,12 +445,12 @@ def main():
         optimizer_D2.step()
 
         logger.info(
-        'iter = {0:8d}/{1:8d}, loss_seg1 = {2:.3f} loss_seg2 = {3:.3f} loss_adv1 = {4:.3f}, loss_adv2 = {5:.3f} loss_D1 = {6:.3f} loss_D2 = {7:.3f}'.format(
+        'iter = /, loss_seg1 = {2:.3f} loss_seg2 = {3:.3f} loss_adv1 = {4:.3f}, loss_adv2 = {5:.3f} loss_D1 = {6:.3f} loss_D2 = {7:.3f}'.format(
             i_iter, args.num_steps, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
 
         if i_iter >= args.num_steps_stop - 1:
             logger.info('save model ...')
-            print "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps)
+            logger.info("{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
             torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
