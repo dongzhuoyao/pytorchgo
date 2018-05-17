@@ -12,7 +12,6 @@ from torch.nn.utils import clip_grad_norm
 from dataset import TSNDataSet
 from models import TSN
 from transforms import *
-from opts import parser
 import datasets_video
 from pytorchgo.utils import logger
 

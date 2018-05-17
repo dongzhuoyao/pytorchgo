@@ -1,36 +1,21 @@
 import argparse
-import os
-import os.path as osp
-import sys
 import torch
-import torchfcn
-from util_fns import get_log_dir
-from util_fns import get_parameters
 from util_fns import weights_init
-from pytorchgo.utils import logger
 from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
 from pytorchgo.utils.pytorch_utils import model_summary
 
-import datetime
 import math
 import os
 import os.path as osp
 import shutil
-import fcn
 import numpy as np
-import pytz
-import scipy.misc
 from torch.autograd import Variable
-import torch.nn.functional as F
 import tqdm
-import itertools, datetime
-import torchvision.utils as vutils
+import itertools
 import torchfcn
-import torch.nn as nn
 from util_fns import get_parameters
 from pytorchgo.loss.loss import CrossEntropyLoss2d_Seg, Diff2d
 from pytorchgo.utils.pytorch_utils import step_scheduler
-from pytorchgo.loss import MSE_Loss
 from pytorchgo.utils import logger
 
 
