@@ -181,10 +181,10 @@ def adjust_learning_rate_D(optimizer, i_iter):
     if len(optimizer.param_groups) > 1:
         optimizer.param_groups[1]['lr'] = lr * 10
 
-def proceed_test(model):
-    logger.info("proceed test...")
+def proceed_test(model, quick_test = 20):
+    logger.info("proceed test on small datasize={}...".format(quick_test))
     model.eval()
-    model.cuda()
+    model.cuda(args.gpu)
     testloader = data.DataLoader(
         cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
         batch_size=1, shuffle=False, pin_memory=True)
@@ -195,12 +195,13 @@ def proceed_test(model):
     stat = MIoUStatistics(NUM_CLASSES)
 
     for index, batch in tqdm(enumerate(testloader)):
+        if index > quick_test: break
+
         image, label, _, name = batch
         image, label = Variable(image, volatile=True), Variable(label)
 
-        if index > 20: break
 
-        output1, output2 = model(image.cuda())
+        output1, output2 = model(image.cuda(args.gpu))
         output = interp(output2).cpu().data[0].numpy()
         output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
@@ -450,16 +451,16 @@ def main():
         if i_iter >= args.num_steps_stop - 1:
             logger.info('save model ...')
             print "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps)
-            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info('taking snapshot ...')
-            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
 
             proceed_test(model)
 
