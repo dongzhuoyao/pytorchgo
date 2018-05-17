@@ -31,20 +31,20 @@ ITER_SIZE = 1
 NUM_WORKERS = 4
 
 IGNORE_LABEL = 255
-INPUT_SIZE = '1280,720'
 DATA_DIRECTORY_TARGET = './data/cityscapes'
 DATA_LIST_PATH_TARGET = './dataset/cityscapes_list/train.txt'
-INPUT_SIZE_TARGET = '1024,512'
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_CLASSES = 19
-NUM_STEPS = 250000
-NUM_STEPS_STOP = 80000  # early stopping
+
+INPUT_SIZE = '1280,720'
+INPUT_SIZE_TARGET = '1024,512'
+
+
 POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 SAVE_NUM_IMAGES = 2
-SAVE_PRED_EVERY = 5000
 SNAPSHOT_DIR = './snapshots/'
 WEIGHT_DECAY = 0.0005
 
@@ -63,10 +63,19 @@ SOURCE_DATA = "SYNTHIA"
 if SOURCE_DATA == "GTA5":
     DATA_DIRECTORY = './data/GTA5'
     DATA_LIST_PATH = './dataset/gta5_list/train.txt'
+
+    NUM_STEPS = 250000
+    NUM_STEPS_STOP = 80000  # early stopping
+    SAVE_PRED_EVERY = 2000
+
 elif SOURCE_DATA == "SYNTHIA":
     DATA_DIRECTORY = './data/SYNTHIA'
     DATA_LIST_PATH = './dataset/synthia_list/SYNTHIA_imagelist_train.txt'
     LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
+
+    NUM_STEPS = 70000
+    NUM_STEPS_STOP = 10000  # early stopping
+    SAVE_PRED_EVERY = 2000
 else:
     raise
 
