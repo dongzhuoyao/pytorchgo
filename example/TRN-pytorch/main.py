@@ -20,15 +20,73 @@ best_prec1 = 0
 
 def main():
     logger.auto_set_dir()
+
     global args, best_prec1
+
+    import argparse
+    parser = argparse.ArgumentParser(description="PyTorch implementation of Temporal Segment Networks")
+    parser.add_argument('--dataset', type=str,default="something", choices=['something', 'jester', 'moments'])
+    parser.add_argument('--modality', type=str, default="RGB", choices=['RGB', 'Flow'])
+    parser.add_argument('--train_list', type=str, default="")
+    parser.add_argument('--val_list', type=str, default="")
+    parser.add_argument('--root_path', type=str, default="")
+    parser.add_argument('--store_name', type=str, default="")
+    # ========================= Model Configs ==========================
+    parser.add_argument('--arch', type=str, default="BNInception")
+    parser.add_argument('--num_segments', type=int, default=3)
+    parser.add_argument('--consensus_type', type=str, default='avg')
+    parser.add_argument('--k', type=int, default=3)
+
+    parser.add_argument('--dropout', '--do', default=0.8, type=float,
+                        metavar='DO', help='dropout ratio (default: 0.5)')
+    parser.add_argument('--loss_type', type=str, default="nll",
+                        choices=['nll'])
+    parser.add_argument('--img_feature_dim', default=256, type=int, help="the feature dimension for each frame")
+
+    # ========================= Learning Configs ==========================
+    parser.add_argument('--epochs', default=120, type=int, metavar='N',
+                        help='number of total epochs to run')
+    parser.add_argument('-b', '--batch-size', default=128, type=int,
+                        metavar='N', help='mini-batch size (default: 256)')
+    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+                        metavar='LR', help='initial learning rate')
+    parser.add_argument('--lr_steps', default=[50, 100], type=float, nargs="+",
+                        metavar='LRSteps', help='epochs to decay learning rate by 10')
+    parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
+                        help='momentum')
+    parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
+                        metavar='W', help='weight decay (default: 5e-4)')
+    parser.add_argument('--clip-gradient', '--gd', default=20, type=float,
+                        metavar='W', help='gradient norm clipping (default: disabled)')
+    parser.add_argument('--no_partialbn', '--npb', default=False, action="store_true")
+
+    # ========================= Monitor Configs ==========================
+    parser.add_argument('--print-freq', '-p', default=20, type=int,
+                        metavar='N', help='print frequency (default: 10)')
+    parser.add_argument('--eval-freq', '-ef', default=5, type=int,
+                        metavar='N', help='evaluation frequency (default: 5)')
+
+    # ========================= Runtime Configs ==========================
+    parser.add_argument('-j', '--workers', default=30, type=int, metavar='N',
+                        help='number of data loading workers (default: 4)')
+    parser.add_argument('--resume', default='', type=str, metavar='PATH',
+                        help='path to latest checkpoint (default: none)')
+    parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
+                        help='evaluate model on validation set')
+    parser.add_argument('--snapshot_pref', type=str, default="")
+    parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
+                        help='manual epoch number (useful on restarts)')
+    parser.add_argument('--gpu', type=str, default='5')
+    parser.add_argument('--flow_prefix', default="", type=str)
+    parser.add_argument('--root_log', type=str, default='log')
+    parser.add_argument('--root_model', type=str, default='model')
+    parser.add_argument('--root_output', type=str, default='output')
+
     args = parser.parse_args()
-    args.dataset = "something"
-    args.modality = "RGB"
-    args.arch = "BNInception"
-    args.num_segments = 3
+
     args.consensus_type = "TRN"
     args.batch_size = 100
-    os.environ['CUDA_VISIBLE_DEVICES'] = '3,5'
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
     args.root_log = logger.get_logger_dir()
     args.root_model = logger.get_logger_dir()
@@ -55,7 +113,7 @@ def main():
     policies = model.get_optim_policies()
     train_augmentation = model.get_augmentation()
 
-    model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+    model = torch.nn.DataParallel(model, device_ids=[int(id) for id in args.gpu.split(',')]).cuda()
 
     if args.resume:
         if os.path.isfile(args.resume):
@@ -257,15 +315,15 @@ def validate(val_loader, model, criterion, iter, log):
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    i, len(val_loader), batch_time=batch_time, loss=losses,
                    top1=top1, top5=top5))
-            logger.info(output)
+            lo(output)
             log.write(output + '\n')
             log.flush()
 
     output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
           .format(top1=top1, top5=top5, loss=losses))
-    logger.info(output)
+    print(output)
     output_best = '\nBest Prec@1: %.3f'%(best_prec1)
-    logger.info(output_best)
+    print(output_best)
     log.write(output + ' ' + output_best + '\n')
     log.flush()
 
@@ -319,7 +377,6 @@ def accuracy(output, target, topk=(1,)):
         correct_k = correct[:k].view(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
-
 
 
 

@@ -28,6 +28,7 @@ IGNORE_LABEL = 255
 NUM_CLASSES = 19
 NUM_STEPS = 500 # Number of images in the validation set.
 RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
+#RESTORE_FROM = 'snapshots/GTA2Cityscapes_single/GTA5_45000.pth'
 SET = 'val'
 
 palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,
@@ -42,7 +43,6 @@ def colorize_mask(mask):
     # mask: numpy array of the mask
     new_mask = Image.fromarray(mask.astype(np.uint8)).convert('P')
     new_mask.putpalette(palette)
-
     return new_mask
 
 def get_arguments():
