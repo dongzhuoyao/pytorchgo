@@ -1,7 +1,4 @@
 import torch.nn as nn
-import math
-import torch.utils.model_zoo as model_zoo
-import torch
 import numpy as np
 
 affine_par = True
@@ -224,7 +221,7 @@ class ResNet(nn.Module):
                 {'params': self.get_10x_lr_params(), 'lr': 10 * lr}]
 
 
-def Res_Deeplab(num_classes=21):
+def Res_Deeplab(num_classes=19):
     model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes)
     return model
 

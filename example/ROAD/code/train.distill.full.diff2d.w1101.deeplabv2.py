@@ -4,6 +4,7 @@ from util_fns import weights_init
 from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
 from pytorchgo.utils.pytorch_utils import model_summary
 
+from torch.utils import data, model_zoo
 import math
 import os
 import os.path as osp
@@ -22,7 +23,7 @@ from pytorchgo.utils import logger
 class_num = 19
 image_size=[641,641]#[640, 320]
 
-RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
+Deeplabv2_restore_from = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 
 def main():
     logger.auto_set_dir()
@@ -36,7 +37,9 @@ def main():
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--interval_validate', type=int, default=3000, help='Period for validation. Model is validated every interval_validate iterations')
+    parser.add_argument('--model', type=str, default='deeplabv2')
     parser.add_argument('--gpu', type=int, default=2)
+
     args = parser.parse_args()
     print(args)
 
@@ -74,7 +77,26 @@ def main():
     if cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
-    model = torchfcn.models.Seg_model(n_class=class_num)
+    if args.model == "vgg16":
+        model = torchfcn.models.Seg_model(n_class=class_num)
+        vgg16 = torchfcn.models.VGG16(pretrained=True)
+        model.copy_params_from_vgg16(vgg16)
+    elif args.model == "deeplabv2":
+        model = torchfcn.models.Res_Deeplab(num_classes=class_num)
+        saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
+        new_params = model.state_dict().copy()
+        for i in saved_state_dict:
+            # Scale.layer5.conv2d_list.3.weight
+            i_parts = i.split('.')
+            # print i_parts
+            if not class_num == 19 or not i_parts[1] == 'layer5':
+                new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
+                # print i_parts
+        model.load_state_dict(new_params)
+    else:
+        raise ValueError("only support vgg16, deeplabv2!")
+
+
     model_fix = torchfcn.models.Seg_model(n_class=class_num)
     for param in model_fix.parameters():
         param.requires_grad = False
@@ -88,8 +110,6 @@ def main():
     model_summary(netD)
 
 
-    vgg16 = torchfcn.models.VGG16(pretrained=True)
-    model.copy_params_from_vgg16(vgg16)
 
     if cuda:
         model = model.cuda()
@@ -216,7 +236,7 @@ class MyTrainer_ROAD(object):
             label_trues, label_preds, self.n_class)
         val_loss /= len(self.val_loader)
 
-        logger.info("validation mIoU = {}".format(mean_iu))
+        logger.info("iteration={}, validation mIoU = {}".format(self.iteration, mean_iu))
 
         is_best = mean_iu > self.best_mean_iu
         if is_best:
