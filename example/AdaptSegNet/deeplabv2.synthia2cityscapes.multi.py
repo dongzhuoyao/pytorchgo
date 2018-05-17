@@ -71,8 +71,8 @@ elif SOURCE_DATA == "SYNTHIA":
     LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
 
     NUM_STEPS = 70000
-    NUM_STEPS_STOP = 10000  # early stopping
-    SAVE_PRED_EVERY = 20
+    NUM_STEPS_STOP = 20000  # early stopping
+    SAVE_PRED_EVERY = 1000
 else:
     raise
 
@@ -182,7 +182,7 @@ def adjust_learning_rate_D(optimizer, i_iter):
         optimizer.param_groups[1]['lr'] = lr * 10
 
 def proceed_test(model, quick_test = 20):
-    logger.info("proceed test on small datasize={}...".format(quick_test))
+    logger.info("proceed test on small size-{} cityscapes...".format(quick_test))
     model.eval()
     model.cuda(args.gpu)
     testloader = data.DataLoader(
