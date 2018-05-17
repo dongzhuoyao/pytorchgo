@@ -14,6 +14,7 @@ from dataset.cityscapes_dataset import cityscapesDataSet
 from collections import OrderedDict
 import os
 from PIL import Image
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import torch.nn as nn
@@ -91,27 +92,35 @@ def main():
     model.eval()
     model.cuda(gpu0)
 
-    testloader = data.DataLoader(cityscapesDataSet(args.data_dir, args.data_list, crop_size=(1024, 512), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
+    testloader = data.DataLoader(cityscapesDataSet( crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
                                     batch_size=1, shuffle=False, pin_memory=True)
 
     interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
 
-    for index, batch in enumerate(testloader):
-        if index % 100 == 0:
-            print '%d processd' % index
-        image, _, name = batch
-        output1, output2 = model(Variable(image, volatile=True).cuda(gpu0))
+    from tensorpack.utils.stats import MIoUStatistics
+    stat = MIoUStatistics(NUM_CLASSES)
+
+    for index, batch in tqdm(enumerate(testloader)):
+        image,label, _, name = batch
+        image, label = Variable(image, volatile=True), Variable(label)
+
+        output1, output2 = model(image.cuda(gpu0))
         output = interp(output2).cpu().data[0].numpy()
 
         output = output.transpose(1,2,0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
 
         output_col = colorize_mask(output)
-        output = Image.fromarray(output)
+
 
         name = name[0].split('/')[-1]
-        output.save('%s/%s' % (args.save, name))
         output_col.save('%s/%s_color.png' % (args.save, name.split('.')[0]))
+
+        stat.feed(output, label.data.cpu().numpy().squeeze())
+
+    print("tensorpack mIoU: {}".format(stat.mIoU))
+    print("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
+    print("tensorpack accuracy: {}".format(stat.accuracy))
 
 
 if __name__ == '__main__':

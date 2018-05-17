@@ -2,7 +2,6 @@ import os
 import os.path as osp
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import collections
 import torch
 import torchvision
@@ -68,6 +67,7 @@ class SynthiaDataSet(data.Dataset):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     dst = SynthiaDataSet(root="../data/SYNTHIA",
                          list_path="synthia_list/SYNTHIA_imagelist_train.txt",
                          label_list_path="synthia_list/SYNTHIA_labellist_train.txt")

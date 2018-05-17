@@ -12,7 +12,6 @@ import torch.nn.functional as F
 import sys
 import os
 import os.path as osp
-import matplotlib.pyplot as plt
 import random
 
 from model.deeplab_multi import Res_Deeplab
@@ -22,6 +21,7 @@ from dataset.gta5_dataset import GTA5DataSet
 from dataset.synthia_dataset import SynthiaDataSet
 from dataset.cityscapes_dataset import cityscapesDataSet
 from pytorchgo.utils import logger
+from tqdm import tqdm
 
 IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
 
@@ -214,6 +214,8 @@ def main():
                 new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
                 # print i_parts
         model.load_state_dict(new_params)
+    else:
+        raise
 
     model.train()
     model.cuda(args.gpu)
@@ -281,7 +283,7 @@ def main():
     source_label = 0
     target_label = 1
 
-    for i_iter in range(args.num_steps):
+    for i_iter in tqdm(range(args.num_steps)):
 
         loss_seg_value1 = 0
         loss_adv_target_value1 = 0

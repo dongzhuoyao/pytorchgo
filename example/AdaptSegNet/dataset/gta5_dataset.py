@@ -2,7 +2,6 @@ import os
 import os.path as osp
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import collections
 import torch
 import torchvision
@@ -71,6 +70,7 @@ class GTA5DataSet(data.Dataset):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     dst = GTA5DataSet("./data", is_transform=True)
     trainloader = data.DataLoader(dst, batch_size=4)
     for i, data in enumerate(trainloader):
