@@ -247,20 +247,6 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = datas
             target_data, __ = datat
 
-
-
-            #continue
-            # source =0, target = 1
-            source_data_forD = torch.zeros((self.batch_size, 3, self.image_size[1], self.image_size[0]))
-            target_data_forD = torch.zeros((self.batch_size, 3, self.image_size[1], self.image_size[0]))
-
-            # We pass the unnormalized data to the discriminator. So, the GANs produce images without data normalization
-            for i in range(self.batch_size):
-                source_data_forD[i] = self.train_loader.dataset.transform_forD(source_data[i], self.image_size,
-                                                                               resize=False, mean_add=True)
-                target_data_forD[i] = self.train_loader.dataset.transform_forD(target_data[i], self.image_size,
-                                                                               resize=False, mean_add=True)
-
             self.iteration = batch_idx + self.epoch * self.iters_per_epoch
 
 
@@ -289,8 +275,6 @@ class MyTrainer_ROAD(object):
             diff2d = Diff2d()
             distill_loss = diff2d(seg_target_score, modelfix_target_score)
 
-            self.optim.zero_grad()
-            self.optimD.zero_grad()
 
             bce_loss = torch.nn.BCEWithLogitsLoss()
 
@@ -303,10 +287,13 @@ class MyTrainer_ROAD(object):
                                            )
 
             dis_loss = src_dis_loss + target_dis_loss# this loss has been inversed!!
-
             total_loss = l_seg +  distill_loss +  dis_loss
-            total_loss.backward()
 
+
+
+            self.optim.zero_grad()
+            self.optimD.zero_grad()
+            total_loss.backward()
             self.optim.step()
             self.optimD.step()
 
