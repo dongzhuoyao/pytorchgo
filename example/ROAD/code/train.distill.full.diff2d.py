@@ -183,8 +183,6 @@ class MyTrainer_ROAD(object):
         Function to validate a training model on the val split.
         """
         logger.info("start validation....")
-        self.model.eval()
-
         val_loss = 0
         label_trues, label_preds = [], []
 
@@ -325,14 +323,13 @@ class MyTrainer_ROAD(object):
 
             # TODO, spatial loss
 
-            if np.isnan(float(total_loss.data[0])):
-                raise ValueError('total_loss is nan while training')
 
             if self.iteration >= self.max_iter:
                 break
 
             # Validating periodically
             if self.iteration % self.interval_validate == 0 and self.iteration > 0:
+                self.model.eval()
                 self.validate()
                 self.model.train()  # return to training mode
 
