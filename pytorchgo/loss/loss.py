@@ -82,7 +82,7 @@ class BalanceLoss2d(nn.Module):
 
 
 class Entropy(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self, weight=None):
         super(Entropy, self).__init__()
         self.weight = weight
 
@@ -92,7 +92,7 @@ class Entropy(nn.Module):
         return entropy_loss
 
 class Diff2d(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self, weight=None):
         super(Diff2d, self).__init__()
         self.weight = weight
 
