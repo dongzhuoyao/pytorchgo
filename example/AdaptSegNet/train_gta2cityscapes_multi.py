@@ -19,6 +19,7 @@ from model.deeplab_multi import Res_Deeplab
 from model.discriminator import FCDiscriminator
 from utils.loss import CrossEntropy2d
 from dataset.gta5_dataset import GTA5DataSet
+from dataset.synthia_dataset import SynthiaDataSet
 from dataset.cityscapes_dataset import cityscapesDataSet
 from pytorchgo.utils import logger
 
@@ -61,8 +62,9 @@ if SOURCE_DATA == "GTA5":
     DATA_DIRECTORY = './data/GTA5'
     DATA_LIST_PATH = './dataset/gta5_list/train.txt'
 elif SOURCE_DATA == "SYNTHIA":
-    DATA_DIRECTORY = './data/GTA5'
-    DATA_LIST_PATH = './dataset/gta5_list/train.txt'
+    DATA_DIRECTORY = './data/SYNTHIA'
+    DATA_LIST_PATH = './dataset/synthia_list/SYNTHIA_imagelist_train.txt'
+    LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
 else:
     raise
 
@@ -84,21 +86,21 @@ def get_arguments():
                         help="Accumulate gradients for ITER_SIZE iterations.")
     parser.add_argument("--num-workers", type=int, default=NUM_WORKERS,
                         help="number of workers for multithread dataloading.")
-    parser.add_argument("--data-dir", type=str, default=DATA_DIRECTORY,
+    parser.add_argument("--data_dir", type=str, default=DATA_DIRECTORY,
                         help="Path to the directory containing the source dataset.")
-    parser.add_argument("--data-list", type=str, default=DATA_LIST_PATH,
+    parser.add_argument("--data_list", type=str, default=DATA_LIST_PATH,
                         help="Path to the file listing the images in the source dataset.")
-    parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
+    parser.add_argument("--ignore_label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
-    parser.add_argument("--input-size", type=str, default=INPUT_SIZE,
+    parser.add_argument("--input_size", type=str, default=INPUT_SIZE,
                         help="Comma-separated string with height and width of source images.")
-    parser.add_argument("--data-dir-target", type=str, default=DATA_DIRECTORY_TARGET,
+    parser.add_argument("--data_dir_target", type=str, default=DATA_DIRECTORY_TARGET,
                         help="Path to the directory containing the target dataset.")
-    parser.add_argument("--data-list-target", type=str, default=DATA_LIST_PATH_TARGET,
+    parser.add_argument("--data_list_target", type=str, default=DATA_LIST_PATH_TARGET,
                         help="Path to the file listing the images in the target dataset.")
-    parser.add_argument("--input-size-target", type=str, default=INPUT_SIZE_TARGET,
+    parser.add_argument("--input_size_target", type=str, default=INPUT_SIZE_TARGET,
                         help="Comma-separated string with height and width of target images.")
-    parser.add_argument("--is-training", action="store_true",
+    parser.add_argument("--is_training", action="store_true",
                         help="Whether to updates the running means and variances during the training.")
     parser.add_argument("--learning-rate", type=float, default=LEARNING_RATE,
                         help="Base learning rate for training with polynomial decay.")
@@ -232,7 +234,7 @@ def main():
         trainloader_iter = enumerate(trainloader)
     elif SOURCE_DATA == "SYNTHIA":
         trainloader = data.DataLoader(
-            GTA5DataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.iter_size * args.batch_size,
+            SynthiaDataSet(args.data_dir, args.data_list,LABEL_LIST_PATH, max_iters=args.num_steps * args.iter_size * args.batch_size,
                         crop_size=input_size,
                         scale=args.random_scale, mirror=args.random_mirror, mean=IMG_MEAN),
             batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
