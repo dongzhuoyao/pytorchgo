@@ -69,7 +69,7 @@ class MyTrainer_ROAD(object):
         # Evaluation
         for batch_idx, (data, target) in tqdm.tqdm(
                 enumerate(self.val_loader), total=len(self.val_loader),
-                desc='Validation iteration = %d' % self.iteration, ncols=80,
+                desc='Validation iteration = {}/{}'.format(self.iteration,len(self.val_loader)), ncols=80,
                 leave=False):
 
             if self.cuda:
@@ -201,7 +201,7 @@ class MyTrainer_ROAD(object):
 
 
             if self.iteration % self.loss_print_interval == 0:
-                logger.info("L_SEG={}, Distill_LOSS={}, Discriminater loss;{}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
+                logger.info("\nL_SEG={}, Distill_LOSS={}, Discriminater loss;{}, TOTAL_LOSS :{}".format(l_seg.data[0], distill_loss.data[0],
                                                                                dis_loss.data[0],total_loss.data[0]))
 
             # TODO, spatial loss
