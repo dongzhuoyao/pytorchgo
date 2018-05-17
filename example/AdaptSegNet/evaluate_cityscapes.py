@@ -26,7 +26,6 @@ SAVE_PATH = './result/cityscapes'
 
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
-NUM_STEPS = 500 # Number of images in the validation set.
 RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
 #RESTORE_FROM = 'snapshots/GTA2Cityscapes_single/GTA5_45000.pth'
 SET = 'val'

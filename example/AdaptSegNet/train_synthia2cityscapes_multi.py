@@ -43,7 +43,6 @@ POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 SAVE_NUM_IMAGES = 2
-SNAPSHOT_DIR = './snapshots/'
 WEIGHT_DECAY = 0.0005
 
 LEARNING_RATE_D = 1e-4
@@ -73,7 +72,7 @@ elif SOURCE_DATA == "SYNTHIA":
 
     NUM_STEPS = 70000
     NUM_STEPS_STOP = 10000  # early stopping
-    SAVE_PRED_EVERY = 2000
+    SAVE_PRED_EVERY = 20
 else:
     raise
 
@@ -141,8 +140,6 @@ def get_arguments():
                         help="How many images to save.")
     parser.add_argument("--save_pred_every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
-    parser.add_argument("--snapshot_dir", type=str, default=SNAPSHOT_DIR,
-                        help="Where to save snapshots of the model.")
     parser.add_argument("--weight_decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
     parser.add_argument("--gpu", type=int, default=GPU,
@@ -183,6 +180,36 @@ def adjust_learning_rate_D(optimizer, i_iter):
     optimizer.param_groups[0]['lr'] = lr
     if len(optimizer.param_groups) > 1:
         optimizer.param_groups[1]['lr'] = lr * 10
+
+def proceed_test(model):
+    logger.info("proceed test...")
+    model.eval()
+    model.cuda()
+    testloader = data.DataLoader(
+        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
+        batch_size=1, shuffle=False, pin_memory=True)
+
+    interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
+
+    from tensorpack.utils.stats import MIoUStatistics
+    stat = MIoUStatistics(NUM_CLASSES)
+
+    for index, batch in tqdm(enumerate(testloader)):
+        image, label, _, name = batch
+        image, label = Variable(image, volatile=True), Variable(label)
+
+        if index > 20: break
+
+        output1, output2 = model(image.cuda())
+        output = interp(output2).cpu().data[0].numpy()
+        output = output.transpose(1, 2, 0)
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
+        stat.feed(output, label.data.cpu().numpy().squeeze())
+
+    logger.info("tensorpack mIoU: {}".format(stat.mIoU))
+    logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
+    logger.info("tensorpack accuracy: {}".format(stat.accuracy))
+    model.train()
 
 
 def main():
@@ -433,6 +460,8 @@ def main():
             torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
             torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
             torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+
+            proceed_test(model)
 
 
 if __name__ == '__main__':
