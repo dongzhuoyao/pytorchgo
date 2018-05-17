@@ -83,7 +83,7 @@ def main():
         model = origin_model =  torchfcn.models.Seg_model(n_class=class_num)
         vgg16 = torchfcn.models.VGG16(pretrained=True)
         model.copy_params_from_vgg16(vgg16)
-    elif args.model == "deeplabv2":
+    elif args.model == "deeplabv2":#TODO may have problem!
         model =  origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num)
         saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
         new_params = model.state_dict().copy()
