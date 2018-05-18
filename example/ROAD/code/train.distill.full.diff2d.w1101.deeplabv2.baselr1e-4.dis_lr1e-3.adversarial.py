@@ -45,7 +45,6 @@ def main():
     parser.add_argument('--momentum', type=float, default=0.99, help='Momentum for SGD')
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
-    parser.add_argument('--interval_validate', type=int, default=3000, help='Period for validation. Model is validated every interval_validate iterations')
     parser.add_argument('--model', type=str, default='deeplabv2')
     parser.add_argument('--gpu', type=int, default=0)
 
@@ -176,7 +175,6 @@ def main():
         target_loader=target_loader,
         val_loader=val_loader,
         batch_size=args.batchSize,
-        interval_validate=args.interval_validate,
         image_size=image_size
     )
     trainer.epoch = 0
@@ -191,7 +189,7 @@ class MyTrainer_ROAD(object):
     def __init__(self, cuda, model, model_fix, netD, optimizer, optimizerD,
                  train_loader, target_loader, val_loader,
                   image_size, batch_size,
-                 size_average=True, interval_validate=None, loss_print_interval = 500):
+                 size_average=True, loss_print_interval = 500):
         self.cuda = cuda
         self.model = model
         self.model_fix = model_fix
@@ -209,11 +207,6 @@ class MyTrainer_ROAD(object):
         self.n_class = len(self.train_loader.dataset.class_names)
 
         self.size_average = size_average
-
-        if interval_validate is None:
-            self.interval_validate = min(len(self.train_loader), len(self.target_loader))
-        else:
-            self.interval_validate = interval_validate
 
         self.epoch = 0
         self.iteration = 0
@@ -277,8 +270,7 @@ class MyTrainer_ROAD(object):
         """
         Function to train the model for one epoch
         """
-        self.model.train()
-        self.netD.train()
+
 
         def set_requires_grad(seg, dis):
             for param in self.model.parameters():
@@ -311,7 +303,6 @@ class MyTrainer_ROAD(object):
 
             #train G
             set_requires_grad(seg=True, dis=False)
-            # TODO,split to 3x3
             # Source domain
             score = self.model(source_data)
             l_seg = CrossEntropyLoss2d_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
@@ -365,15 +356,9 @@ class MyTrainer_ROAD(object):
                 logger.info("L_SEG={}, Distill_LOSS={}, Discriminater loss={}".format(l_seg.data[0], distill_loss.data[0],
                                                                                dis_loss.data[0]))
 
-            # TODO, spatial loss
 
 
 
-            # Validating periodically
-            if self.iteration % self.interval_validate == 0 and self.iteration > 0:
-                self.model.eval()
-                self.validate()
-                self.model.train()  # return to training mode
 
     def train(self):
         """
@@ -393,7 +378,13 @@ class MyTrainer_ROAD(object):
             self.optim = step_scheduler(self.optim, self.epoch, base_lr_schedule, "base model")
             self.optimD = step_scheduler(self.optimD, self.epoch,  dis_lr_schedule, "discriminater model")
 
+            self.model.train()
+            self.netD.train()
             self.train_epoch()
+
+            self.model.eval()
+            self.validate()
+            self.model.train()  # return to training mode
 
     
 
