@@ -1,7 +1,6 @@
 import argparse
 import torch
 
-from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
 from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 from pytorchgo.utils.weight_init import weights_init
 
@@ -87,6 +86,12 @@ def main():
         model = origin_model =  torchfcn.models.Seg_model(n_class=class_num)
         vgg16 = torchfcn.models.VGG16(pretrained=True)
         model.copy_params_from_vgg16(vgg16)
+
+        model_fix = torchfcn.models.Seg_model(n_class=class_num)
+        model_fix.copy_params_from_vgg16(vgg16)
+        for param in model_fix.parameters():
+            param.requires_grad = False
+
     elif args.model == "deeplabv2":#TODO may have problem!
         model =  origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
         saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
@@ -99,14 +104,11 @@ def main():
                 new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
                 # print i_parts
         model.load_state_dict(new_params)
+
+        model_fix = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
+        model_fix.load_state_dict(new_params)
     else:
         raise ValueError("only support vgg16, deeplabv2!")
-
-
-    model_fix = torchfcn.models.Seg_model(n_class=class_num)
-    for param in model_fix.parameters():
-        param.requires_grad = False
-
 
 
     netD = torchfcn.models.Domain_classifer(reverse=False)

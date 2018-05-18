@@ -314,19 +314,14 @@ class MyTrainer_ROAD(object):
             bce_loss = torch.nn.BCEWithLogitsLoss()
 
             src_discriminate_result = self.netD(score)
-            target_discriminate_result = self.netD(seg_target_score)
+
 
             src_dis_loss = bce_loss(src_discriminate_result,
                                     Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(
                                         src_dis_label)).cuda())
 
-            target_dis_loss = bce_loss(target_discriminate_result,
-                                       Variable(
-                                           torch.FloatTensor(target_discriminate_result.data.size()).fill_(
-                                               target_dis_label)).cuda(),
-                                       )
 
-            dis_loss = src_dis_loss + target_dis_loss
+            dis_loss = src_dis_loss
             dis_loss.backward(retain_graph=True)
 
             #######################train D
