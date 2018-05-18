@@ -4,5 +4,8 @@
 [https://github.com/pumpikano/tf-dann](https://github.com/pumpikano/tf-dann)
 
 
+## result
 
-train.distill.full.diff2d|19
+|arch|result|
+|---|----|
+|train.distill.full.diff2d|first epoch can reach 19|
