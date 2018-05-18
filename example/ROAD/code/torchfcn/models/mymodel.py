@@ -104,12 +104,12 @@ class Seg_model(FCN8s):
             self.pool5,
         ]
         for l1, l2 in zip(vgg16.features, features):
-            if isinstance(l1, nn.Conv2d) and isinstance(l2, nn.Conv2d):
+            if isinstance(l1, nn.Conv2d) and isinstance(l2, nn.Conv2d): # copy convolution weight and bias
                 assert l1.weight.size() == l2.weight.size()
                 assert l1.bias.size() == l2.bias.size()
                 l2.weight.data.copy_(l1.weight.data)
                 l2.bias.data.copy_(l1.bias.data)
-        for i, name in zip([0, 3], ['fc6', 'fc7']):
+        for i, name in zip([0, 3], ['fc6', 'fc7']):# copy fully connected layer
             l1 = vgg16.classifier[i]
             l2 = getattr(self, name)
             l2.weight.data.copy_(l1.weight.data.view(l2.weight.size()))
