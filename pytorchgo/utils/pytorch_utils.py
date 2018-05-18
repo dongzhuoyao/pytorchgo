@@ -1,4 +1,6 @@
 # Author: Tao Hu <taohu620@gmail.com>
+
+import torch
 from . import logger
 from termcolor import colored
 from tabulate import tabulate
@@ -15,6 +17,24 @@ def model_summary(model):
     logger.info(colored("Arg Parameters: \n", 'cyan') + table)
 
     logger.info(model)
+
+def optimizer_summary(optim_list):
+    if not isinstance(optim_list, list):
+        optim_list = [optim_list]
+
+    for optim in optim_list:
+        assert isinstance(optim, torch.optim.Optimizer),ValueError("must be an Optimizer instance")
+        data = []
+        for group_id, param_group in enumerate(optim.param_groups):
+            lr = param_group['lr']
+            weight_decay = param_group['weight_decay']
+            for id, param in enumerate(param_group['params']):
+                requires_grad = param.requires_grad
+                is_volatile = param.volatile
+                shape = list(param.data.size())
+                data.append([group_id, id, shape,lr,weight_decay,requires_grad,is_volatile])
+        table = tabulate(data, headers=['group','id', 'shape', 'lr', 'weight_decay', 'requires_grad', 'volatile'])
+        logger.info(colored("Optimzer Parameters: \n", 'cyan') + table)
 
 
 def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):

@@ -2,7 +2,7 @@ import argparse
 import torch
 
 from torchfcn.trainer_ROAD_distill_full import MyTrainer_ROAD
-from pytorchgo.utils.pytorch_utils import model_summary
+from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 from pytorchgo.utils.weight_init import weights_init
 
 
@@ -129,7 +129,8 @@ def main():
             [
                 {'params': get_parameters(model, bias=False)},
                 {'params': get_parameters(model, bias=True),
-                 'lr': args.lr * 2, 'weight_decay': args.weight_decay},
+                 'lr': args.lr * 2,
+                 'weight_decay': args.weight_decay},
             ],
             lr=args.lr,
             momentum=args.momentum,
@@ -138,9 +139,11 @@ def main():
         if args.model == "vgg16":
             optim = torch.optim.Adam(
                 [
-                    {'params': get_parameters(model, bias=False)},
+                    {'params': get_parameters(model, bias=False),
+                     'weight_decay': args.weight_decay},
                     {'params': get_parameters(model, bias=True),
-                     'lr': args.lr * 2},
+                     'lr': args.lr * 2,
+                     'weight_decay': args.weight_decay},
                 ],
                 lr=args.lr,
                 betas=(args.beta1, 0.999))
@@ -148,14 +151,18 @@ def main():
             optim = torch.optim.Adam(
                 origin_model.optim_parameters(args.lr),
                 lr=args.lr,
-                betas=(args.beta1, 0.999))
+                betas=(args.beta1, 0.999),
+                weight_decay = args.weight_decay)
         else:
             raise
     else:
         raise ValueError('Invalid optmizer argument. Has to be SGD or Adam')
-    
 
-    optimD = torch.optim.Adam(netD.parameters(), lr=dis_lr, betas=(0.7, 0.999))
+
+    optimD = torch.optim.Adam(netD.parameters(), lr=dis_lr, weight_decay = args.weight_decay, betas=(0.7, 0.999))
+
+    optimizer_summary([optim,optimD])
+
 
 
     trainer = MyTrainer_ROAD(
