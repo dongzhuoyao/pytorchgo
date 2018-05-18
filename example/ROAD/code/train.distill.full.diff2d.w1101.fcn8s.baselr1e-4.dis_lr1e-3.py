@@ -79,10 +79,6 @@ def main():
         torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='train', transform=True, image_size=image_size),
         batch_size=args.batchSize, shuffle=True)
 
-    # Defining models
-
-    start_epoch = 0
-    start_iteration = 0
 
     if cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -128,6 +124,7 @@ def main():
     # Defining optimizer
     
     if args.optimizer == 'SGD':
+        raise ValueError("SGD is not prepared well..")
         optim = torch.optim.SGD(
             [
                 {'params': get_parameters(model, bias=False)},
@@ -175,8 +172,8 @@ def main():
         interval_validate=args.interval_validate,
         image_size=image_size
     )
-    trainer.epoch = start_epoch
-    trainer.iteration = start_iteration
+    trainer.epoch = 0
+    trainer.iteration = 0
     trainer.train()
 
 
@@ -280,12 +277,11 @@ class MyTrainer_ROAD(object):
         for batch_idx, (datas, datat) in tqdm.tqdm(
                 enumerate(itertools.izip(self.train_loader, self.target_loader)),
                 total=self.iters_per_epoch,
-                desc='Train epoch = {}/{}'.format(self.epoch, self.max_epoch), leave=False):
+                desc='Train epoch = {}/{}'.format(self.epoch, self.max_epoch)):
+            self.iteration = batch_idx + self.epoch * self.iters_per_epoch
 
             source_data, source_labels = datas
             target_data, __ = datat
-
-            self.iteration = batch_idx + self.epoch * self.iters_per_epoch
 
 
             if self.cuda:
@@ -299,15 +295,15 @@ class MyTrainer_ROAD(object):
             # TODO,split to 3x3
             # Source domain
             score = self.model(source_data)
-            l_seg = CrossEntropyLoss2d_Seg(score, source_labels, size_average=self.size_average)
+            l_seg = CrossEntropyLoss2d_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
 
-            src_discriminate_result = self.netD(score)
 
 
             # target domain
             seg_target_score = self.model(target_data)
             modelfix_target_score = self.model_fix(target_data)
 
+            src_discriminate_result = self.netD(score)
             target_discriminate_result = self.netD(seg_target_score)
 
             diff2d = Diff2d()
