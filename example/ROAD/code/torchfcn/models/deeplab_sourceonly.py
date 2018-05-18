@@ -116,7 +116,7 @@ class Classifier_Module(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, num_classes):
+    def __init__(self, block, layers, num_classes, image_size):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
@@ -133,7 +133,7 @@ class ResNet(nn.Module):
         self.layer5 = self._make_pred_layer(Classifier_Module, 1024, [6, 12, 18, 24], [6, 12, 18, 24], num_classes)
         self.layer6 = self._make_pred_layer(Classifier_Module, 2048, [6, 12, 18, 24], [6, 12, 18, 24], num_classes)
 
-        self.upsample = nn.Upsample(size=(641, 641), mode='bilinear')
+        self.upsample = nn.Upsample(size=image_size, mode='bilinear')
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -221,7 +221,7 @@ class ResNet(nn.Module):
                 {'params': self.get_10x_lr_params(), 'lr': 10 * lr}]
 
 
-def Res_Deeplab(num_classes=19):
-    model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes)
+def Res_Deeplab(image_size,num_classes=19):
+    model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes, image_size=image_size)
     return model
 

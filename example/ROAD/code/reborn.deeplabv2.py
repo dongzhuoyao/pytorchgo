@@ -46,7 +46,7 @@ def main():
     parser.add_argument('--momentum', type=float, default=0.99, help='Momentum for SGD')
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
-    parser.add_argument('--model', type=str, default='vgg16')
+    parser.add_argument('--model', type=str, default='deeplabv2')
     parser.add_argument('--gpu', type=int, default=1)
 
     args = parser.parse_args()
@@ -88,7 +88,7 @@ def main():
         vgg16 = torchfcn.models.VGG16(pretrained=True)
         model.copy_params_from_vgg16(vgg16)
     elif args.model == "deeplabv2":#TODO may have problem!
-        model =  origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num)
+        model =  origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
         saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
         new_params = model.state_dict().copy()
         for i in saved_state_dict:

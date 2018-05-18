@@ -46,7 +46,7 @@ def main():
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--model', type=str, default='vgg16')
-    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--gpu', type=int, default=1)
 
     args = parser.parse_args()
     print(args)
@@ -314,8 +314,7 @@ class MyTrainer_ROAD(object):
             seg_target_score = self.model(target_data)
             modelfix_target_score = self.model_fix(target_data)
 
-            src_discriminate_result = self.netD(score)
-            target_discriminate_result = self.netD(seg_target_score)
+
 
             diff2d = Diff2d()
             distill_loss = diff2d(seg_target_score, modelfix_target_score)
@@ -327,6 +326,9 @@ class MyTrainer_ROAD(object):
             #train D
             set_requires_grad(seg=False, dis=True)
             bce_loss = torch.nn.BCEWithLogitsLoss()
+
+            src_discriminate_result = self.netD(score)
+            target_discriminate_result = self.netD(seg_target_score)
 
             src_dis_loss = bce_loss(src_discriminate_result,
                                            Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(1)).cuda())
