@@ -6,17 +6,21 @@ from termcolor import colored
 from tabulate import tabulate
 
 
-def model_summary(model):
-    state_dict = model.state_dict().copy()
-    params = filter(lambda p: p.requires_grad, model.parameters())
+def model_summary(model_list):
+    if not isinstance(model_list, list):
+        model_list = [model_list]
 
-    data = []
-    for key,value in state_dict.items():
-        data.append([key,list(value.size())])
-    table = tabulate(data, headers=['name', 'shape'])
-    logger.info(colored("Arg Parameters: \n", 'cyan') + table)
+    for model in model_list:
+        state_dict = model.state_dict().copy()
+        params = filter(lambda p: p.requires_grad, model.parameters())
 
-    logger.info(model)
+        data = []
+        for key,value in state_dict.items():
+            data.append([key,list(value.size())])
+        table = tabulate(data, headers=['name', 'shape'])
+        logger.info(colored("Arg Parameters: \n", 'cyan') + table)
+
+        logger.info(model)
 
 def optimizer_summary(optim_list):
     if not isinstance(optim_list, list):
