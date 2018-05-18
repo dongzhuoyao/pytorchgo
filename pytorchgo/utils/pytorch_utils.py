@@ -17,16 +17,18 @@ def model_summary(model):
     logger.info(model)
 
 
-def step_scheduler(optimizer, epoch):
+def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):
     """
     Function to perform step learning rate decay
     Args:
         optimizer: Optimizer for which step decay has to be applied
         epoch: Current epoch number
     """
-
-    decay_factor = 0.1
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = param_group['lr'] * decay_factor
+    previous_lr = optimizer.param_groups[0]['lr']
+    for (e, v) in lr_schedule:
+        if current_epoch == e-1:#epoch start from 0
+            logger.warn("epoch {}: {} lr changed from: {} to {}".format(current_epoch, net_name, previous_lr, v))
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = v
 
     return optimizer
