@@ -15,7 +15,7 @@ import tqdm
 import itertools
 import torchfcn
 from util_fns import get_parameters
-from pytorchgo.loss.loss import CrossEntropyLoss2dWithLogits_Seg, Diff2d
+from pytorchgo.loss.loss import CrossEntropyLoss2d_Seg, Diff2d,CrossEntropyLoss2d
 from pytorchgo.utils.pytorch_utils import step_scheduler
 from pytorchgo.utils import logger
 
@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--model', type=str, default='vgg16')
-    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--gpu', type=int, default=2)
 
     args = parser.parse_args()
     print(args)
@@ -229,7 +229,7 @@ class MyTrainer_ROAD(object):
 
             score = self.model(data)
 
-            loss = CrossEntropyLoss2dWithLogits_Seg(score, target, size_average=self.size_average)
+            loss = CrossEntropyLoss2d_Seg(score, target, size_average=self.size_average)
 
             if np.isnan(float(loss.data[0])):
                 raise ValueError('loss is nan while validating')
@@ -284,11 +284,9 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = datas
             target_data, __ = datat
 
-            self.optim.zero_grad()
-            self.optimD.zero_grad()
-
             src_dis_label = 1
             target_dis_label = 0
+            bce_loss = torch.nn.BCEWithLogitsLoss()
 
             if self.cuda:
                 source_data, source_labels = source_data.cuda(), source_labels.cuda()
@@ -297,12 +295,12 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = Variable(source_data), Variable(source_labels)
             target_data = Variable(target_data)
 
-            ############train G, item1
+            #####################train G, item1
+            self.optim.zero_grad()
             set_requires_grad(seg=True, dis=False)
             # Source domain
             score = self.model(source_data)
-            l_seg = CrossEntropyLoss2dWithLogits_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
-
+            l_seg = CrossEntropyLoss2d_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
             # target domain
             seg_target_score = self.model(target_data)
             modelfix_target_score = self.model_fix(target_data)
@@ -313,13 +311,8 @@ class MyTrainer_ROAD(object):
             l_seg = l_seg * L_LOSS_WEIGHT
             distill_loss = distill_loss * DISTILL_WEIGHT
             seg_loss =  l_seg + distill_loss
-
-            seg_loss.backward(retain_graph=True)
-
             #######train G, item 2
 
-
-            bce_loss = torch.nn.BCEWithLogitsLoss()
 
             src_discriminate_result = self.netD(F.softmax(score))
             target_discriminate_result = self.netD(F.softmax(seg_target_score))
@@ -331,20 +324,25 @@ class MyTrainer_ROAD(object):
             target_dis_loss = bce_loss(target_discriminate_result,
                                        Variable(
                                            torch.FloatTensor(target_discriminate_result.data.size()).fill_(
-                                               target_dis_label)).cuda(),
+                                               src_dis_label)).cuda(),
                                        )
 
             src_dis_loss = src_dis_loss*DIS_WEIGHT
             target_dis_loss = target_dis_loss*DIS_WEIGHT
             dis_loss = src_dis_loss + target_dis_loss
-            dis_loss.backward(retain_graph=True)
+            total_loss = seg_loss + dis_loss
+            total_loss.backward()
+            self.optim.step()
 
-            #######################train D
+
+            ##################################train D
+            self.optimD.zero_grad()
             set_requires_grad(seg=False, dis=True)
-            bce_loss = torch.nn.BCEWithLogitsLoss()
 
-            src_discriminate_result = self.netD(F.softmax(score.detach()))
-            target_discriminate_result = self.netD(F.softmax(seg_target_score.detach()))
+            score = self.model(source_data)
+            seg_target_score = self.model(target_data)
+            src_discriminate_result = self.netD(F.softmax(score))
+            target_discriminate_result = self.netD(F.softmax(seg_target_score))
 
             src_dis_loss = bce_loss(src_discriminate_result,
                                     Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(
@@ -358,12 +356,9 @@ class MyTrainer_ROAD(object):
             src_dis_loss = src_dis_loss*DIS_WEIGHT
             target_dis_loss = target_dis_loss*DIS_WEIGHT
             dis_loss = src_dis_loss + target_dis_loss
-            # total_loss =  +  dis_loss
-
             dis_loss.backward()
-
-            self.optim.step()
             self.optimD.step()
+
 
             if np.isnan(float(dis_loss.data[0])):
                 raise ValueError('dis_loss is nan while training')

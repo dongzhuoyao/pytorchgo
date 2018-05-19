@@ -17,7 +17,7 @@ import tqdm
 import itertools
 import torchfcn
 from util_fns import get_parameters
-from pytorchgo.loss.loss import CrossEntropyLoss2dWithLogits_Seg, Diff2d
+from pytorchgo.loss.loss import CrossEntropyLoss2d_Seg, Diff2d
 from pytorchgo.utils.pytorch_utils import step_scheduler
 from pytorchgo.utils import logger
 
@@ -235,7 +235,7 @@ class MyTrainer_ROAD(object):
 
             score = self.model(data)
 
-            loss = CrossEntropyLoss2dWithLogits_Seg(score, target, size_average=self.size_average)
+            loss = CrossEntropyLoss2d_Seg(score, target, size_average=self.size_average)
 
             if np.isnan(float(loss.data[0])):
                 raise ValueError('loss is nan while validating')
@@ -299,7 +299,7 @@ class MyTrainer_ROAD(object):
             # TODO,split to 3x3
             # Source domain
             score = self.model(source_data)
-            l_seg = CrossEntropyLoss2dWithLogits_Seg(score, source_labels, size_average=self.size_average)
+            l_seg = CrossEntropyLoss2d_Seg(score, source_labels, size_average=self.size_average)
 
             src_discriminate_result = self.netD(score)
 

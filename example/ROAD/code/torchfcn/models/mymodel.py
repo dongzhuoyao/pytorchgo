@@ -139,7 +139,7 @@ class Domain_classifer(nn.Module):
             ResnetBlock(ndf*2, norm_type=2, bias=True, relu_type=2),
             ResnetBlock(ndf*2, norm_type=2, bias=True, relu_type=2),
         )
-        self.out_s = nn.Sequential(nn.Conv2d(ndf*2, 2, 3, padding=1))
+        self.out_s = nn.Sequential(nn.Conv2d(ndf*2, 1, 3, padding=1))#note here output channel must be 1 if you choose BCELosswithLogits
         #discriminate for source real, source fake, target_real, target_fake
         #self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
 

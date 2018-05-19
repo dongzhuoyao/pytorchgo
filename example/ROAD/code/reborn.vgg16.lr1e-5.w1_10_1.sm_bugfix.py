@@ -3,7 +3,7 @@ import torch
 
 from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 from pytorchgo.utils.weight_init import weights_init
-
+import torch.nn.functional as F
 from torch.utils import data, model_zoo
 import math
 import os
@@ -15,7 +15,7 @@ import tqdm
 import itertools
 import torchfcn
 from util_fns import get_parameters
-from pytorchgo.loss.loss import CrossEntropyLoss2d_Seg, Diff2d
+from pytorchgo.loss.loss import CrossEntropyLoss2d_Seg, Diff2d,CrossEntropyLoss2d
 from pytorchgo.utils.pytorch_utils import step_scheduler
 from pytorchgo.utils import logger
 
@@ -23,11 +23,15 @@ class_num = 19
 image_size = [481, 481]  # [640, 320]
 
 max_epoch = 30
-base_lr = 1e-4
-dis_lr = 1e-4
-base_lr_schedule = [(20, 1e-5), (25, 1e-6)]
-dis_lr_schedule = [(20, 1e-5), (25, 1e-5)]
+base_lr = 1e-5
+dis_lr = 1e-5
+base_lr_schedule = [(20, 1e-6), (25, 1e-7)]
+dis_lr_schedule = [(20, 1e-6), (25, 1e-7)]
 LOSS_PRINT_INTERVAL = 500
+
+L_LOSS_WEIGHT = 1
+DISTILL_WEIGHT = 10
+DIS_WEIGHT = 1
 
 Deeplabv2_restore_from = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 
@@ -35,6 +39,7 @@ Deeplabv2_restore_from = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_
 def main():
     logger.auto_set_dir()
     global args
+    parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/ROAD/data',
                         help='Path to source dataset')
@@ -46,7 +51,7 @@ def main():
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--model', type=str, default='vgg16')
-    parser.add_argument('--gpu', type=int, default=1)
+    parser.add_argument('--gpu', type=int, default=2)
 
     args = parser.parse_args()
     print(args)
@@ -86,8 +91,7 @@ def main():
 
         model_fix = torchfcn.models.Seg_model(n_class=class_num)
         model_fix.copy_params_from_vgg16(vgg16)
-        for param in model_fix.parameters():
-            param.requires_grad = False
+
 
     elif args.model == "deeplabv2":  # TODO may have problem!
         model = origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
@@ -107,7 +111,10 @@ def main():
     else:
         raise ValueError("only support vgg16, deeplabv2!")
 
-    netD = torchfcn.models.Domain_classifer(reverse=True)
+    for param in model_fix.parameters():
+        param.requires_grad = False
+
+    netD = torchfcn.models.Domain_classifer(reverse=False)
     netD.apply(weights_init)
 
     model_summary([model, netD])
@@ -278,11 +285,9 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = datas
             target_data, __ = datat
 
-            self.optim.zero_grad()
-            self.optimD.zero_grad()
-
             src_dis_label = 1
             target_dis_label = 0
+            bce_loss = torch.nn.BCEWithLogitsLoss()
 
             if self.cuda:
                 source_data, source_labels = source_data.cuda(), source_labels.cuda()
@@ -291,12 +296,12 @@ class MyTrainer_ROAD(object):
             source_data, source_labels = Variable(source_data), Variable(source_labels)
             target_data = Variable(target_data)
 
-            ############train G, item1
-            #set_requires_grad(seg=True, dis=False)
+            #####################train G, item1
+            self.optim.zero_grad()
+            set_requires_grad(seg=True, dis=False)
             # Source domain
             score = self.model(source_data)
             l_seg = CrossEntropyLoss2d_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
-
             # target domain
             seg_target_score = self.model(target_data)
             modelfix_target_score = self.model_fix(target_data)
@@ -304,18 +309,14 @@ class MyTrainer_ROAD(object):
             diff2d = Diff2d()
             distill_loss = diff2d(seg_target_score, modelfix_target_score)
 
-            seg_loss = l_seg + 10 * distill_loss
-
-            #seg_loss.backward(retain_graph=True)
-
+            l_seg = l_seg * L_LOSS_WEIGHT
+            distill_loss = distill_loss * DISTILL_WEIGHT
+            seg_loss =  l_seg + distill_loss
             #######train G, item 2
 
 
-            """
-            bce_loss = torch.nn.BCEWithLogitsLoss()
-
-            src_discriminate_result = self.netD(score)
-            target_discriminate_result = self.netD(seg_target_score)
+            src_discriminate_result = self.netD(F.softmax(score))
+            target_discriminate_result = self.netD(F.softmax(seg_target_score))
 
             src_dis_loss = bce_loss(src_discriminate_result,
                                     Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(
@@ -324,19 +325,25 @@ class MyTrainer_ROAD(object):
             target_dis_loss = bce_loss(target_discriminate_result,
                                        Variable(
                                            torch.FloatTensor(target_discriminate_result.data.size()).fill_(
-                                               target_dis_label)).cuda(),
+                                               src_dis_label)).cuda(),
                                        )
 
+            src_dis_loss = src_dis_loss*DIS_WEIGHT
+            target_dis_loss = target_dis_loss*DIS_WEIGHT
             dis_loss = src_dis_loss + target_dis_loss
-            dis_loss.backward(retain_graph=True)
-            """
+            total_loss = seg_loss + dis_loss
+            total_loss.backward()
+            self.optim.step()
 
-            #######################train D
-            #set_requires_grad(seg=False, dis=True)
-            bce_loss = torch.nn.BCEWithLogitsLoss()
 
-            src_discriminate_result = self.netD(score.detach())
-            target_discriminate_result = self.netD(seg_target_score.detach())
+            ##################################train D
+            self.optimD.zero_grad()
+            set_requires_grad(seg=False, dis=True)
+
+            score = self.model(source_data)
+            seg_target_score = self.model(target_data)
+            src_discriminate_result = self.netD(F.softmax(score))
+            target_discriminate_result = self.netD(F.softmax(seg_target_score))
 
             src_dis_loss = bce_loss(src_discriminate_result,
                                     Variable(torch.FloatTensor(src_discriminate_result.data.size()).fill_(
@@ -347,13 +354,12 @@ class MyTrainer_ROAD(object):
                                            target_dis_label)).cuda(),
                                        )
 
-            dis_loss = src_dis_loss + target_dis_loss  # this loss has been inversed!!
-            total_loss =   dis_loss + seg_loss
-
-            total_loss.backward()
-
-            self.optim.step()
+            src_dis_loss = src_dis_loss*DIS_WEIGHT
+            target_dis_loss = target_dis_loss*DIS_WEIGHT
+            dis_loss = src_dis_loss + target_dis_loss
+            dis_loss.backward()
             self.optimD.step()
+
 
             if np.isnan(float(dis_loss.data[0])):
                 raise ValueError('dis_loss is nan while training')
@@ -362,8 +368,8 @@ class MyTrainer_ROAD(object):
 
             if self.iteration % self.loss_print_interval == 0:
                 logger.info(
-                    "L_SEG={}, Distill_LOSS={}, Discriminater loss={}".format(l_seg.data[0], distill_loss.data[0],
-                                                                              dis_loss.data[0]))
+                    "After weight Loss: seg_Loss={}, distill_LOSS={}, src_dis_loss={}, target_dis_loss={}".format(l_seg.data[0], distill_loss.data[0],
+                                                                                              src_dis_loss.data[0],target_dis_loss.data[0]))
 
     def train(self):
         """
