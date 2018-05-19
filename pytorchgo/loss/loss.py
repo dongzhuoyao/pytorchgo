@@ -17,7 +17,7 @@ class CrossEntropyLoss2d(nn.Module):
         return self.nll_loss(F.log_softmax(inputs), targets)
 
 
-def CrossEntropyLoss2d_Seg(input, target, class_num=19, weight=None, size_average=True):
+def CrossEntropyLoss2dWithLogits_Seg(input, target, class_num=19, weight=None, size_average=True):
     """
     Function to compute pixelwise cross-entropy for 2D image. This is the segmentation loss.
     Args:
