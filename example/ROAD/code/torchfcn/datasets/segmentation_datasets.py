@@ -426,9 +426,9 @@ if __name__ == '__main__':
         data_file = ds.files[ds.split][idx]
         img, label = ds.image_label_loader(data_file['img'], data_file['lbl'], ds.image_size, random_crop=True)
         return img, label
-    dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[640, 320])
+    dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[481, 481])
     cs = CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True,
-                      image_size=[321, 321])
+                      image_size=[481, 481])
 
     for i in range(len(dataset)):
         img,label = get_data(dataset, i)
