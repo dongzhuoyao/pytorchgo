@@ -359,22 +359,22 @@ class CityScapes(SegmentationData_BaseClass):
             imgsets_file = open(osp.join(
                 self.filelist_path, 'cityscapes_imagelist_train.txt'),'r')
             label_file = open(osp.join(
-                self.filelist_path, 'cityscapes_labellist_train.txt'),'r')
+                self.filelist_path, 'cityscapes_labellist_train_label16.txt'),'r')
         elif split == 'val':
             imgsets_file = open(osp.join(
                 self.filelist_path, 'cityscapes_imagelist_val.txt'),'r')
             label_file = open(osp.join(
-                self.filelist_path, 'cityscapes_labellist_val.txt'),'r')
+                self.filelist_path, 'cityscapes_labellist_val_label16.txt'),'r')
         else:
             raise ValueError('Invalid split type. Should be train or val')
             
         dataset_dir = osp.join(self.root, 'cityscapes')
         if split == 'train':
             img_dir = osp.join(dataset_dir, 'leftImg8bit/train')
-            gt_dir = osp.join(dataset_dir, 'gtFine/train')
+            gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
         elif split == 'val':
             img_dir = osp.join(dataset_dir, 'leftImg8bit/val')
-            gt_dir = osp.join(dataset_dir, 'gtFine/val')
+            gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
         
         for did,lid in zip(imgsets_file,label_file):
             img_file = osp.join(img_dir, '%s' % did.rstrip('\n'))

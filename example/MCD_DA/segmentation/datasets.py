@@ -231,6 +231,7 @@ class TestDataSet(data.Dataset):
 
 
 def get_dataset(dataset_name, split, img_transform, label_transform, test, input_ch=3):
+
     assert dataset_name in ["gta", "city", "test", "city16", "synthia"]
 
     name2obj = {
@@ -242,16 +243,16 @@ def get_dataset(dataset_name, split, img_transform, label_transform, test, input
     ##Note fill in the blank below !! "gta....fill the directory over images folder.
     name2root = {
         "gta": "",  ## Fill the directory over images folder. put train.txt, val.txt in this folder
-        "city": "",  ## ex, ./www.cityscapes-dataset.com/file-handling
-        "city16": "",  ## Same as city
-        "synthia": "",  ## synthia/RAND_CITYSCAPES",
+        "city": "cityscapes",  ## ex, ./www.cityscapes-dataset.com/file-handling
+        "city16": "cityscapes",  ## Same as city
+        "synthia": "RAND_CITYSCAPES",  ## synthia/RAND_CITYSCAPES",
     }
     dataset_obj = name2obj[dataset_name]
     root = name2root[dataset_name]
 
     if dataset_name == "city16":
         return dataset_obj(root=root, split=split, img_transform=img_transform, label_transform=label_transform,
-                           test=test, input_ch=input_ch, label_type="label16")
+                           test=test, label_type="label16")# removed by dongzhuoyao, input_ch=input_ch
 
     return dataset_obj(root=root, split=split, img_transform=img_transform, label_transform=label_transform,
                        test=test, input_ch=input_ch)
