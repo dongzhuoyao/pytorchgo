@@ -39,18 +39,23 @@ class CityDataSet(data.Dataset):
         self.h_flip = HorizontalFlip()
         self.v_flip = VerticalFlip()
         self.test = test
-        data_dir = root
         # for split in ["train", "trainval", "val"]:
-        imgsets_dir = osp.join(data_dir, "leftImg8bit/%s.txt" % split)
+        if split == "train":
+            imgsets_dir = "data/filelist/cityscapes_labellist_train_label16.txt"
+        elif split == "val":
+            imgsets_dir = "data/filelist/cityscapes_labellist_val_label16.txt"
+        else:
+            raise
         with open(imgsets_dir) as imgset_file:
             for name in imgset_file:
                 name = name.strip()
-                img_file = osp.join(data_dir, "leftImg8bit/%s" % name)
+                img_file = osp.join(self.root, "label16_for_synthia/%s" % name)
                 if label_type == "label16":
-                    name = name.replace('leftImg8bit', 'gtFine_label16IDs')
+                    name = os.path.join("label16_for_synthia",name)
                 else:
-                    name = name.replace('leftImg8bit', 'gtFine_labelTrainIds')
-                label_file = osp.join(data_dir, "gtFine/%s" % name)
+                    raise
+
+                label_file = osp.join(self.root,  name)
                 self.files[split].append({
                     "img": img_file,
                     "label": label_file
@@ -157,11 +162,22 @@ class SynthiaDataSet(data.Dataset):
         self.label_transform = label_transform
         self.test = test
 
-        rgb_dir = osp.join(root, "RGB")
-        gt_dir = osp.join(root, "GT", "LABELS16")
+        #rgb_dir = osp.join(root, "RGB")
+        #gt_dir = osp.join(root, "GT", "LABELS16")
 
-        rgb_fn_list = glob.glob(osp.join(rgb_dir, "*.png"))
-        gt_fn_list = glob.glob(osp.join(gt_dir, "*.png"))
+        #rgb_fn_list = glob.glob(osp.join(rgb_dir, "*.png"))
+        #gt_fn_list = glob.glob(osp.join(gt_dir, "*.png"))
+
+        if split == "train":
+            img_path = "data/filelist/SYNTHIA_imagelist_train.txt"
+            label_path = "data/filelist/SYNTHIA_labellist_train.txt"
+        else:
+            raise
+        with open(img_path,"r") as f:
+            rgb_fn_list = [os.path.join(self.root, tmp.strip()) for tmp in f.readlines()]
+
+        with open(label_path, "r") as f:
+            gt_fn_list =  [os.path.join(self.root, tmp.strip()) for tmp in f.readlines()]
 
         for rgb_fn, gt_fn in zip(rgb_fn_list, gt_fn_list):
             self.files[split].append({
@@ -244,8 +260,8 @@ def get_dataset(dataset_name, split, img_transform, label_transform, test, input
     name2root = {
         "gta": "",  ## Fill the directory over images folder. put train.txt, val.txt in this folder
         "city": "cityscapes",  ## ex, ./www.cityscapes-dataset.com/file-handling
-        "city16": "cityscapes",  ## Same as city
-        "synthia": "RAND_CITYSCAPES",  ## synthia/RAND_CITYSCAPES",
+        "city16": "data/cityscapes",  ## Same as city
+        "synthia": "data/RAND_CITYSCAPES",  ## synthia/RAND_CITYSCAPES",
     }
     dataset_obj = name2obj[dataset_name]
     root = name2root[dataset_name]

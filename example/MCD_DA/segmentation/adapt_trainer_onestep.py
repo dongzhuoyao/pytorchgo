@@ -86,6 +86,11 @@ parser.add_argument('--uses_one_classifier', action="store_true",
 parser.add_argument('--add_bg_loss', action="store_true",
                     help="adversarial dropout regularization")
 
+parser.add_argument('--gpu', type=str,default='4',
+                    help="adversarial dropout regularization")
+
+
+
 
 args = parser.parse_args()
 args = add_additional_params_to_args(args)
@@ -96,6 +101,9 @@ weight = torch.ones(args.n_class)
 
 if not args.add_bg_loss:
     weight[args.n_class - 1] = 0  # Ignore background loss
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 args.start_epoch = 0
 resume_flg = True if args.resume else False
@@ -206,8 +214,7 @@ train_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True,
     pin_memory=True)
 
-weight = get_class_weight_from_file(n_class=args.n_class, weight_filename=args.loss_weights_file,
-                                    add_bg_loss=args.add_bg_loss)
+#weight = get_class_weight_from_file(n_class=args.n_class, weight_filename=args.loss_weights_file,add_bg_loss=args.add_bg_loss)
 
 if torch.cuda.is_available():
     model_g.cuda()
@@ -215,7 +222,8 @@ if torch.cuda.is_available():
     model_f2.cuda()
     weight = weight.cuda()
 
-criterion = CrossEntropyLoss2d(weight)
+#criterion = CrossEntropyLoss2d(weight)
+criterion = CrossEntropyLoss2d()
 criterion_d = get_prob_distance_criterion(args.d_loss)
 
 model_g.train()
@@ -225,7 +233,8 @@ for epoch in range(start_epoch, args.epochs):
     d_loss_per_epoch = 0
     c_loss_per_epoch = 0
     interpolate = max(0, min(1 - epoch / 20., 0.8))
-    for ind, (source, target) in tqdm.tqdm(enumerate(train_loader)):
+    for ind, batch_data in tqdm.tqdm(enumerate(train_loader)):
+        source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
         tgt_imgs = Variable(target[0])
 
