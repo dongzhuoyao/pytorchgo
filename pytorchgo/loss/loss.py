@@ -69,9 +69,9 @@ class BalanceLoss2d(nn.Module):
         super(BalanceLoss2d, self).__init__()
         self.weight = weight
 
-    def forward(self, inputs1, inputs2):
-        prob1 = F.softmax(inputs1)[0, :19]
-        prob2 = F.softmax(inputs2)[0, :19]
+    def forward(self, inputs1, inputs2, class_num):
+        prob1 = F.softmax(inputs1)[0, :class_num]
+        prob2 = F.softmax(inputs2)[0, :class_num]
         print prob1
         prob1 = torch.mean(prob1, 0)
         prob2 = torch.mean(prob2, 0)
@@ -86,8 +86,8 @@ class Entropy(nn.Module):
         super(Entropy, self).__init__()
         self.weight = weight
 
-    def forward(self, inputs1):
-        prob1 = F.softmax(inputs1[0, :19])
+    def forward(self, inputs1, class_num):
+        prob1 = F.softmax(inputs1[0, :class_num])
         entropy_loss = torch.mean(torch.log(prob1))  # torch.mean(torch.mean(torch.log(prob1),1),0
         return entropy_loss
 
