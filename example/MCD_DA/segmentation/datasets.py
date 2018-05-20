@@ -79,7 +79,7 @@ class CityDataSet(data.Dataset):
             label = self.label_transform(label)
 
         if self.test:
-            return img, label, img_file
+            return img, np.asarray(label), img_file
 
         return img, label
 

@@ -197,7 +197,7 @@ img_transform = Compose(img_transform_list)
 label_transform = Compose([
     Scale(train_img_shape, Image.NEAREST),
     ToLabel(),
-    ReLabel(255, args.n_class - 1),  # Last Class is "Void" or "Background" class
+    #ReLabel(255, args.n_class - 1),  # Last Class is "Void" or "Background" class
 ])
 
 src_dataset = get_dataset(dataset_name=args.src_dataset, split=args.src_split, img_transform=img_transform,

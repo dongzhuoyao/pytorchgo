@@ -256,7 +256,7 @@ def eval_city(gt_dir, pred_dir, devkit_dir='', dset='cityscapes', add_bg_loss=Fa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('dset', default='city', help='For the challenge use the validation set of cityscapes.',
+    parser.add_argument('dset', default='city16', help='For the challenge use the validation set of cityscapes.',
                         choices=['city', "city16", 'gta'])
     parser.add_argument('pred_dir', type=str, help='directory which stores CityScapes val pred images')
     parser.add_argument('--time', type=str, choices=["day", "night", "all"], default="all",

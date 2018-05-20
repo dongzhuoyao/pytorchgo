@@ -48,6 +48,9 @@ args = parser.parse_args()
 args = add_additional_params_to_args(args)
 args = fix_img_shape_args(args)
 
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 indir, infn = os.path.split(args.trained_checkpoint)
 
 trained_mode = indir.split(os.path.sep)[-2]
@@ -69,6 +72,7 @@ pprint(checkpoint["args"].__dict__, indent=4)
 print ("-" * 50)
 args.train_img_shape = checkpoint["args"].train_img_shape
 print("=> loaded checkpoint '{}'".format(args.trained_checkpoint))
+print("=> train image shape: {}".format(args.train_img_shape))
 
 base_outdir = os.path.join(args.outdir, args.mode, model_name)
 mkdir_if_not_exist(base_outdir)
@@ -87,7 +91,9 @@ img_transform = Compose([
     Normalize([.485, .456, .406], [.229, .224, .225]),
 
 ])
-label_transform = Compose([Scale(train_img_shape, Image.BILINEAR), ToTensor()])
+label_transform = Compose([Scale(train_img_shape, Image.BILINEAR),
+                           #ToTensor()
+                           ])
 
 tgt_dataset = get_dataset(dataset_name=args.tgt_dataset, split=args.split, img_transform=img_transform,
                           label_transform=label_transform, test=True, input_ch=train_args.input_ch)
@@ -119,10 +125,13 @@ if torch.cuda.is_available():
     F1.cuda()
     F2.cuda()
 
-for index, (imgs, _, paths) in tqdm(enumerate(target_loader)):
+from tensorpack.utils.stats import MIoUStatistics
+stat = MIoUStatistics(nb_classes=16,ignore_label=255)
+for index, (origin_imgs, labels, paths) in tqdm(enumerate(target_loader)):
     path = paths[0]
+    #if index > 10: break
 
-    imgs = Variable(imgs)
+    imgs = Variable(origin_imgs)
     if torch.cuda.is_available():
         imgs = imgs.cuda()
 
@@ -147,6 +156,12 @@ for index, (imgs, _, paths) in tqdm(enumerate(target_loader)):
 
     img = Image.fromarray(np.uint8(pred.numpy()))
     img = img.resize(test_img_shape, Image.NEAREST)
+    feed_predict = np.squeeze(np.uint8(pred.numpy()))
+    feed_label =   np.squeeze(np.asarray(labels.numpy()))
+    print np.unique(feed_predict)
+    print np.unique(feed_label)
+
+    stat.feed(feed_predict, feed_label)
     label_outdir = os.path.join(base_outdir, "label")
     if index == 0:
         print ("pred label dir: %s" % label_outdir)
@@ -169,3 +184,5 @@ for index, (imgs, _, paths) in tqdm(enumerate(target_loader)):
     mkdir_if_not_exist(vis_outdir)
     vis_fn = os.path.join(vis_outdir, path.split('/')[-1])
     img.save(vis_fn)
+
+print("=>mIoU :{}".format(stat.mIoU))
