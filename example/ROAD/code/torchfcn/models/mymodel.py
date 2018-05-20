@@ -118,11 +118,10 @@ class Seg_model(FCN8s):
 
 
 class Domain_classifer(nn.Module):
-    def __init__(self, n_class=19,reverse =False):
+    def __init__(self, n_class=19):
         nc = n_class
         ndf = 64
         super(Domain_classifer, self).__init__()
-        self.reverse = reverse
         self.feature = nn.Sequential(
             nn.Conv2d(nc, 2*ndf, 4, 2, 2),
             nn.InstanceNorm2d(2*ndf),
@@ -143,8 +142,8 @@ class Domain_classifer(nn.Module):
         #discriminate for source real, source fake, target_real, target_fake
         #self.out_c = nn.Sequential(nn.Conv2d(ndf*2, n_class, 3, padding=1))# image segmentation result
 
-    def forward(self, input):
-        if self.reverse:
+    def forward(self, input, is_reverse = False):
+        if is_reverse:
             input = grad_reverse(input)
         output = self.feature(input)
         out_s = self.out_s(output)

@@ -75,8 +75,8 @@ def transform_label(label_orig, sz):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
-    parser.add_argument('--model_file',default='logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar', help='Model path')
+    parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/ROAD/data', help='Path to source dataset')
+    parser.add_argument('--model_file',default='train_log/reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.totalconfusion/model_best.pth.tar', help='Model path')
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
@@ -84,7 +84,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
     model_file = args.model_file
 
-    image_size=[640, 320]
+    image_size=[2048, 1024]
     dset = 'cityscapes'
     val_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.CityScapes(dset, args.dataroot, split='val', transform=True, image_size=image_size),
@@ -96,7 +96,7 @@ def main():
     if args.method == 'sourceonly':
         model = torchfcn.models.FCN8s_sourceonly(n_class=n_class)
     elif args.method == 'LSD':
-        model = torchfcn.models.FCN8s_LSD(n_class=n_class)
+        model = torchfcn.models.Seg_model(n_class=n_class)
     else:
         raise ValueError('Invalid argument for method specified - Should be LSD or sourceonly')
         	
@@ -106,6 +106,7 @@ def main():
           (model.__class__.__name__, model_file))
     
     model_data = torch.load(args.model_file)
+    print "best mean iou in training: {}".format(model_data['best_mean_iu'])
     try:
         model.load_state_dict(model_data)
     except Exception:
@@ -130,7 +131,7 @@ def main():
         if args.method == 'sourceonly':
             score = model(data)
         elif args.method == 'LSD':
-            score, __, __, __ = model(data)
+            score = model(data)
         lbl_pred = score.data.max(1)[1].cpu().numpy()[:, :, :].squeeze()
 
         if dset == 'cityscapes':
