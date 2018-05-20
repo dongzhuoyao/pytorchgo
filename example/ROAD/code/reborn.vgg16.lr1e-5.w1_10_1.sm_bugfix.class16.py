@@ -230,7 +230,7 @@ class MyTrainer_ROAD(object):
 
             score = self.model(data)
 
-            loss = CrossEntropyLoss2d_Seg(score, target, size_average=self.size_average)
+            loss = CrossEntropyLoss2d_Seg(score, target, class_num= class_num,size_average=self.size_average)
 
             if np.isnan(float(loss.data[0])):
                 raise ValueError('loss is nan while validating')

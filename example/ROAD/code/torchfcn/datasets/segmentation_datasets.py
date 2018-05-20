@@ -10,7 +10,6 @@ import copy
 import random
 from tqdm import tqdm
 
-CLASS_NUM = 19
 
 DEBUG_NUM = 0
 
@@ -60,14 +59,11 @@ class SegmentationData_BaseClass(data.Dataset):
         img = img.transpose(2, 0, 1)
 
 
-        #if self.dset != 'cityscapes':
-            #mask = lbl > CLASS_NUM-1
-            #lbl[mask] = 255
-            #lbl[lbl>=CLASS_NUM] = 255, wrong writing!!!!
 
 
 
-        img = torch.from_numpy(img.copy()).float() 
+
+        img = torch.from_numpy(img.copy()).float()
         lbl = torch.from_numpy(lbl.copy()).long()
 
 

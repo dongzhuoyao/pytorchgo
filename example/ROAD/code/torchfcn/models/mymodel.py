@@ -118,7 +118,7 @@ class Seg_model(FCN8s):
 
 
 class Domain_classifer(nn.Module):
-    def __init__(self, n_class=19):
+    def __init__(self, n_class):
         nc = n_class
         ndf = 64
         super(Domain_classifer, self).__init__()

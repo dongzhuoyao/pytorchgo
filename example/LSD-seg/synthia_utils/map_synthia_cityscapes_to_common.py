@@ -3,10 +3,8 @@ import os,cv2
 from tqdm import tqdm
 import numpy as np
 from synthia2cityscapes import synthia2common_dict, city2common_dict
-#data_dir = "/home/hutao/lab/pytorchgo/example/LSD-seg/data/RAND_CITYSCAPES"
 
 
-#os.mkdir(target_dir)
 
 def synthia2common():
     data_dir = '/data4/hutao/dataset/RAND_CITYSCAPES'
