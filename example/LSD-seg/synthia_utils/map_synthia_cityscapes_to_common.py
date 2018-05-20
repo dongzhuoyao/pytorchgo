@@ -10,6 +10,7 @@ def synthia2common():
     data_dir = '/data4/hutao/dataset/RAND_CITYSCAPES'
     src_dir = os.path.join(data_dir, "GT/LABELS")
     target_dir = os.path.join(data_dir, "synthia_mapped_to_common")
+    os.mkdir(target_dir)
     #print synthiaid2label[8].synthia_trainid
     files = os.listdir(src_dir)
     for f in tqdm(files):
@@ -34,7 +35,7 @@ def city2common():
     label_list = ['/home/hutao/lab/pytorchgo/example/LSD-seg/data/filelist/cityscapes_labellist_train.txt',
                   '/home/hutao/lab/pytorchgo/example/LSD-seg/data/filelist/cityscapes_labellist_val.txt']
 
-    #os.mkdir(target_root)
+    os.mkdir(target_root)
     sub_dir = ["gtFine/train","gtFine/val"]
     for iii, label_txt in enumerate(label_list):
         with open(label_txt, "r") as f:
@@ -60,4 +61,5 @@ def city2common():
                     f_out.write("{}\n".format(file_name))
 
 #synthia_mapped_to_cityscapes()
-city2common()
+#city2common()
+synthia2common()
