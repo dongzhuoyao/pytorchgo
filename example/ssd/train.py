@@ -51,8 +51,11 @@ parser.add_argument('--visdom', default=False, type=str2bool,
                     help='Use visdom for loss visualization')
 parser.add_argument('--save_folder', default='weights/',
                     help='Directory for saving checkpoint models')
+parser.add_argument('--gpu', default=0, type=int,
+                    help='Resume training at this iter')
 args = parser.parse_args()
 
+os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
 
 if torch.cuda.is_available():
     if args.cuda:
@@ -185,7 +188,7 @@ def train():
 
         if iteration % 10 == 0:
             print('timer: %.4f sec.' % (t1 - t0))
-            print('iter {} || Loss: %.4f ||'.format(repr(iteration), loss.data[0]))
+            print('iter {} || Loss: {} ||'.format(repr(iteration), loss.data[0]))
 
         if args.visdom:
             update_vis_plot(iteration, loss_l.data[0], loss_c.data[0],
