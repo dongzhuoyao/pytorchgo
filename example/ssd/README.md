@@ -1,3 +1,9 @@
+# 
+
+network structure:
+
+[http://ethereon.github.io/netscope/#/gist/3dec25a5c3e6c28f7afb3276020b102c](http://ethereon.github.io/netscope/#/gist/3dec25a5c3e6c28f7afb3276020b102c)
+
 # SSD: Single Shot MultiBox Object Detector, in PyTorch==-.3.1,python==3.x
 A [PyTorch](http://pytorch.org/) implementation of [Single Shot MultiBox Detector](http://arxiv.org/abs/1512.02325) from the 2016 paper by Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang, and Alexander C. Berg.  The official and original Caffe code can be found [here](https://github.com/weiliu89/caffe/tree/ssd).
 
