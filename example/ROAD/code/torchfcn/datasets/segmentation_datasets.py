@@ -50,7 +50,7 @@ class SegmentationData_BaseClass(data.Dataset):
             return len(self.files[self.split])
 
     def __getitem__(self, index):
-        data_file = self.files[self.split][index]
+        data_file = self.files[self.split][index%self.__len__()]# make it infinite
         
         # Loading image and label
         img, lbl = self.image_label_loader(data_file['img'], data_file['lbl'], self.image_size, random_crop=True)
