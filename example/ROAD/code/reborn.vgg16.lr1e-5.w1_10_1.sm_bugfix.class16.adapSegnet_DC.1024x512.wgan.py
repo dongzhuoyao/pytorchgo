@@ -291,11 +291,11 @@ class MyTrainer_ROAD(object):
 
 
 
-        self.G_source_loader_iter = [enumerate(self.train_loader)]*G_STEP
-        self.G_target_loader_iter = [enumerate(self.target_loader)]*G_STEP
+        self.G_source_loader_iter = [enumerate(self.train_loader) for _ in range(G_STEP)]
+        self.G_target_loader_iter = [enumerate(self.target_loader)  for _ in range(G_STEP)]
 
-        self.D_source_loader_iter = [enumerate(self.train_loader)] * D_STEP
-        self.D_target_loader_iter = [enumerate(self.target_loader)] * D_STEP
+        self.D_source_loader_iter = [enumerate(self.train_loader) for _ in range(D_STEP)]
+        self.D_target_loader_iter = [enumerate(self.target_loader)  for _ in range(D_STEP)]
 
         for batch_idx in tqdm.tqdm(
                 range(self.iters_per_epoch),

@@ -463,12 +463,16 @@ if __name__ == '__main__':
 
     train_loader = torch.utils.data.DataLoader(
         CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/ROAD/data', split='val', transform=True, image_size=[431,431],output_path = True),
-        batch_size=10, shuffle=True)
+        batch_size=1, shuffle=True)
+    train_loader_list = [train_loader]*2
     for I in range(10):
         print I
-        train_loader_iter = enumerate(train_loader)
+        train_loader_iter0 = enumerate(train_loader_list[0])
+        train_loader_iter1 = enumerate(train_loader_list[1])
         for i in tqdm(range(5)):
-            idx, (img,label,path) = train_loader_iter.next()
+            idx, (img,label,path) = train_loader_iter0.next()
+            print path
+            idx, (img, label, path) = train_loader_iter1.next()
             print path
 
 
