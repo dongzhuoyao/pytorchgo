@@ -167,19 +167,21 @@ class Domain_classifer_forAdapSegNet(nn.Module):
 		#self.sigmoid = nn.Sigmoid()
 
 
-	def forward(self, x):
-		x = self.conv1(x)
-		x = self.leaky_relu(x)
-		x = self.conv2(x)
-		x = self.leaky_relu(x)
-		x = self.conv3(x)
-		x = self.leaky_relu(x)
-		x = self.conv4(x)
-		x = self.leaky_relu(x)
-		x = self.classifier(x)
-		#x = self.up_sample(x)
-		#x = self.sigmoid(x)
+	def forward(self, x, is_reverse = False):
+            if is_reverse:
+                x = grad_reverse(x)
+            x = self.conv1(x)
+            x = self.leaky_relu(x)
+            x = self.conv2(x)
+            x = self.leaky_relu(x)
+            x = self.conv3(x)
+            x = self.leaky_relu(x)
+            x = self.conv4(x)
+            x = self.leaky_relu(x)
+            x = self.classifier(x)
+            #x = self.up_sample(x)
+            #x = self.sigmoid(x)
 
-		return x
+            return x
 
 
