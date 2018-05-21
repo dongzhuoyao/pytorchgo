@@ -326,7 +326,7 @@ class MyTrainer_ROAD(object):
         #for _ in range(D_STEP):
             source_data, source_labels, target_data = get_data(self.D_source_loader_iter, self.D_target_loader_iter)
             self.optimD.zero_grad()
-            set_requires_grad(seg=False, dis=True)
+            set_requires_grad(seg=True, dis=True)
 
             score = self.model(source_data)
             seg_target_score = self.model(target_data)
@@ -347,6 +347,7 @@ class MyTrainer_ROAD(object):
             dis_loss = src_dis_loss + target_dis_loss
             dis_loss.backward()
             self.optimD.step()
+            self.optim.step()
             # https://ewanlee.github.io/2017/04/29/WGAN-implemented-by-PyTorch/
             for p in self.netD.parameters():
                 p.data.clamp_(-0.01, 0.01)

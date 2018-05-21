@@ -49,8 +49,6 @@ parser.add_argument('--gamma', default=0.1, type=float,
                     help='Gamma update for SGD')
 parser.add_argument('--visdom', default=False, type=str2bool,
                     help='Use visdom for loss visualization')
-parser.add_argument('--save_folder', default='weights/',
-                    help='Directory for saving checkpoint models')
 parser.add_argument('--gpu', default=0, type=int,
                     help='Resume training at this iter')
 args = parser.parse_args()
@@ -61,14 +59,11 @@ if torch.cuda.is_available():
     if args.cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
     if not args.cuda:
-        logger.info("WARNING: It looks like you have a CUDA device, but aren't " +
+        logger.warn("WARNING: It looks like you have a CUDA device, but aren't " +
               "using CUDA.\nRun with --cuda for optimal training speed.")
         torch.set_default_tensor_type('torch.FloatTensor')
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
-
-if not os.path.exists(args.save_folder):
-    os.mkdir(args.save_folder)
 
 
 def train():
@@ -106,7 +101,7 @@ def train():
         logger.info('Resuming training, loading {}...'.format(args.resume))
         ssd_net.load_weights(args.resume)
     else:
-        vgg_weights = torch.load(args.save_folder + args.basenet)
+        vgg_weights = torch.load("weights" + args.basenet)
         logger.info('Loading base network...')
         ssd_net.vgg.load_state_dict(vgg_weights)
 
