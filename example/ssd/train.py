@@ -50,7 +50,7 @@ parser.add_argument('--gamma', default=0.1, type=float,
 parser.add_argument('--visdom', default=False, type=str2bool,
                     help='Use visdom for loss visualization')
 parser.add_argument('--gpu', default=0, type=int,
-                    help='Resume training at this iter')
+                    help='gpu')
 args = parser.parse_args()
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
@@ -94,14 +94,14 @@ def train():
     net = ssd_net
 
     if args.cuda:
-        net = torch.nn.DataParallel(ssd_net)
+        #net = torch.nn.DataParallel(ssd_net), if only one gpu, just comment it!!
         cudnn.benchmark = True
 
     if args.resume:
         logger.info('Resuming training, loading {}...'.format(args.resume))
         ssd_net.load_weights(args.resume)
     else:
-        vgg_weights = torch.load("weights" + args.basenet)
+        vgg_weights = torch.load("weights/" + args.basenet)
         logger.info('Loading base network...')
         ssd_net.vgg.load_state_dict(vgg_weights)
 
@@ -144,6 +144,8 @@ def train():
                                   num_workers=args.num_workers,
                                   shuffle=True, collate_fn=detection_collate,
                                   pin_memory=True)
+
+
     # create batch iterator
     batch_iterator = iter(data_loader)
     for iteration in range(args.start_iter, cfg['max_iter']):
@@ -160,7 +162,13 @@ def train():
             adjust_learning_rate(optimizer, args.gamma, step_index)
 
         # load train data
-        images, targets = next(batch_iterator)
+        #images, targets = next(batch_iterator)
+        #https://github.com/amdegroot/ssd.pytorch/issues/140
+        try:
+            images, targets = next(batch_iterator)
+        except StopIteration:
+            batch_iterator = iter(data_loader)
+            images, targets = next(batch_iterator)
 
         if args.cuda:
             images = Variable(images.cuda())
