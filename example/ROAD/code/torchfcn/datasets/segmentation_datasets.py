@@ -38,10 +38,11 @@ class SegmentationData_BaseClass(data.Dataset):
     ])
     mean_bgr = np.array([104.00698793, 116.66876762, 122.67891434])
 
-    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512]):
+    def __init__(self, dset, root, split='train', output_path = False, transform=False, image_size=[1024, 512]):
         self.root = root
         self.image_size = image_size
         self.files = collections.defaultdict(list)
+        self.output_path = output_path
 
     def __len__(self):
         if DEBUG_NUM:
@@ -50,10 +51,14 @@ class SegmentationData_BaseClass(data.Dataset):
             return len(self.files[self.split])
 
     def __getitem__(self, index):
-        data_file = self.files[self.split][index%self.__len__()]# make it infinite
+        data_file = self.files[self.split][index]
         
         # Loading image and label
-        img, lbl = self.image_label_loader(data_file['img'], data_file['lbl'], self.image_size, random_crop=True)
+        if self.output_path:
+            img, lbl,img_path = self.image_label_loader(data_file['img'], data_file['lbl'], self.image_size, random_crop=True)
+        else:
+            img, lbl = self.image_label_loader(data_file['img'], data_file['lbl'], self.image_size,
+                                                         random_crop=True)
         img = img[:,:,::-1]
         img -= self.mean_bgr
         img = img.transpose(2, 0, 1)
@@ -66,8 +71,10 @@ class SegmentationData_BaseClass(data.Dataset):
         img = torch.from_numpy(img.copy()).float()
         lbl = torch.from_numpy(lbl.copy()).long()
 
-
-        return img,lbl#, path
+        if self.output_path:
+            return img,lbl,img_path
+        else:
+            return img,lbl
 
     def transform(self, img, lbl):
         """
@@ -164,7 +171,7 @@ class SegmentationData_BaseClass(data.Dataset):
 
 class SYNTHIA(SegmentationData_BaseClass):
     
-    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512]):
+    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512], output_path = False):
         super(SYNTHIA, self).__init__(
             dset, root, split=split, transform=transform, image_size=image_size)
         
@@ -173,6 +180,8 @@ class SYNTHIA(SegmentationData_BaseClass):
         self.filelist_path = osp.join(self.root, 'filelist')
         self.split = split
         self._transform = transform
+
+        self.output_path = output_path
 
         dataset_dir = osp.join(self.root, 'RAND_CITYSCAPES')
         # self.files = collections.defaultdict(list)
@@ -246,7 +255,11 @@ class SYNTHIA(SegmentationData_BaseClass):
             label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
-        return im_, label_   #,img_path
+
+        if self.output_path:
+            return im_, label_ ,img_path
+        else:
+            return im_, label_,
 
 class GTA5(SegmentationData_BaseClass):
     
@@ -341,15 +354,16 @@ class GTA5(SegmentationData_BaseClass):
 
 class CityScapes(SegmentationData_BaseClass):
 
-    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512]):
+    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512],output_path = False):
         super(CityScapes, self).__init__(
-            dset, root, split=split, transform=transform, image_size=image_size)
+            dset, root, split=split, transform=transform, image_size=image_size, output_path=output_path)
         
         self.dset = dset
         self.root = root
         self.filelist_path = osp.join(self.root, 'filelist')
         self.split = split
         self._transform = transform
+        self.output_path = output_path
         
         if split == 'train':
             imgsets_file = open(osp.join(
@@ -412,27 +426,50 @@ class CityScapes(SegmentationData_BaseClass):
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
 
-        return im_, label_   #,img_path
+        if self.output_path:
+            return im_, label_ ,img_path
+        else:
+            return im_,label_
 
 
-
+"""
 if __name__ == '__main__':
     from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
     def get_data(ds, idx):
         data_file = ds.files[ds.split][idx]
-        img, label = ds.image_label_loader(data_file['img'], data_file['lbl'], ds.image_size, random_crop=True)
-        return img, label
-    dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[481, 481])
+        img, label,path = ds.image_label_loader(data_file['img'], data_file['lbl'], ds.image_size, random_crop=True)
+        return img, label,path
+    dataset = SYNTHIA('SYNTHIA', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True, image_size=[481, 481],output_path = True)
     cs = CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/LSD-seg/data', split='train', transform=True,
-                      image_size=[481, 481])
+                      image_size=[481, 481],output_path = True)
 
     for i in range(len(dataset)):
-        img,label = get_data(dataset, i)
-        cs_img, cs_label= get_data(cs, i)
+        img,label,src_path = get_data(dataset, i)
+        cs_img, cs_label,target_path = get_data(cs, i)
+        print src_path
+        print target_path
+
         print np.unique(label)
         cv2.imshow("source image",img.astype(np.uint8))
         cv2.imshow("source label",visualize_label(label))
         cv2.imshow("target image",cs_img.astype(np.uint8))
         cv2.imshow("target label", visualize_label(cs_label))
         cv2.waitKey(10000)
+"""
+
+
+if __name__ == '__main__':
+
+
+    train_loader = torch.utils.data.DataLoader(
+        CityScapes('cityscapes', '/home/hutao/lab/pytorchgo/example/ROAD/data', split='val', transform=True, image_size=[431,431],output_path = True),
+        batch_size=10, shuffle=True)
+    for I in range(10):
+        print I
+        train_loader_iter = enumerate(train_loader)
+        for i in tqdm(range(5)):
+            idx, (img,label,path) = train_loader_iter.next()
+            print path
+
+
 

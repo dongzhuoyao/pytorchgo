@@ -34,7 +34,7 @@ DISTILL_WEIGHT = 10
 DIS_WEIGHT = 1
 
 G_STEP = 1
-D_STEP = 2
+D_STEP = 1
 
 Deeplabv2_restore_from = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 
@@ -58,6 +58,8 @@ def main():
 
     args = parser.parse_args()
     print(args)
+
+
 
     gpu = args.gpu
 
@@ -289,13 +291,8 @@ class MyTrainer_ROAD(object):
             for param in self.netD.parameters():
                 param.requires_grad = dis
 
-
-
-        self.G_source_loader_iter = [enumerate(self.train_loader)]*G_STEP
-        self.G_target_loader_iter = [enumerate(self.target_loader)]*G_STEP
-
-        self.D_source_loader_iter = [enumerate(self.train_loader)] * D_STEP
-        self.D_target_loader_iter = [enumerate(self.target_loader)] * D_STEP
+        self.train_loader_iter = enumerate(self.train_loader)
+        self.target_loader_iter = enumerate(self.target_loader)
 
         for batch_idx in tqdm.tqdm(
                 range(self.iters_per_epoch),
@@ -306,12 +303,12 @@ class MyTrainer_ROAD(object):
 
             src_dis_label = 1
             target_dis_label = 0
-            mse_loss = torch.nn.BCEWithLogitsLoss()
-            def get_data(source_iter, target_iter):
-                _, source_batch = source_iter.next()
+            mse_loss = torch.nn.MSELoss()
+            def get_data():
+                _, source_batch = self.train_loader_iter.next()
                 source_data, source_labels = source_batch
 
-                _, target_batch = target_iter.next()
+                _, target_batch = self.target_loader_iter.next()
                 target_data, _ = target_batch
 
                 if self.cuda:
@@ -324,7 +321,7 @@ class MyTrainer_ROAD(object):
 
             ##################################train D
             for _ in range(D_STEP):
-                source_data, source_labels, target_data = get_data(self.D_source_loader_iter[_], self.D_target_loader_iter[_])
+                source_data, source_labels, target_data = get_data()
                 self.optimD.zero_grad()
                 set_requires_grad(seg=False, dis=True)
 
@@ -353,7 +350,7 @@ class MyTrainer_ROAD(object):
 
             #####################train G, item1
             for _ in range(G_STEP):
-                source_data, source_labels, target_data = get_data(self.G_source_loader_iter[_], self.G_target_loader_iter[_])
+                source_data, source_labels, target_data = get_data()
                 self.optim.zero_grad()
                 set_requires_grad(seg=True, dis=False)
                 # Source domain
