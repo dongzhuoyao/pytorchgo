@@ -21,12 +21,12 @@ import argparse
 # from visualize import LinePlotter
 # set_debugger_org_frc() #TODO interesting tool
 #parser = get_da_mcd_training_parser()
-
+torch.backends.cudnn.benchmark=True
 parser = argparse.ArgumentParser(description='PyTorch Segmentation Adaptation')
 parser.add_argument('--savename', type=str, default="normal", help="save name(Do NOT use '-')")
 parser.add_argument('--base_outdir', type=str, default='train_output',
                     help="base output dir")
-parser.add_argument('--epochs', type=int, default=10,
+parser.add_argument('--epochs', type=int, default=30,
                     help='number of epochs to train (default: 10)')
 parser.add_argument("--max_iter", type=int, default=5000)  # Iter per epoch
 
@@ -43,7 +43,7 @@ parser.add_argument("--is_data_parallel", action="store_true",
 # ---------- Hyperparameters ---------- #
 parser.add_argument('--opt', type=str, default="sgd", choices=['sgd', 'adam'],
                     help="network optimizer")
-parser.add_argument('--lr', type=float, default=1e-3,
+parser.add_argument('--lr', type=float, default=1e-4,
                     help='learning rate (default: 0.001)')
 parser.add_argument("--adjust_lr", action="store_true",
                     help='whether you change lr')
@@ -86,7 +86,7 @@ parser.add_argument('--uses_one_classifier', action="store_true",
 parser.add_argument('--add_bg_loss', action="store_true",
                     help="adversarial dropout regularization")
 
-parser.add_argument('--gpu', type=str,default='4',
+parser.add_argument('--gpu', type=str,default='4 ',
                     help="adversarial dropout regularization")
 
 

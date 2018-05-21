@@ -67,7 +67,7 @@ class SegmentationData_BaseClass(data.Dataset):
         lbl = torch.from_numpy(lbl.copy()).long()
 
 
-        return img,lbl
+        return img,lbl#, path
 
     def transform(self, img, lbl):
         """
@@ -246,7 +246,7 @@ class SYNTHIA(SegmentationData_BaseClass):
             label = label.resize((data_size[0], data_size[1]), Image.NEAREST)
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
-        return im_, label_
+        return im_, label_   #,img_path
 
 class GTA5(SegmentationData_BaseClass):
     
@@ -412,7 +412,7 @@ class CityScapes(SegmentationData_BaseClass):
             im_ = np.array(im, dtype=np.float64)
             label_= np.array(label, dtype=np.int32)
 
-        return im_, label_
+        return im_, label_   #,img_path
 
 
 

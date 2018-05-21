@@ -1,3 +1,8 @@
+# dongzhuoyao
+
+shit result, according default setting, the val mIoU is only 3%
+
+
 # Maximum Classifier Discrepancy for Domain Adaptation with Semantic Segmentation Implemented by PyTorch
 
 <img src='../docs/result_seg.png' width=900/>  
