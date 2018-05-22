@@ -27,10 +27,13 @@ def get_parameters(model, bias=False):
         nn.ReLU,
         nn.MaxPool2d,
         nn.Dropout2d,
+        nn.Dropout,
+        nn.Upsample,
         nn.Sequential,
         torchfcn.models.Seg_model,
         torchfcn.models.Domain_classifer,
-        torchfcn.models.ResNet
+        torchfcn.models.ResNet,
+        torchfcn.models.FCN
     )
     for m in model.modules():
         print m

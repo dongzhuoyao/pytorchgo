@@ -26,9 +26,12 @@ def optimizer_summary(optim_list):
     if not isinstance(optim_list, list):
         optim_list = [optim_list]
 
+    from operator import mul
     for optim in optim_list:
+
         assert isinstance(optim, torch.optim.Optimizer),ValueError("must be an Optimizer instance")
         data = []
+        param_num = 0
         for group_id, param_group in enumerate(optim.param_groups):
             lr = param_group['lr']
             weight_decay = param_group['weight_decay']
@@ -36,9 +39,10 @@ def optimizer_summary(optim_list):
                 requires_grad = param.requires_grad
                 is_volatile = param.volatile
                 shape = list(param.data.size())
+                param_num += reduce(mul, shape, 1)
                 data.append([group_id, id, shape,lr,weight_decay,requires_grad,is_volatile])
         table = tabulate(data, headers=['group','id', 'shape', 'lr', 'weight_decay', 'requires_grad', 'volatile'])
-        logger.info(colored("Optimzer Parameters: \n", 'cyan') + table)
+        logger.info(colored("Optimzer Parameters: #param={} \n".format(param_num), 'cyan') + table)
 
 
 def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):
