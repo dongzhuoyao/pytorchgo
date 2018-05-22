@@ -15,6 +15,7 @@ import torch.utils.data as data
 import numpy as np
 import argparse
 from pytorchgo.utils import logger
+from tqdm import tqdm
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -148,7 +149,7 @@ def train():
 
     # create batch iterator
     batch_iterator = iter(data_loader)
-    for iteration in range(args.start_iter, cfg['max_iter']):
+    for iteration in tqdm(range(args.start_iter, cfg['max_iter'])):
         if args.visdom and iteration != 0 and (iteration % epoch_size == 0):
             update_vis_plot(epoch, loc_loss, conf_loss, epoch_plot, None,
                             'append', epoch_size)
@@ -191,7 +192,7 @@ def train():
 
         if iteration % 10 == 0:
             logger.info('timer: {} sec.'.format(t1 - t0))
-            logger.info('iter {} || Loss: {} ||'.format(repr(iteration), loss.data[0]))
+            logger.info('iter {}/{} || Loss: {} ||'.format(repr(iteration), cfg['max_iter'], loss.data[0]))
 
         if args.visdom:
             update_vis_plot(iteration, loss_l.data[0], loss_c.data[0],
