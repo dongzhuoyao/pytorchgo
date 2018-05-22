@@ -46,6 +46,10 @@ def compute_mIoU(pred_imgs, gt_imgs, json_path):
     print('Num classes', num_classes)
     name_classes = np.array(info['label'], dtype=np.str)
     hist = np.zeros((num_classes, num_classes))
+
+    acc, acc_cls, mean_iu, _ = torchfcn.utils.label_accuracy_score(
+        gt_imgs, pred_imgs, num_classes)
+    print "eval mIoU: {}".format(mean_iu)
     
     for ind in range(len(gt_imgs)):
         pred = pred_imgs[ind]
@@ -56,7 +60,8 @@ def compute_mIoU(pred_imgs, gt_imgs, json_path):
         hist += fast_hist(label.flatten(), pred.flatten(), num_classes)
         if ind > 0 and ind % 10 == 0:
             print('{:d} / {:d}: {:0.2f}'.format(ind, len(gt_imgs), 100*np.nanmean(per_class_iu(hist))))
-    
+
+
     mIoUs = per_class_iu(hist)
     for ind_class in range(num_classes):
         print('===>' + name_classes[ind_class] + ':\t' + str(round(mIoUs[ind_class] * 100, 2)))
@@ -76,8 +81,8 @@ def transform_label(label_orig, sz):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/ROAD/data', help='Path to source dataset')
-    parser.add_argument('--model_file',default='train_log/reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.totalconfusion/model_best.pth.tar', help='Model path')
-    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--model_file',default='train_log/reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan.d_mse.dstep1/model_best.pth.tar', help='Model path')
+    parser.add_argument('--gpu', type=int, default=3)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
 
@@ -92,7 +97,7 @@ def main():
     
     # Defining and loading model
     
-    n_class = 19
+    n_class = 16
     if args.method == 'sourceonly':
         model = torchfcn.models.FCN8s_sourceonly(n_class=n_class)
     elif args.method == 'LSD':
@@ -140,6 +145,7 @@ def main():
         label_trues.append(target.data.cpu().numpy().squeeze())
         label_preds.append(lbl_pred_new.squeeze())
         stat.feed(label_preds[-1], label_trues[-1])
+
 
     print("tensorpack mIoU: {}".format(stat.mIoU))
     print("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
