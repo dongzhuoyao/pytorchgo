@@ -21,7 +21,9 @@ from pytorchgo.utils import logger
 
 class_num = 16
 image_size = [1024, 512]  # [640, 320]
+val_image_size = [2048,1024]
 
+import torch.nn as nn
 max_epoch = 10
 base_lr = 1e-5
 dis_lr = 1e-4
@@ -78,7 +80,7 @@ def main():
         batch_size=args.batchSize, shuffle=True, **kwargs)
 
     val_loader = torch.utils.data.DataLoader(
-        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=[2048,1024]),
+        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=val_image_size),
         batch_size=1, shuffle=False)
 
     target_loader = torch.utils.data.DataLoader(
@@ -246,7 +248,10 @@ class MyTrainer_ROAD(object):
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=True), Variable(target)
 
-            score = self.model(data)
+
+            up = nn.Upsample(size=val_image_size, mode='bilinear')
+            score = up(self.model(data))
+
 
             loss = CrossEntropyLoss2d_Seg(score, target, class_num= class_num,size_average=self.size_average)
 
