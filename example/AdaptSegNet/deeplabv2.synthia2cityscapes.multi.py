@@ -152,7 +152,7 @@ def get_arguments():
 args = get_arguments()
 
 
-def loss_calc(pred, label, gpu):
+def loss_calc(pred, label):
     """
     This function returns cross entropy loss for semantic segmentation
     """
@@ -206,6 +206,7 @@ def proceed_test(model, quick_test = 1e10):
         output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
+
 
     logger.info("tensorpack mIoU: {}".format(stat.mIoU))
     logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
@@ -351,8 +352,8 @@ def main():
             pred1 = interp(pred1)
             pred2 = interp(pred2)
 
-            loss_seg1 = loss_calc(pred1, labels, args.gpu)
-            loss_seg2 = loss_calc(pred2, labels, args.gpu)
+            loss_seg1 = loss_calc(pred1, labels)
+            loss_seg2 = loss_calc(pred2, labels)
             loss = loss_seg2 + args.lambda_seg * loss_seg1
 
             # proper normalization

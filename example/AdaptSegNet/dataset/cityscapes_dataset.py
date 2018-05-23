@@ -38,7 +38,9 @@ class cityscapesDataSet(data.Dataset):
         self.img_ids = [i_id.strip() for i_id in open(self.list_path)]
         self.label_img_ids = [i_id.strip() for i_id in open(self.label_list_path)]
         if not max_iters==None:
-	    self.img_ids = self.img_ids * int(np.ceil(float(max_iters) / len(self.img_ids)))
+            self.img_ids = self.img_ids * int(np.ceil(float(max_iters) / len(self.img_ids)))
+            self.label_img_ids = self.label_img_ids * int(np.ceil(float(max_iters) / len(self.label_img_ids)))
+
         self.files = []
         self.set = set
         # for split in ["train", "trainval", "val"]:

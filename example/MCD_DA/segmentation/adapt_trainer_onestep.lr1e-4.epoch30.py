@@ -17,6 +17,9 @@ from transform import ReLabel, ToLabel, Scale, RandomSizedCrop, RandomHorizontal
 from util import mkdir_if_not_exist, save_dic_to_json, check_if_done, save_checkpoint, adjust_learning_rate, \
     get_class_weight_from_file, set_debugger_org_frc
 import argparse
+from pytorchgo.utils import logger
+import numpy as np
+
 
 # from visualize import LinePlotter
 # set_debugger_org_frc() #TODO interesting tool
@@ -86,11 +89,12 @@ parser.add_argument('--uses_one_classifier', action="store_true",
 parser.add_argument('--add_bg_loss', action="store_true",
                     help="adversarial dropout regularization")
 
-parser.add_argument('--gpu', type=str,default='4 ',
+parser.add_argument('--gpu', type=str,default='4',
                     help="adversarial dropout regularization")
 
 
 
+logger.auto_set_dir()
 
 args = parser.parse_args()
 args = add_additional_params_to_args(args)
@@ -253,7 +257,7 @@ for epoch in range(start_epoch, args.epochs):
 
         c_loss = criterion(outputs1, src_lbls)
         c_loss += criterion(outputs2, src_lbls)
-        c_loss.backward(retain_variables=True)
+        c_loss.backward(retain_graph=True)
         lambd = 1.0
         model_f1.set_lambda(lambd)
         model_f2.set_lambda(lambd)
@@ -299,3 +303,67 @@ for epoch in range(start_epoch, args.epochs):
         save_dic['f2_state_dict'] = model_f2.state_dict()
 
     save_checkpoint(save_dic, is_best=False, filename=checkpoint_fn)
+
+
+def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
+    logger.info("proceed test on cityscapes val set...")
+    model_g.eval()
+    model_f1.eval()
+    model_f2.eval()
+
+    val_img_transform = Compose([
+        Scale(train_img_shape, Image.BILINEAR),
+        ToTensor(),
+        Normalize([.485, .456, .406], [.229, .224, .225]),
+
+    ])
+    val_label_transform = Compose([Scale(train_img_shape, Image.BILINEAR),
+                               # ToTensor()
+                               ])
+
+    test_img_shape = (2048, 1024)
+
+    target_loader = data.DataLoader(tgt_dataset = get_dataset(dataset_name="city16", split="val",
+        img_transform=val_img_transform,label_transform=val_label_transform, test=True, input_ch=3),
+                                    batch_size=1, pin_memory=True)
+
+    from tensorpack.utils.stats import MIoUStatistics
+    stat = MIoUStatistics(args.n_class)
+
+    for index, (origin_imgs, labels, paths) in tqdm(enumerate(target_loader)):
+        if index > quick_test: break
+        path = paths[0]
+        # if index > 10: break
+
+        imgs = Variable(origin_imgs)
+        if torch.cuda.is_available():
+            imgs = imgs.cuda()
+
+        feature = model_g(imgs)
+        outputs = model_f1(feature)
+
+        if args.use_f2:
+            outputs += model_f2(feature)
+
+
+        pred = outputs[0, :].data.max(0)[1].cpu()
+
+        img = Image.fromarray(np.uint8(pred.numpy()))
+        img = img.resize(test_img_shape, Image.NEAREST)
+        feed_predict = np.squeeze(np.uint8(pred.numpy()))
+        feed_label = np.squeeze(np.asarray(labels.numpy()))
+        print np.unique(feed_predict)
+        print np.unique(feed_label)
+
+        stat.feed(feed_predict, feed_label)
+
+
+
+
+    print("=>mIoU :{}".format(stat.mIoU))
+    logger.info("tensorpack mIoU: {}".format(stat.mIoU))
+    logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
+    logger.info("tensorpack accuracy: {}".format(stat.accuracy))
+    model_g.train()
+    model_f1.train()
+    model_f2.train()

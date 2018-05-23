@@ -20,12 +20,17 @@ class SynthiaDataSet(data.Dataset):
         self.is_mirror = mirror
 
         self.img_ids = [i_id.strip() for i_id in open(list_path)]
-        if not max_iters==None:
-	    self.img_ids = self.img_ids * int(np.ceil(float(max_iters) / len(self.img_ids)))
+
+
         self.files = []
 
         self.label_list_path = label_list_path
         self.label_img_ids = [i_id.strip() for i_id in open(label_list_path)]
+
+        if not max_iters == None:
+            self.img_ids = self.img_ids * int(np.ceil(float(max_iters) / len(self.img_ids)))
+            self.label_img_ids = self.label_img_ids * int(np.ceil(float(max_iters) / len(self.label_img_ids)))
+
 
 
 
