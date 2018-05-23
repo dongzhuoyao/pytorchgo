@@ -25,3 +25,4 @@ reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.sgd|30.57|2
 reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan|29.70|27.45|
 reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan.d_mse|28.54|28.21|
 reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan.d_mse.dstep1|30.95|28.88|
+reborn2||26.28|
