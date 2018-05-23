@@ -333,7 +333,7 @@ def main():
 
         for sub_i in range(args.iter_size):
 
-            # train G
+            ######################### train G
 
             # don't accumulate grads in D
             for param in model_D1.parameters():
@@ -389,7 +389,7 @@ def main():
             loss_adv_target_value1 += loss_adv_target1.data.cpu().numpy()[0] / args.iter_size
             loss_adv_target_value2 += loss_adv_target2.data.cpu().numpy()[0] / args.iter_size
 
-            # train D
+            ################################## train D
 
             # bring back requires_grad
             for param in model_D1.parameters():

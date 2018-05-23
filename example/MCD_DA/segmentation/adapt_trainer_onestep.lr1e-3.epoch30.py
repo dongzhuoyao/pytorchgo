@@ -61,7 +61,7 @@ parser.add_argument('--augment', type=bool ,default=False,
 # ---------- Input Image Setting ---------- #
 parser.add_argument("--input_ch", type=int, default=3,
                     choices=[1, 3, 4])
-parser.add_argument('--train_img_shape', default=(960, 480), nargs=2, metavar=("W", "H"),
+parser.add_argument('--train_img_shape', default=(1024, 512), nargs=2, metavar=("W", "H"),
                     help="W H")
 
 # ---------- Whether to Resume ---------- #
@@ -251,10 +251,7 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
         if index > quick_test: break
         path = paths[0]
         # if index > 10: break
-
-        imgs = Variable(origin_imgs)
-        if torch.cuda.is_available():
-            imgs = imgs.cuda()
+        imgs = Variable(origin_imgs.cuda(), volatile=True)
 
         feature = model_g(imgs)
         outputs = model_f1(feature)
@@ -267,8 +264,7 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
 
         feed_predict = np.squeeze(np.uint8(pred.numpy()))
         feed_label = np.squeeze(np.asarray(labels.numpy()))
-        print np.unique(feed_predict)
-        print np.unique(feed_label)
+
 
         stat.feed(feed_predict, feed_label)
 
@@ -291,7 +287,7 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
     d_loss_per_epoch = 0
     c_loss_per_epoch = 0
     for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader)):
-        #if ind > 10:break
+        #if ind > 300:break
         source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
         tgt_imgs = Variable(target[0])
