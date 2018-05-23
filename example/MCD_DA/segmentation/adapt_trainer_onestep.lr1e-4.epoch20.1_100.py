@@ -289,7 +289,7 @@ model_f2.train()
 for epoch in tqdm(range(start_epoch, args.epochs)):
     d_loss_per_epoch = 0
     c_loss_per_epoch = 0
-    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader)):
+    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader),desc='epoch={}/{}'.format(epoch, args.epochs)):
         #if ind > 300:break
         source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
