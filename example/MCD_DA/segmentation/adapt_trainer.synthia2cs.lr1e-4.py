@@ -66,14 +66,14 @@ parser.add_argument('--augment', type=bool ,default=False,
 # ---------- Input Image Setting ---------- #
 parser.add_argument("--input_ch", type=int, default=3,
                     choices=[1, 3, 4])
-parser.add_argument('--train_img_shape', default=(1024, 512), nargs=2, metavar=("W", "H"),
+parser.add_argument('--train_img_shape', default=(960, 480), nargs=2, metavar=("W", "H"),
                     help="W H")
 
 # ---------- Whether to Resume ---------- #
 parser.add_argument("--resume", type=str, default=None, metavar="PTH.TAR",
                     help="model(pth) path")
 parser.add_argument('--method', type=str, default="MCD", help="Method Name")
-parser.add_argument('--num_k', type=int, default=4,
+parser.add_argument('--num_k', type=int, default=2,
                     help='how many steps to repeat the generator update')
 parser.add_argument("--num_multiply_d_loss", type=int, default=1)
 parser.add_argument('--d_loss', type=str, default="diff",
@@ -252,7 +252,7 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
     for index, (origin_imgs, labels, paths) in tqdm(enumerate(target_loader)):
         if index > quick_test: break
         path = paths[0]
-        # if index > 10: break
+
 
         imgs = Variable(origin_imgs)
         if torch.cuda.is_available():
@@ -269,8 +269,7 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
 
         feed_predict = np.squeeze(np.uint8(pred.numpy()))
         feed_label = np.squeeze(np.asarray(labels.numpy()))
-        #print np.unique(feed_predict)
-        #print np.unique(feed_label)
+
 
         stat.feed(feed_predict, feed_label)
 

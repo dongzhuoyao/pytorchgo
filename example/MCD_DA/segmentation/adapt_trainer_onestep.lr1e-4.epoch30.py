@@ -9,11 +9,11 @@ from tensorboard_logger import configure, log_value
 from torch.autograd import Variable
 from torch.utils import data
 from torchvision.transforms import Compose, Normalize, ToTensor
-from argmyparse import add_additional_params_to_args, fix_img_shape_args, get_da_mcd_training_parser
+from argmyparse import  fix_img_shape_args
 from datasets import ConcatDataset, get_dataset, check_src_tgt_ok
 from loss import  get_prob_distance_criterion
 from models.model_util import get_models, get_optimizer
-from transform import ReLabel, ToLabel, Scale, RandomSizedCrop, RandomHorizontalFlip, RandomRotation
+from transform import ToLabel, Scale, RandomSizedCrop, RandomHorizontalFlip, RandomRotation
 from util import mkdir_if_not_exist, save_dic_to_json, check_if_done, save_checkpoint, adjust_learning_rate, \
     get_class_weight_from_file, set_debugger_org_frc
 import argparse
@@ -61,7 +61,7 @@ parser.add_argument('--augment', type=bool ,default=False,
 # ---------- Input Image Setting ---------- #
 parser.add_argument("--input_ch", type=int, default=3,
                     choices=[1, 3, 4])
-parser.add_argument('--train_img_shape', default=(1024, 512), nargs=2, metavar=("W", "H"),
+parser.add_argument('--train_img_shape', default=(960, 480), nargs=2, metavar=("W", "H"),
                     help="W H")
 
 # ---------- Whether to Resume ---------- #
@@ -196,7 +196,6 @@ img_transform = Compose(img_transform_list)
 label_transform = Compose([
     Scale(train_img_shape, Image.NEAREST),
     ToLabel(),
-    #ReLabel(255, args.n_class - 1),  # Last Class is "Void" or "Background" class
 ])
 
 src_dataset = get_dataset(dataset_name=args.src_dataset, split=args.src_split, img_transform=img_transform,
