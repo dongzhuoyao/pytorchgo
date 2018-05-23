@@ -62,7 +62,7 @@ parser.add_argument('--dec_lr', type=int, default=15000, metavar='N',
 args = parser.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 
 def _init_():
