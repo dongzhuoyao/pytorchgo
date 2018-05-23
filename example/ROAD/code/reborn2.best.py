@@ -21,23 +21,21 @@ from pytorchgo.utils import logger
 
 class_num = 16
 image_size = [1024, 512]  # [640, 320]
-val_image_size = [2048,1024]
 
-import torch.nn as nn
-max_epoch = 10
+max_epoch = 15
 base_lr = 1e-5
 dis_lr = 1e-5
-base_lr_schedule = [(5, 1e-6), (8, 1e-7)]
-dis_lr_schedule = [(5, 1e-5), (8, 1e-6)]
+base_lr_schedule = [(8, 1e-6), (12, 1e-7)]
+dis_lr_schedule = [(8, 1e-6), (12, 1e-7)]
 LOSS_PRINT_INTERVAL = 500
 QUICK_VAL = 50000
 
 L_LOSS_WEIGHT = 1
-DISTILL_WEIGHT = 1
+DISTILL_WEIGHT = 10
 DIS_WEIGHT = 1
 
 G_STEP = 1
-D_STEP = 2
+D_STEP = 1
 
 Deeplabv2_restore_from = 'http://vllab.ucmerced.edu/ytsai/CVPR18/DeepLab_resnet_pretrained_init-f81d91e8.pth'
 
@@ -56,8 +54,8 @@ def main():
     parser.add_argument('--momentum', type=float, default=0.99, help='Momentum for SGD')
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
-    parser.add_argument('--model', type=str, default='deeplabv1')
-    parser.add_argument('--gpu', type=int, default=2)
+    parser.add_argument('--model', type=str, default='vgg16')
+    parser.add_argument('--gpu', type=int, default=3)
 
     args = parser.parse_args()
     print(args)
@@ -80,7 +78,7 @@ def main():
         batch_size=args.batchSize, shuffle=True, **kwargs)
 
     val_loader = torch.utils.data.DataLoader(
-        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=val_image_size),
+        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=[2048,1024]),
         batch_size=1, shuffle=False)
 
     target_loader = torch.utils.data.DataLoader(
@@ -100,7 +98,6 @@ def main():
 
 
     elif args.model == "deeplabv2":  # TODO may have problem!
-        logger.info("using deeplabv2....")
         model = origin_model = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
         saved_state_dict = model_zoo.load_url(Deeplabv2_restore_from)
         new_params = model.state_dict().copy()
@@ -108,20 +105,13 @@ def main():
             # Scale.layer5.conv2d_list.3.weight
             i_parts = i.split('.')
             # print i_parts
-            if  i_parts[1] == 'layer5' or i_parts[1] == 'layer6':
-                continue
-            new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
-            logger.info("saving weight: {}".format('.'.join(i_parts[1:])))
+            if not class_num == 19 or not i_parts[1] == 'layer5':
+                new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
                 # print i_parts
         model.load_state_dict(new_params)
 
         model_fix = torchfcn.models.Res_Deeplab(num_classes=class_num, image_size=image_size)
         model_fix.load_state_dict(new_params)
-    elif args.model == "deeplabv1":  # TODO may have problem!
-        logger.info("using deeplabv1....")
-        model = origin_model = torchfcn.models.VGG16_LargeFoV(class_num=class_num, image_size=image_size, pretrained=True)
-        model_fix = torchfcn.models.VGG16_LargeFoV(class_num=class_num, image_size=image_size, pretrained=True)
-
     else:
         raise ValueError("only support vgg16, deeplabv2!")
 
@@ -155,18 +145,6 @@ def main():
         elif args.model == "deeplabv2":
             optim = torch.optim.SGD(
                 origin_model.optim_parameters(args.lr),
-                lr=args.lr,
-                momentum=args.momentum,
-                weight_decay=args.weight_decay)
-        elif args.model == "deeplabv1":
-            optim = torch.optim.SGD(
-                [
-                    {'params': get_parameters(model, bias=False),
-                     'weight_decay': args.weight_decay},
-                    {'params': get_parameters(model, bias=True),
-                     'lr': args.lr * 2,
-                     'weight_decay': args.weight_decay},
-                ],
                 lr=args.lr,
                 momentum=args.momentum,
                 weight_decay=args.weight_decay)
@@ -265,10 +243,7 @@ class MyTrainer_ROAD(object):
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=True), Variable(target)
 
-
-            up = nn.Upsample(size=val_image_size, mode='bilinear')
-            score = up(self.model(data))
-
+            score = self.model(data)
 
             loss = CrossEntropyLoss2d_Seg(score, target, class_num= class_num,size_average=self.size_average)
 

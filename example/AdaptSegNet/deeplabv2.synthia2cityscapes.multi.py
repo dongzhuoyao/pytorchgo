@@ -72,7 +72,7 @@ elif SOURCE_DATA == "SYNTHIA":
 
     NUM_STEPS = 70000
     NUM_STEPS_STOP = 20000  # early stopping
-    SAVE_PRED_EVERY = 1000
+    SAVE_PRED_EVERY = 2000
 else:
     raise
 
@@ -158,8 +158,8 @@ def loss_calc(pred, label, gpu):
     """
     # out shape batch_size x channels x h x w -> batch_size x channels x h x w
     # label shape h x w x 1 x batch_size  -> batch_size x 1 x h x w
-    label = Variable(label.long()).cuda(gpu)
-    criterion = CrossEntropy2d().cuda(gpu)
+    label = Variable(label.long()).cuda()
+    criterion = CrossEntropy2d().cuda()
 
     return criterion(pred, label)
 
@@ -181,12 +181,12 @@ def adjust_learning_rate_D(optimizer, i_iter):
     if len(optimizer.param_groups) > 1:
         optimizer.param_groups[1]['lr'] = lr * 10
 
-def proceed_test(model, quick_test = 20):
-    logger.info("proceed test on small size-{} cityscapes...".format(quick_test))
+def proceed_test(model, quick_test = 1e10):
+    logger.info("proceed test on cityscapes val set...")
     model.eval()
-    model.cuda(args.gpu)
+    model.cuda()
     testloader = data.DataLoader(
-        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
+        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
         batch_size=1, shuffle=False, pin_memory=True)
 
     interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
@@ -201,7 +201,7 @@ def proceed_test(model, quick_test = 20):
         image, label = Variable(image, volatile=True), Variable(label)
 
 
-        output1, output2 = model(image.cuda(args.gpu))
+        output1, output2 = model(image.cuda())#(1,19,129,257)
         output = interp(output2).cpu().data[0].numpy()
         output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
@@ -224,6 +224,7 @@ def main():
 
     cudnn.enabled = True
     gpu = args.gpu
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
 
     # Create network
     if args.model == 'DeepLab':
@@ -246,7 +247,7 @@ def main():
         raise
 
     model.train()
-    model.cuda(args.gpu)
+    model.cuda()
 
     cudnn.benchmark = True
 
@@ -255,10 +256,10 @@ def main():
     model_D2 = FCDiscriminator(num_classes=args.num_classes)
 
     model_D1.train()
-    model_D1.cuda(args.gpu)
+    model_D1.cuda()
 
     model_D2.train()
-    model_D2.cuda(args.gpu)
+    model_D2.cuda()
 
     if SOURCE_DATA == "GTA5":
         trainloader = data.DataLoader(
@@ -344,7 +345,7 @@ def main():
 
             _, batch = trainloader_iter.next()
             images, labels, _, _ = batch
-            images = Variable(images).cuda(args.gpu)
+            images = Variable(images).cuda()
 
             pred1, pred2 = model(images)
             pred1 = interp(pred1)
@@ -364,7 +365,7 @@ def main():
 
             _, batch = targetloader_iter.next()
             images, _, _ ,_ = batch
-            images = Variable(images).cuda(args.gpu)
+            images = Variable(images).cuda()
 
             pred_target1, pred_target2 = model(images)
             pred_target1 = interp_target(pred_target1)
@@ -375,11 +376,11 @@ def main():
 
             loss_adv_target1 = bce_loss(D_out1,
                                        Variable(torch.FloatTensor(D_out1.data.size()).fill_(source_label)).cuda(
-                                           args.gpu))
+                                           ))
 
             loss_adv_target2 = bce_loss(D_out2,
                                         Variable(torch.FloatTensor(D_out2.data.size()).fill_(source_label)).cuda(
-                                            args.gpu))
+                                            ))
 
             loss = args.lambda_adv_target1 * loss_adv_target1 + args.lambda_adv_target2 * loss_adv_target2
             loss = loss / args.iter_size
@@ -404,10 +405,10 @@ def main():
             D_out2 = model_D2(F.softmax(pred2))
 
             loss_D1 = bce_loss(D_out1,
-                              Variable(torch.FloatTensor(D_out1.data.size()).fill_(source_label)).cuda(args.gpu))
+                              Variable(torch.FloatTensor(D_out1.data.size()).fill_(source_label)).cuda())
 
             loss_D2 = bce_loss(D_out2,
-                               Variable(torch.FloatTensor(D_out2.data.size()).fill_(source_label)).cuda(args.gpu))
+                               Variable(torch.FloatTensor(D_out2.data.size()).fill_(source_label)).cuda())
 
             loss_D1 = loss_D1 / args.iter_size / 2
             loss_D2 = loss_D2 / args.iter_size / 2
@@ -426,10 +427,10 @@ def main():
             D_out2 = model_D2(F.softmax(pred_target2))
 
             loss_D1 = bce_loss(D_out1,
-                              Variable(torch.FloatTensor(D_out1.data.size()).fill_(target_label)).cuda(args.gpu))
+                              Variable(torch.FloatTensor(D_out1.data.size()).fill_(target_label)).cuda())
 
             loss_D2 = bce_loss(D_out2,
-                               Variable(torch.FloatTensor(D_out2.data.size()).fill_(target_label)).cuda(args.gpu))
+                               Variable(torch.FloatTensor(D_out2.data.size()).fill_(target_label)).cuda())
 
             loss_D1 = loss_D1 / args.iter_size / 2
             loss_D2 = loss_D2 / args.iter_size / 2
@@ -445,8 +446,8 @@ def main():
         optimizer_D2.step()
 
         logger.info(
-        'iter = /, loss_seg1 = {2:.3f} loss_seg2 = {3:.3f} loss_adv1 = {4:.3f}, loss_adv2 = {5:.3f} loss_D1 = {6:.3f} loss_D2 = {7:.3f}'.format(
-            i_iter, args.num_steps, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
+        'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}'.format(
+            i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
 
         if i_iter >= args.num_steps_stop - 1:
             logger.info('save model ...')
