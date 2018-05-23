@@ -1,3 +1,9 @@
+# dongzhuoyao
+
+deeplabv2.synthia2cityscapes.multi: after epoch 14, mIoU still float near 23%.
+
+
+
 # Learning to Adapt Structured Output Space for Semantic Segmentation
 
 Pytorch implementation of our method for adapting semantic segmentation from the synthetic dataset (source domain) to the real dataset (target domain). Based on this implementation, our result is ranked 3rd in the [VisDA Challenge](http://ai.bu.edu/visda-2017/).

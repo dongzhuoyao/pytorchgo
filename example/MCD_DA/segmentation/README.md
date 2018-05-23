@@ -3,6 +3,11 @@
 shit result, according default setting, the val mIoU is only 3%
 
 
+
+*  adapt_trainer_onestep.lr1e-4.epoch30, the mIoU will only be 4%.
+
+
+
 # Maximum Classifier Discrepancy for Domain Adaptation with Semantic Segmentation Implemented by PyTorch
 
 <img src='../docs/result_seg.png' width=900/>  
