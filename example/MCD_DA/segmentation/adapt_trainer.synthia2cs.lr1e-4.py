@@ -60,7 +60,7 @@ parser.add_argument('--batch_size', type=int, default=1,
                     help="batch_size")
 
 # ---------- Optional Hyperparameters ---------- #
-parser.add_argument('--augment', action="store_true",
+parser.add_argument('--augment', type=bool ,default=False,
                     help='whether you use data-augmentation or not')
 
 # ---------- Input Image Setting ---------- #
@@ -79,7 +79,7 @@ parser.add_argument("--num_multiply_d_loss", type=int, default=1)
 parser.add_argument('--d_loss', type=str, default="diff",
                     choices=['mysymkl', 'symkl', 'diff'],
                     help="choose from ['mysymkl', 'symkl', 'diff']")
-parser.add_argument('--uses_one_classifier', action="store_true",
+parser.add_argument('--uses_one_classifier', default=False,
                     help="adversarial dropout regularization")
 
 parser.add_argument('--n_class', type=int, default=16,
@@ -149,6 +149,7 @@ else:
                                 weight_decay=args.weight_decay)
     optimizer_f = get_optimizer(list(model_f1.parameters()) + list(model_f2.parameters()), opt=args.opt,
                                 lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+
 if args.uses_one_classifier:
     logger.info ("f1 and f2 are same!")
     model_f2 = model_f1
@@ -304,7 +305,6 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
         optimizer_g.zero_grad()
         optimizer_f.zero_grad()
         loss = 0
-        loss_weight = [1.0, 1.0]
         outputs = model_g(src_imgs)
 
         outputs1 = model_f1(outputs)

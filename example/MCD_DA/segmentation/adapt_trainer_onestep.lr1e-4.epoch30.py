@@ -28,8 +28,6 @@ import numpy as np
 torch.backends.cudnn.benchmark=True
 parser = argparse.ArgumentParser(description='PyTorch Segmentation Adaptation')
 parser.add_argument('--savename', type=str, default="normal", help="save name(Do NOT use '-')")
-parser.add_argument('--base_outdir', type=str, default='train_output',
-                    help="base output dir")
 parser.add_argument('--epochs', type=int, default=30,
                     help='number of epochs to train (default: 10)')
 # ---------- Define Network ---------- #
@@ -57,7 +55,7 @@ parser.add_argument('--batch_size', type=int, default=1,
                     help="batch_size")
 
 # ---------- Optional Hyperparameters ---------- #
-parser.add_argument('--augment', action="store_true",
+parser.add_argument('--augment', type=bool ,default=False,
                     help='whether you use data-augmentation or not')
 
 # ---------- Input Image Setting ---------- #
@@ -82,7 +80,7 @@ parser.add_argument("--num_multiply_d_loss", type=int, default=1)
 parser.add_argument('--d_loss', type=str, default="diff",
                     choices=['mysymkl', 'symkl', 'diff'],
                     help="choose from ['mysymkl', 'symkl', 'diff']")
-parser.add_argument('--uses_one_classifier', action="store_true",
+parser.add_argument('--uses_one_classifier', default=False,
                     help="adversarial dropout regularization")
 
 
