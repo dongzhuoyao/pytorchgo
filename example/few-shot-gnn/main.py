@@ -13,13 +13,13 @@ import numpy as np
 
 # Training settings
 parser = argparse.ArgumentParser(description='Few-Shot Learning with Graph Neural Networks')
-parser.add_argument('--exp_name', type=str, default='debug_vx', metavar='N',
+parser.add_argument('--exp_name', type=str, default='minimagenet_N5_S5', metavar='N',
                     help='Name of the experiment')
-parser.add_argument('--batch_size', type=int, default=10, metavar='batch_size',
+parser.add_argument('--batch_size', type=int, default=40, metavar='batch_size',
                     help='Size of batch)')
 parser.add_argument('--batch_size_test', type=int, default=10, metavar='batch_size',
                     help='Size of batch)')
-parser.add_argument('--iterations', type=int, default=50000, metavar='N',
+parser.add_argument('--iterations', type=int, default=90000, metavar='N',
                     help='number of epochs to train ')
 parser.add_argument('--decay_interval', type=int, default=10000, metavar='N',
                     help='Learning rate decay interval')
@@ -41,9 +41,9 @@ parser.add_argument('--test_N_way', type=int, default=5, metavar='N',
                     help='Number of classes for doing each classification run')
 parser.add_argument('--train_N_way', type=int, default=5, metavar='N',
                     help='Number of classes for doing each training comparison')
-parser.add_argument('--test_N_shots', type=int, default=1, metavar='N',
+parser.add_argument('--test_N_shots', type=int, default=5, metavar='N',
                     help='Number of shots in test')
-parser.add_argument('--train_N_shots', type=int, default=1, metavar='N',
+parser.add_argument('--train_N_shots', type=int, default=5, metavar='N',
                     help='Number of shots when training')
 parser.add_argument('--unlabeled_extra', type=int, default=0, metavar='N',
                     help='Number of shots when training')
@@ -57,9 +57,12 @@ parser.add_argument('--test_samples', type=int, default=30000, metavar='N',
                     help='Number of shots')
 parser.add_argument('--dataset', type=str, default='mini_imagenet', metavar='N',
                     help='omniglot')
-parser.add_argument('--dec_lr', type=int, default=10000, metavar='N',
+parser.add_argument('--dec_lr', type=int, default=15000, metavar='N',
                     help='Decreasing the learning rate every x iterations')
 args = parser.parse_args()
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 
 def _init_():

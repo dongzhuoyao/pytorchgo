@@ -46,6 +46,9 @@ class Generator(data.Dataset):
 
     def get_task_batch(self, batch_size=5, n_way=20, num_shots=1, unlabeled_extra=0, cuda=False, variable=False):
         # Init variables
+        # batch_x:[batch,channel,w,h]
+        # labels_x: [batch, n_way]
+        # labels_x_global: [batch]
         batch_x = np.zeros((batch_size, self.input_channels, self.size[0], self.size[1]), dtype='float32')
         labels_x = np.zeros((batch_size, n_way), dtype='float32')
         labels_x_global = np.zeros(batch_size, dtype='int64')
