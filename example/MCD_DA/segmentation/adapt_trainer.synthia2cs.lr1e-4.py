@@ -36,10 +36,9 @@ parser.add_argument('--savename', type=str, default="normal", help="save name(Do
 
 parser.add_argument('--epochs', type=int, default=10,
                     help='number of epochs to train (default: 10)')
-parser.add_argument("--max_iter", type=int, default=5000)  # Iter per epoch
 
 # ---------- Define Network ---------- #
-parser.add_argument('--net', type=str, default="drn_d_38", help="network structure",
+parser.add_argument('--net', type=str, default="drn_d_105", help="network structure",
                     choices=['fcn', 'psp', 'segnet', 'fcnvgg',
                              "drn_c_26", "drn_c_42", "drn_c_58", "drn_d_22",
                              "drn_d_38", "drn_d_54", "drn_d_105"])
@@ -51,7 +50,7 @@ parser.add_argument("--is_data_parallel", action="store_true",
 # ---------- Hyperparameters ---------- #
 parser.add_argument('--opt', type=str, default="sgd", choices=['sgd', 'adam'],
                     help="network optimizer")
-parser.add_argument('--lr', type=float, default=1e-3,
+parser.add_argument('--lr', type=float, default=1e-4,
                     help='learning rate (default: 0.001)')
 parser.add_argument('--momentum', type=float, default=0.9,
                     help='momentum sgd (default: 0.9)')
@@ -289,12 +288,12 @@ model_g.train()
 model_f1.train()
 model_f2.train()
 
-for epoch in range(start_epoch, args.epochs):
+for epoch in tqdm(range(start_epoch, args.epochs)):
     d_loss_per_epoch = 0
     c_loss_per_epoch = 0
 
-    for ind, (source, target) in tqdm(enumerate(train_loader)):
-        if ind > 10: break
+    for ind, (source, target) in tqdm(enumerate(train_loader), total=len(train_loader)):
+        #if ind > 10: break
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
         tgt_imgs = Variable(target[0])
 
@@ -350,12 +349,10 @@ for epoch in range(start_epoch, args.epochs):
         d_loss += loss.data[0] / args.num_k
         d_loss_per_epoch += d_loss
         if ind % 100 == 0:
-            logger.info("iter [%d] DLoss: %.6f CLoss: %.4f" % (ind, d_loss, c_loss))
+            logger.info("iter [%d/%d] DLoss: %.6f CLoss: %.4f LR: %.7f" % (
+            ind, len(train_loader), d_loss, c_loss, args.lr))
 
-        if ind > args.max_iter:
-            break
 
-    logger.info("Epoch [%d] DLoss: %.4f CLoss: %.4f" % (epoch, d_loss_per_epoch, c_loss_per_epoch))
 
     log_value('c_loss', c_loss_per_epoch, epoch)
     log_value('d_loss', d_loss_per_epoch, epoch)
@@ -363,6 +360,9 @@ for epoch in range(start_epoch, args.epochs):
 
     args.lr = adjust_learning_rate(optimizer_g, args.lr, args.weight_decay, epoch, args.epochs)
     args.lr = adjust_learning_rate(optimizer_f, args.lr, args.weight_decay, epoch, args.epochs)
+
+    logger.info("Epoch [%d/%d] DLoss: %.4f CLoss: %.4f LR: %.7f" % (
+        epoch, args.epochs, d_loss_per_epoch, c_loss_per_epoch, args.lr))
 
     checkpoint_fn = os.path.join(pth_dir, "%s-%s.pth.tar" % (model_name, epoch + 1))
     args.start_epoch = epoch + 1

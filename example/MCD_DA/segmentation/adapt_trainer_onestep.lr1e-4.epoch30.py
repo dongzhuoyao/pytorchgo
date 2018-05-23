@@ -11,7 +11,7 @@ from torch.utils import data
 from torchvision.transforms import Compose, Normalize, ToTensor
 from argmyparse import add_additional_params_to_args, fix_img_shape_args, get_da_mcd_training_parser
 from datasets import ConcatDataset, get_dataset, check_src_tgt_ok
-from loss import CrossEntropyLoss2d, get_prob_distance_criterion
+from loss import  get_prob_distance_criterion
 from models.model_util import get_models, get_optimizer
 from transform import ReLabel, ToLabel, Scale, RandomSizedCrop, RandomHorizontalFlip, RandomRotation
 from util import mkdir_if_not_exist, save_dic_to_json, check_if_done, save_checkpoint, adjust_learning_rate, \
