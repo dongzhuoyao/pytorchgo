@@ -6,6 +6,7 @@ shit result, according default setting, the val mIoU is only 3%
 
 *  adapt_trainer_onestep.lr1e-4.epoch30, the mIoU will only be 4%.
 * adapt_trainer_onestep.lr1e-4.epoch20.1_1000,epoch1=1%, terminated
+* adapt_trainer_onestep.lr1e-4.epoch20.1_5000, most time 1%.
 
 
 

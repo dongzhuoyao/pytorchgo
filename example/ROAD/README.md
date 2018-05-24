@@ -27,3 +27,5 @@ reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan.d_mse|
 reborn.vgg16.lr1e-5.w1_10_1.sm_bugfix.class16.adapSegnet_DC.1024x512.wgan.d_mse.dstep1|30.95|28.88|
 reborn2||26.28|
 reborn2.lr1e-5_lr1e-4||24.7
+reborn2.best||**29.7**
+reborn2.best.1_10_10||16.36
