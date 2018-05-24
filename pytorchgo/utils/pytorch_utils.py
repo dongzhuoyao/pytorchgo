@@ -4,7 +4,7 @@ import torch
 from . import logger
 from termcolor import colored
 from tabulate import tabulate
-
+import warnings
 
 def model_summary(model_list):
     if not isinstance(model_list, list):
@@ -56,6 +56,7 @@ def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):
         optimizer: Optimizer for which step decay has to be applied
         epoch: Current epoch number
     """
+    warnings.warn('please use step_scheduler in pytorchgo.utils.learning_rate', DeprecationWarning)
     previous_lr = optimizer.param_groups[0]['lr']
     for (e, v) in lr_schedule:
         if current_epoch == e-1:#epoch start from 0
