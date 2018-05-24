@@ -200,7 +200,7 @@ def train():
 
         if iteration != 0 and iteration % 5000 == 0:
             logger.info('Saving state, iter: {}'.format(iteration))
-            torch.save(ssd_net.state_dict(), os.path.join(logger.get_logger_dir(),'ssd300_COCO_.pth'.format(repr(iteration))))
+            torch.save(ssd_net.state_dict(), os.path.join(logger.get_logger_dir(),'ssd300_{}_{}.pth'.format(args.dataset, repr(iteration))))
     torch.save(ssd_net.state_dict(),
                os.path.join(logger.get_logger_dir(), args.dataset + '.pth'))
 
