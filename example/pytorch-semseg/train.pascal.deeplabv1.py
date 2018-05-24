@@ -17,6 +17,7 @@ from ptsemseg.loss import *
 from ptsemseg.augmentations import *
 from tqdm import tqdm
 from pytorchgo.utils import logger
+from pytorchgo.utils.pytorch_utils import optimizer_summary
 from pytorchgo.utils.learning_rate import adjust_learning_rate
 
 from pytorchgo.loss import CrossEntropyLoss2d_Seg
@@ -59,7 +60,7 @@ def train(args):
     else:
         optimizer = torch.optim.SGD(model.parameters(), lr=args.l_rate, momentum=0.99, weight_decay=5e-4)
 
-
+    optimizer_summary(optimizer)
     if args.resume is not None:                                         
         if os.path.isfile(args.resume):
             logger.info("Loading model and optimizer from checkpoint '{}'".format(args.resume))
