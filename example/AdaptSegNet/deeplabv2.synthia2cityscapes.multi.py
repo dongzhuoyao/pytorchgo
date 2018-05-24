@@ -451,13 +451,6 @@ def main():
         'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}'.format(
             i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
 
-        if i_iter >= args.num_steps_stop - 1:
-            logger.info('save model ...')
-            logger.info("{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            break
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info('taking snapshot ...')
@@ -466,6 +459,14 @@ def main():
             torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
 
             proceed_test(model)
+
+        if i_iter >= args.num_steps_stop - 1:
+            logger.info('save model ...')
+            logger.info("{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
+            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            break
 
 
 if __name__ == '__main__':
