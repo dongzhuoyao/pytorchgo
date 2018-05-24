@@ -17,6 +17,7 @@ import torchfcn
 import torch.nn as nn
 from util_fns import get_parameters
 from utils import cross_entropy2d, step_scheduler
+from pytorchgo.utils import logger
 
 CLASS_NUM = 19
 class Trainer_LSD(object):
@@ -95,8 +96,7 @@ class Trainer_LSD(object):
         # Evaluation
         for batch_idx, (data, target) in tqdm.tqdm(
             enumerate(self.val_loader), total=len(self.val_loader),
-            desc='Validation iteration = %d' % self.iteration, ncols=80,
-            leave=False):
+            desc='Validation iteration = %d' % self.iteration):
 
             if self.cuda:
                 data, target = data.cuda(), target.cuda()
@@ -145,6 +145,7 @@ class Trainer_LSD(object):
         scipy.misc.imsave(out_file, fcn.utils.get_tile_image(generations))
 
         # Logging
+        logger.info("validation mIoU: {}".format(metrics[2]))
         with open(osp.join(self.out, 'log.csv'), 'a') as f:
          elapsed_time = \
              datetime.datetime.now(pytz.timezone('Asia/Tokyo')) - \
@@ -182,7 +183,7 @@ class Trainer_LSD(object):
 
         for batch_idx, (datas, datat) in tqdm.tqdm(
             enumerate(itertools.izip(self.train_loader, self.target_loader)), total=min(len(self.target_loader), len(self.train_loader)),
-            desc='Train epoch = %d' % self.epoch, ncols=80, leave=False):
+            desc='Train epoch = {}/{}'.format(self.epoch, self.max_epoch)):
 
             data_source, labels_source = datas
             data_target, __ = datat
@@ -308,6 +309,8 @@ class Trainer_LSD(object):
             metrics = np.mean(metrics, axis=0)
 
             # Logging
+            if self.iteration%100 == 0:
+                logger.info("epoch: {}/{}, iteration:{}, lossF:{}, mIoU :{}".format(self.epoch, self.max_epoch, self.iteration,lossF.data[0], metrics[2]))
             with open(osp.join(self.out, 'log.csv'), 'a') as f:
                 elapsed_time = (
                     datetime.datetime.now(pytz.timezone('Asia/Tokyo')) -
@@ -354,10 +357,12 @@ class Trainer_LSD(object):
         Also performs learning rate annhealing
         """
         max_epoch = int(math.ceil(self.max_iter/min(len(self.train_loader), len(self.target_loader))))
-        for epoch in tqdm.trange(self.epoch, max_epoch,
-                                 desc='Train', ncols=80):
+        self.max_epoch = max_epoch
+        logger.info("max epoch: {}".format(max_epoch))
+        for epoch in tqdm.tqdm(range(self.epoch, max_epoch), desc='Train {}/{}'.format(self.epoch, max_epoch)):
             self.epoch = epoch
             if self.epoch % 8 == 0 and self.epoch > 0:
+                logger.info("change learning rate!!!")
                 self.optim = step_scheduler(self.optim, self.epoch)
                 
             self.train_epoch()

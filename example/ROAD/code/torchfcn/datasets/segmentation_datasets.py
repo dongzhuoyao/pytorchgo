@@ -2,7 +2,6 @@ import collections
 import os.path as osp
 import numpy as np
 from PIL import Image
-import scipy.io
 import torch
 from torch.utils import data
 import cv2

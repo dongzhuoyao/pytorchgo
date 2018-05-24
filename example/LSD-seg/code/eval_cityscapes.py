@@ -3,9 +3,7 @@ import torch
 import argparse
 import os
 import os.path as osp
-import fcn
 import numpy as np
-import skimage.io
 from torch.autograd import Variable
 import torchfcn
 import tqdm
@@ -82,6 +80,8 @@ def main():
     args = parser.parse_args()
 
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    #torch.cuda.set_device(args.gpu)
+
     model_file = args.model_file
 
     image_size=[640, 320]

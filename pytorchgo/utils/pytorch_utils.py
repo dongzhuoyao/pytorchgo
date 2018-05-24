@@ -22,7 +22,7 @@ def model_summary(model_list):
             data.append([key,list(value.size())])
             param_num += reduce(mul, list(value.size()), 1)
         table = tabulate(data, headers=['name', 'shape'])
-        logger.info(colored("Arg Parameters: #param={} \n".format(param_num),'cyan') + table)
+        logger.info(colored("Model Summary, Arg Parameters: #param={} \n".format(param_num),'cyan') + table)
 
         logger.info(model)
 
@@ -46,7 +46,7 @@ def optimizer_summary(optim_list):
                 param_num += reduce(mul, shape, 1)
                 data.append([group_id, id, shape,lr,weight_decay,requires_grad,is_volatile])
         table = tabulate(data, headers=['group','id', 'shape', 'lr', 'weight_decay', 'requires_grad', 'volatile'])
-        logger.info(colored("Optimzer Parameters: #param={} \n".format(param_num), 'cyan') + table)
+        logger.info(colored("Optimizer Summary, Optimzer Parameters: #param={} \n".format(param_num), 'cyan') + table)
 
 
 def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):

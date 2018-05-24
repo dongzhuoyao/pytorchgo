@@ -31,6 +31,7 @@ def get_parameters(model, bias=False):
         nn.Upsample,
         nn.Sequential,
         torchfcn.models.Seg_model,
+        torchfcn.models.Seg_model_Distill,
         torchfcn.models.Domain_classifer,
         torchfcn.models.ResNet,
         torchfcn.models.FCN

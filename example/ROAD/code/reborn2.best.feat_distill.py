@@ -21,15 +21,12 @@ from pytorchgo.utils import logger
 
 class_num = 16
 image_size = [1024, 512]  # [640, 320]
-val_image_size = [2048,1024]
 
-import torch.nn as nn
-
-max_epoch = 25
+max_epoch = 15
 base_lr = 1e-5
 dis_lr = 1e-5
-base_lr_schedule = [(15, 1e-6), (20, 1e-7)]
-dis_lr_schedule = [(15, 1e-6), (20, 1e-7)]
+base_lr_schedule = [(8, 1e-6), (12, 1e-7)]
+dis_lr_schedule = [(8, 1e-6), (12, 1e-7)]
 LOSS_PRINT_INTERVAL = 500
 QUICK_VAL = 50000
 
@@ -57,7 +54,7 @@ def main():
     parser.add_argument('--momentum', type=float, default=0.99, help='Momentum for SGD')
     parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
-    parser.add_argument('--model', type=str, default='deeplabv2')
+    parser.add_argument('--model', type=str, default='vgg16')
     parser.add_argument('--gpu', type=int, default=3)
 
     args = parser.parse_args()
@@ -81,7 +78,7 @@ def main():
         batch_size=args.batchSize, shuffle=True, **kwargs)
 
     val_loader = torch.utils.data.DataLoader(
-        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=val_image_size),
+        torchfcn.datasets.CityScapes('cityscapes', args.dataroot, split='val', transform=True, image_size=[2048,1024]),
         batch_size=1, shuffle=False)
 
     target_loader = torch.utils.data.DataLoader(
@@ -92,11 +89,11 @@ def main():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     if args.model == "vgg16":
-        model = origin_model = torchfcn.models.Seg_model(n_class=class_num)
+        model = origin_model = torchfcn.models.Seg_model_Distill(n_class=class_num)
         vgg16 = torchfcn.models.VGG16(pretrained=True)
         model.copy_params_from_vgg16(vgg16)
 
-        model_fix = torchfcn.models.Seg_model(n_class=class_num)
+        model_fix = torchfcn.models.Seg_model_Distill(n_class=class_num)
         model_fix.copy_params_from_vgg16(vgg16)
 
 
@@ -108,10 +105,8 @@ def main():
             # Scale.layer5.conv2d_list.3.weight
             i_parts = i.split('.')
             # print i_parts
-            if  i_parts[1] == 'layer5':
-                continue
-            new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
-            logger.info("recovering weight: {}".format('.'.join(i_parts[1:])))
+            if not class_num == 19 or not i_parts[1] == 'layer5':
+                new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
                 # print i_parts
         model.load_state_dict(new_params)
 
@@ -248,8 +243,7 @@ class MyTrainer_ROAD(object):
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=True), Variable(target)
 
-            up = nn.Upsample(size=val_image_size, mode='bilinear')
-            score = up(self.model(data))
+            _, score = self.model(data)
 
             loss = CrossEntropyLoss2d_Seg(score, target, class_num= class_num,size_average=self.size_average)
 
@@ -336,8 +330,8 @@ class MyTrainer_ROAD(object):
                 self.optimD.zero_grad()
                 set_requires_grad(seg=False, dis=True)
 
-                score = self.model(source_data)
-                seg_target_score = self.model(target_data)
+                _, score = self.model(source_data)
+                distill_feat, seg_target_score = self.model(target_data)
                 src_discriminate_result = self.netD(F.softmax(score))
                 target_discriminate_result = self.netD(F.softmax(seg_target_score))
 
@@ -365,14 +359,14 @@ class MyTrainer_ROAD(object):
                 self.optim.zero_grad()
                 set_requires_grad(seg=True, dis=False)
                 # Source domain
-                score = self.model(source_data)
+                src_distll_feat, score = self.model(source_data)
                 l_seg = CrossEntropyLoss2d_Seg(score, source_labels, class_num=class_num, size_average=self.size_average)
                 # target domain
-                seg_target_score = self.model(target_data)
-                modelfix_target_score = self.model_fix(target_data)
+                target_distill_feat, seg_target_score = self.model(target_data)
+                modelfix_distill_feat, modelfix_target_score = self.model_fix(target_data)
 
                 diff2d = Diff2d()
-                distill_loss = diff2d(seg_target_score, modelfix_target_score)
+                distill_loss = diff2d(target_distill_feat, modelfix_distill_feat)
 
                 l_seg = l_seg * L_LOSS_WEIGHT
                 distill_loss = distill_loss * DISTILL_WEIGHT

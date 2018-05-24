@@ -7,10 +7,12 @@ import torchfcn
 from util_fns import get_log_dir
 from util_fns import get_parameters
 from util_fns import weights_init
+from pytorchgo.utils import logger
 
 class_num = 19
 
 def main():
+    logger.auto_set_dir()
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
     parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
@@ -27,12 +29,12 @@ def main():
     parser.add_argument('--l1_weight', type=float, default=1, help='L1 weight')
     parser.add_argument('--adv_weight', type=float, default=0.1, help='Adv_weight')
     parser.add_argument('--c_weight', type=float, default=0.1, help='C_weight')
-    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--gpu', type=int, default=4)
     args = parser.parse_args()
     print(args)
 
     gpu = args.gpu
-    out = get_log_dir(args.logdir, args.method, args.lr, args.optimizer)
+    out = logger.get_logger_dir()#get_log_dir(args.logdir, args.method, args.lr, args.optimizer)
     resume = args.resume
     os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
     cuda = torch.cuda.is_available()
