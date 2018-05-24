@@ -25,11 +25,11 @@ val_image_size = [2048,1024]
 
 import torch.nn as nn
 
-max_epoch = 15
+max_epoch = 25
 base_lr = 1e-5
 dis_lr = 1e-5
-base_lr_schedule = [(8, 1e-6), (12, 1e-7)]
-dis_lr_schedule = [(8, 1e-6), (12, 1e-7)]
+base_lr_schedule = [(15, 1e-6), (20, 1e-7)]
+dis_lr_schedule = [(15, 1e-6), (20, 1e-7)]
 LOSS_PRINT_INTERVAL = 500
 QUICK_VAL = 50000
 
