@@ -29,4 +29,5 @@ reborn2||26.28|
 reborn2.lr1e-5_lr1e-4||24.7
 reborn2.lr1e-5_lr1e-4.deeplabv2||epoch1=5%,terminated
 reborn2.best||**29.7**
-reborn2.best.1_10_10||16.36
+reborn2.best.1_10_10||epoch1=9.8,final 16.36|
+reborn2.best.1_10_10.uniform_data||epoch1=6,terminated|
