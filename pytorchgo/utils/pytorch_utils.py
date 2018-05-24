@@ -10,15 +10,19 @@ def model_summary(model_list):
     if not isinstance(model_list, list):
         model_list = [model_list]
 
+    from operator import mul
+
     for model in model_list:
         state_dict = model.state_dict().copy()
         params = filter(lambda p: p.requires_grad, model.parameters())
 
         data = []
+        param_num = 0
         for key,value in state_dict.items():
             data.append([key,list(value.size())])
+            param_num += reduce(mul, list(value.size()), 1)
         table = tabulate(data, headers=['name', 'shape'])
-        logger.info(colored("Arg Parameters: \n", 'cyan') + table)
+        logger.info(colored("Arg Parameters: #param={} \n".format(param_num),'cyan') + table)
 
         logger.info(model)
 

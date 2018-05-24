@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import math
 from pytorchgo.utils import logger
+from pytorchgo.utils.pytorch_utils import model_summary
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
@@ -205,6 +206,7 @@ class FCN(nn.Module):
         if init_weights:
             self._initialize_weights()
 
+
     def forward(self, x):
         x = self.features(x)
         return x
@@ -267,7 +269,7 @@ def VGG16_LargeFoV(class_num, image_size, pretrained=False,  **kwargs):
 
     if pretrained:
         saved_state_dict = model_zoo.load_url(model_urls['vgg16'])
-        print(saved_state_dict.keys())
+        logger.info("dictionary weight: {}".format(saved_state_dict.keys()))
         new_params = model.state_dict().copy()
         for weight_key in saved_state_dict:
             # classifier.0.bias
@@ -276,13 +278,14 @@ def VGG16_LargeFoV(class_num, image_size, pretrained=False,  **kwargs):
                 continue
             elif i_parts[0] == 'features':
                 new_params[weight_key] = saved_state_dict[weight_key]
-                logger.info("loading weight: {}".format(weight_key))
+                logger.info("loading weight from pretrained dictionary: {}".format(weight_key))
             else:
                 raise
             # print i_parts
         model.load_state_dict(new_params)
 
-
+    logger.info("deeplabv1 model structure: {}".format(model))
+    model_summary(model)
     return model
 
 # The DeepLab-LargeFOV model can be represented as follows:
