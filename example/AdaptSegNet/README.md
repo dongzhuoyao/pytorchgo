@@ -1,7 +1,8 @@
 # dongzhuoyao
 
-deeplabv2.synthia2cityscapes.multi: after epoch 14, mIoU still float near 23%.
-deeplabv2.synthia2cityscapes.single: after16000iteration,best mIoU is 27%. most times float in the range[23,25].
+* deeplabv2.synthia2cityscapes.multi: after epoch 14, mIoU still float near 23%.
+* deeplabv2.synthia2cityscapes.single: after16000iteration,best mIoU is 27%. most times float in the range[23,25].
+* deeplabv2.synthia2cityscapes.single.lr1e-5,after6000,float in the range[23,25],terminated.
 
 
 
