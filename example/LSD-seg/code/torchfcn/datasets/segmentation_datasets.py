@@ -10,9 +10,9 @@ import copy
 import random
 from tqdm import tqdm
 
-CLASS_NUM = 19
-class SegmentationData_BaseClass(data.Dataset):
+DEBUG_NUM = 0
 
+class SegmentationData_BaseClass(data.Dataset):
     class_names = np.array([
         "road",
         "sidewalk",
@@ -42,7 +42,10 @@ class SegmentationData_BaseClass(data.Dataset):
         self.files = collections.defaultdict(list)
 
     def __len__(self):
-        return len(self.files[self.split])
+        if DEBUG_NUM>0:
+            return DEBUG_NUM
+        else:
+            return len(self.files[self.split])
 
     def __getitem__(self, index):
         data_file = self.files[self.split][index]
@@ -52,14 +55,6 @@ class SegmentationData_BaseClass(data.Dataset):
         img = img[:,:,::-1]
         img -= self.mean_bgr
         img = img.transpose(2, 0, 1)
-
-
-        #if self.dset != 'cityscapes':
-            #mask = lbl > CLASS_NUM-1
-            #lbl[mask] = 255
-            #lbl[lbl>=CLASS_NUM] = 255, wrong writing!!!!
-
-
 
         img = torch.from_numpy(img.copy()).float() 
         lbl = torch.from_numpy(lbl.copy()).long()
