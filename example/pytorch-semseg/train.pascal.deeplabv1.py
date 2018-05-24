@@ -17,6 +17,7 @@ from ptsemseg.loss import *
 from ptsemseg.augmentations import *
 from tqdm import tqdm
 from pytorchgo.utils import logger
+from pytorchgo.utils.learning_rate import adjust_learning_rate
 
 from pytorchgo.loss import CrossEntropyLoss2d_Seg
 
@@ -74,6 +75,8 @@ def train(args):
     for epoch in tqdm(range(args.n_epoch),total=args.n_epoch):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader),total=len(trainloader), desc="training epoch {}/{}".format(epoch, args.n_epoch)):
+            cur_iter = i + epoch*len(trainloader)
+            cur_lr = adjust_learning_rate(optimizer,args.l_rate,cur_iter,args.n_epoch*len(trainloader),power=0.9)
             #if i > 10:break
 
             images = Variable(images.cuda())
@@ -89,7 +92,7 @@ def train(args):
 
 
             if (i+1) % 100 == 0:
-                logger.info("Epoch [%d/%d] Loss: %.4f" % (epoch+1, args.n_epoch, loss.data[0]))
+                logger.info("Epoch [%d/%d] Loss: %.4f, lr: %.7f" % (epoch+1, args.n_epoch, loss.data[0], cur_lr))
 
         model.eval()
         for i_val, (images_val, labels_val) in tqdm(enumerate(valloader),total=len(valloader), desc="validation"):
@@ -135,7 +138,7 @@ if __name__ == '__main__':
                         help='# of the epochs')
     parser.add_argument('--batch_size', nargs='?', type=int, default=16,
                         help='Batch Size')
-    parser.add_argument('--l_rate', nargs='?', type=float, default=1e-5, 
+    parser.add_argument('--l_rate', nargs='?', type=float, default=1e-3, # original implementation of deeplabv1 learning rate is 1e-3 and poly update
                         help='Learning Rate')
     parser.add_argument('--feature_scale', nargs='?', type=int, default=1, 
                         help='Divider for # of features to use')
