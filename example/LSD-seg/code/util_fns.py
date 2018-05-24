@@ -1,10 +1,6 @@
-import torch
 import os
 import os.path as osp
-import datetime
-import pytz
-import yaml
-import torchfcn
+
 
 def get_log_dir(log_dir, model_name, lr, opt):
     
@@ -21,31 +17,7 @@ def get_log_dir(log_dir, model_name, lr, opt):
     return log_dir
 
 
-def get_parameters(model, bias=False):
-    import torch.nn as nn
-    modules_skipped = (
-        nn.ReLU,
-        nn.MaxPool2d,
-        nn.Dropout2d,
-        nn.Sequential,
-        torchfcn.models.FCN8s_sourceonly,
-        torchfcn.models.FCN8s_LSD,
-        torchfcn.models.Res_Deeplab
-    )
-    for m in model.modules():
-        if isinstance(m, nn.Conv2d):
-            if bias:
-                yield m.bias
-            else:
-                yield m.weight
-        elif isinstance(m, nn.ConvTranspose2d):
-            # weight is frozen because it is just a bilinear upsampling
-            if bias:
-                assert m.bias is None
-        elif isinstance(m, modules_skipped):
-            continue
-        else:
-            raise ValueError('Unexpected module: %s' % str(m))
+
 
 
 def weights_init(m):

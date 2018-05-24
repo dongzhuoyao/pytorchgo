@@ -170,7 +170,7 @@ class SegmentationData_BaseClass(data.Dataset):
 
 class SYNTHIA(SegmentationData_BaseClass):
     
-    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512], output_path = False):
+    def __init__(self, dset, root,class_num=16, split='train', transform=False, image_size=[1024, 512], output_path = False):
         super(SYNTHIA, self).__init__(
             dset, root, split=split, transform=transform, image_size=image_size)
         
@@ -179,24 +179,41 @@ class SYNTHIA(SegmentationData_BaseClass):
         self.filelist_path = osp.join(self.root, 'filelist')
         self.split = split
         self._transform = transform
+        self.class_num = class_num
 
         self.output_path = output_path
 
         dataset_dir = osp.join(self.root, 'RAND_CITYSCAPES')
         # self.files = collections.defaultdict(list)
-        
-        if split == 'train':
-            imgsets_file = open(osp.join(
-                self.filelist_path, 'SYNTHIA_imagelist_train.txt'),'r')
-            label_file = open(osp.join(
-                self.filelist_path, 'SYNTHIA_labellist_train.txt'),'r')
-        elif split == 'val':
-            imgsets_file = open(osp.join(
-                self.filelist_path, 'SYNTHIA_imagelist_val.txt'),'r')
-            label_file = open(osp.join(
-                self.filelist_path, 'SYNTHIA_labellist_val.txt'),'r')
+
+        if self.class_num == 19:
+            if split == 'train':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_imagelist_train.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_labellist_train_class19.txt'),'r')
+            elif split == 'val':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_imagelist_val.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_labellist_val_class19.txt'),'r')
+            else:
+                raise ValueError('Invalid split type. Should be train or val')
+        elif self.class_num == 16:
+            if split == 'train':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_imagelist_train.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_labellist_train_class16.txt'),'r')
+            elif split == 'val':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_imagelist_val.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'SYNTHIA_labellist_val_class16.txt'),'r')
+            else:
+                raise ValueError('Invalid split type. Should be train or val')
         else:
-            raise ValueError('Invalid split type. Should be train or val')
+            raise
             
         for did,lid in zip(imgsets_file,label_file):
             img_file = osp.join(dataset_dir, '%s' % did.rstrip('\n'))
@@ -353,7 +370,7 @@ class GTA5(SegmentationData_BaseClass):
 
 class CityScapes(SegmentationData_BaseClass):
 
-    def __init__(self, dset, root, split='train', transform=False, image_size=[1024, 512],output_path = False):
+    def __init__(self, dset, root, class_num=16, split='train', transform=False, image_size=[1024, 512],output_path = False):
         super(CityScapes, self).__init__(
             dset, root, split=split, transform=transform, image_size=image_size, output_path=output_path)
         
@@ -363,27 +380,52 @@ class CityScapes(SegmentationData_BaseClass):
         self.split = split
         self._transform = transform
         self.output_path = output_path
-        
-        if split == 'train':
-            imgsets_file = open(osp.join(
-                self.filelist_path, 'cityscapes_imagelist_train.txt'),'r')
-            label_file = open(osp.join(
-                self.filelist_path, 'cityscapes_labellist_train_label16.txt'),'r')
-        elif split == 'val':
-            imgsets_file = open(osp.join(
-                self.filelist_path, 'cityscapes_imagelist_val.txt'),'r')
-            label_file = open(osp.join(
-                self.filelist_path, 'cityscapes_labellist_val_label16.txt'),'r')
+        self.class_num = class_num
+
+        if class_num==16:
+            if split == 'train':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_imagelist_train.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_labellist_train_label16.txt'),'r')
+            elif split == 'val':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_imagelist_val.txt'),'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_labellist_val_label16.txt'),'r')
+            else:
+                raise ValueError('Invalid split type. Should be train or val')
+
+            dataset_dir = osp.join(self.root, 'cityscapes')
+            if split == 'train':
+                img_dir = osp.join(dataset_dir, 'leftImg8bit/train')
+                gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
+            elif split == 'val':
+                img_dir = osp.join(dataset_dir, 'leftImg8bit/val')
+                gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
+        elif class_num == 19:
+            if split == 'train':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_imagelist_train.txt'), 'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_labellist_train.txt'), 'r')
+            elif split == 'val':
+                imgsets_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_imagelist_val.txt'), 'r')
+                label_file = open(osp.join(
+                    self.filelist_path, 'cityscapes_labellist_val.txt'), 'r')
+            else:
+                raise ValueError('Invalid split type. Should be train or val')
+
+            dataset_dir = osp.join(self.root, 'cityscapes')
+            if split == 'train':
+                img_dir = osp.join(dataset_dir, 'leftImg8bit/train')
+                gt_dir = osp.join(dataset_dir, 'gtFine/train')
+            elif split == 'val':
+                img_dir = osp.join(dataset_dir, 'leftImg8bit/val')
+                gt_dir = osp.join(dataset_dir, 'gtFine/val')
         else:
-            raise ValueError('Invalid split type. Should be train or val')
-            
-        dataset_dir = osp.join(self.root, 'cityscapes')
-        if split == 'train':
-            img_dir = osp.join(dataset_dir, 'leftImg8bit/train')
-            gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
-        elif split == 'val':
-            img_dir = osp.join(dataset_dir, 'leftImg8bit/val')
-            gt_dir = osp.join(dataset_dir, 'label16_for_synthia')
+            raise
         
         for did,lid in zip(imgsets_file,label_file):
             img_file = osp.join(img_dir, '%s' % did.rstrip('\n'))

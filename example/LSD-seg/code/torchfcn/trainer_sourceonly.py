@@ -15,7 +15,6 @@ import itertools,datetime
 import torchvision.utils as vutils
 import torchfcn
 import torch.nn as nn
-from util_fns import get_parameters
 from utils import cross_entropy2d, step_scheduler
 
 class Trainer_sourceonly(object):
