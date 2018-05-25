@@ -55,7 +55,7 @@ class Gconv(nn.Module):
         if self.bn_bool:
             x = self.bn(x)
 
-        x = x.view(*x_size[:-1], self.num_outputs)
+        x = x.view(x_size[0],x_size[1], self.num_outputs)
         return W, x
 
 
@@ -200,8 +200,8 @@ class GNN_nl(nn.Module):
         self.w_comp_last = Wcompute(self.input_features + int(self.nf / 2) * self.num_layers, nf, operator='J2', activation='softmax', ratio=[2, 2, 1, 1])
         self.layer_last = Gconv(self.input_features + int(self.nf / 2) * self.num_layers, args.train_N_way, 2, bn_bool=False)
 
-    def forward(self, x):
-        W_init = Variable(torch.eye(x.size(1)).unsqueeze(0).repeat(x.size(0), 1, 1).unsqueeze(3))
+    def forward(self, x):#[40, 26, 133]
+        W_init = Variable(torch.eye(x.size(1)).unsqueeze(0).repeat(x.size(0), 1, 1).unsqueeze(3))#[40, 26, 26, 1]
         if self.args.cuda:
             W_init = W_init.cuda()
 

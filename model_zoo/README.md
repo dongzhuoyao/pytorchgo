@@ -2,7 +2,7 @@
 
 ## Details you should notice
 
-Except recover the weight, you also need recover the image loading patten.
+Except recover the weight, you also need recover the image loading pattern.
 
 
 ## caffe model
@@ -19,3 +19,4 @@ and the following BGR values should then be subtracted from each pixel: [103.939
 ## Related Links
 
 * [https://github.com/marvis/pytorch-caffe](https://github.com/marvis/pytorch-caffe)
+* [https://github.com/ruotianluo/pytorch-resnet](https://github.com/ruotianluo/pytorch-resnet)

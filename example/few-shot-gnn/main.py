@@ -6,10 +6,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from data import generator
-from utils import io_utils
 import models.models as models
 import test
 import numpy as np
+
+from pytorchgo.utils import logger
 
 # Training settings
 parser = argparse.ArgumentParser(description='Few-Shot Learning with Graph Neural Networks')
@@ -76,16 +77,17 @@ def _init_():
     os.system('cp models/models.py checkpoints' + '/' + args.exp_name + '/' + 'models.py.backup')
 _init_()
 
-io = io_utils.IOStream('checkpoints/' + args.exp_name + '/run.log')
-io.cprint(str(args))
+logger.auto_set_dir()
+
+logger.info(str(args))
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 torch.manual_seed(args.seed)
 if args.cuda:
-    io.cprint('Using GPU : ' + str(torch.cuda.current_device())+' from '+str(torch.cuda.device_count())+' devices')
+    logger.info('Using GPU : ' + str(torch.cuda.current_device())+' from '+str(torch.cuda.device_count())+' devices')
     torch.cuda.manual_seed(args.seed)
 else:
-    io.cprint('Using CPU')
+    logger.info('Using CPU')
 
 
 def train_batch(model, data):
@@ -114,11 +116,11 @@ def train_batch(model, data):
 
 def train():
     train_loader = generator.Generator(args.dataset_root, args, partition='train', dataset=args.dataset)
-    io.cprint('Batch size: '+str(args.batch_size))
+    logger.info('Batch size: '+str(args.batch_size))
 
     #Try to load models
-    enc_nn = models.load_model('enc_nn', args, io)
-    metric_nn = models.load_model('metric_nn', args, io)
+    enc_nn = models.load_model('enc_nn', args)
+    metric_nn = models.load_model('metric_nn', args)
 
     if enc_nn is None or metric_nn is None:
         enc_nn, metric_nn = models.create_models(args=args)
@@ -128,12 +130,12 @@ def train():
         enc_nn.cuda()
         metric_nn.cuda()
 
-    io.cprint(str(enc_nn))
-    io.cprint(str(metric_nn))
+    logger.info(str(enc_nn))
+    logger.info(str(metric_nn))
 
     weight_decay = 0
     if args.dataset == 'mini_imagenet':
-        print('Weight decay '+str(1e-6))
+        logger.info('Weight decay '+str(1e-6))
         weight_decay = 1e-6
     opt_enc_nn = optim.Adam(enc_nn.parameters(), lr=args.lr, weight_decay=weight_decay)
     opt_metric_nn = optim.Adam(metric_nn.parameters(), lr=args.lr, weight_decay=weight_decay)
@@ -174,7 +176,7 @@ def train():
         if batch_idx % args.log_interval == 0:
                 display_str = 'Train Iter: {}'.format(batch_idx)
                 display_str += '\tLoss_d_metric: {:.6f}'.format(total_loss/counter)
-                io.cprint(display_str)
+                logger.info(display_str)
                 counter = 0
                 total_loss = 0
 
@@ -201,14 +203,15 @@ def train():
                 val_acc = val_acc_aux
 
             if args.dataset == 'mini_imagenet':
-                io.cprint("Best test accuracy {:.4f} \n".format(test_acc))
+                logger.info("Best test accuracy {:.4f} \n".format(test_acc))
 
         ####################
         # Save model
         ####################
         if (batch_idx + 1) % args.save_interval == 0:
-            torch.save(enc_nn, 'checkpoints/%s/models/enc_nn.t7' % args.exp_name)
-            torch.save(metric_nn, 'checkpoints/%s/models/metric_nn.t7' % args.exp_name)
+            logger.info("saving model...")
+            torch.save(enc_nn, os.path.join(logger.get_logger_dir(),'enc_nn.t7'))
+            torch.save(metric_nn, os.path.join(logger.get_logger_dir(),'metric_nn.t7'))
 
     # Test after training
     test.test_one_shot(args, model=[enc_nn, metric_nn, softmax_module],

@@ -5,7 +5,7 @@ import os.path
 import numpy as np
 from PIL import Image as pil_image
 import pickle
-
+from pytorchgo.utils import logger
 
 class MiniImagenet(data.Dataset):
     def __init__(self, root, dataset='mini_imagenet'):
@@ -33,13 +33,13 @@ class MiniImagenet(data.Dataset):
         return os.listdir('%s/mini_imagenet' % self.root) == []
 
     def _decompress_(self):
-        print("\nDecompressing Images...")
+        logger.info("\nDecompressing Images...")
         compressed_file = '%s/compressed/mini_imagenet/images.zip' % self.root
         if os.path.isfile(compressed_file):
             os.system('unzip %s -d %s/mini_imagenet/' % (compressed_file, self.root))
         else:
             raise Exception('Missing %s' % compressed_file)
-        print("Decompressed")
+        logger.info("Decompressed")
 
     def _check_exists_(self):
         if not os.path.exists(os.path.join(self.root, 'compacted_datasets', 'mini_imagenet_train.pickle')) or not \
@@ -61,7 +61,7 @@ class MiniImagenet(data.Dataset):
         return class_names, images_path
 
     def _preprocess_(self):
-        print('\nPreprocessing Mini-Imagenet images...')
+        logger.info('\nPreprocessing Mini-Imagenet images...')
         (class_names_train, images_path_train) = self.get_image_paths('%s/mini_imagenet/train.csv' % self.root)
         (class_names_test, images_path_test) = self.get_image_paths('%s/mini_imagenet/test.csv' % self.root)
         (class_names_val, images_path_val) = self.get_image_paths('%s/mini_imagenet/val.csv' % self.root)
@@ -93,7 +93,7 @@ class MiniImagenet(data.Dataset):
             train_set[label_encoder[class_]].append(img)
             counter += 1
             if counter % 1000 == 0:
-                print("Counter "+str(counter) + " from " + str(len(images_path_train) + len(class_names_test) +
+                logger.info("Counter "+str(counter) + " from " + str(len(images_path_train) + len(class_names_test) +
                                                                len(class_names_val)))
 
         test_set = {}
@@ -108,7 +108,7 @@ class MiniImagenet(data.Dataset):
             test_set[label_encoder[class_]].append(img)
             counter += 1
             if counter % 1000 == 0:
-                print("Counter " + str(counter) + " from "+str(len(images_path_train) + len(class_names_test) +
+                logger.info("Counter " + str(counter) + " from "+str(len(images_path_train) + len(class_names_test) +
                                                                len(class_names_val)))
 
         val_set = {}
@@ -123,7 +123,7 @@ class MiniImagenet(data.Dataset):
             val_set[label_encoder[class_]].append(img)
             counter += 1
             if counter % 1000 == 0:
-                print("Counter "+str(counter) + " from " + str(len(images_path_train) + len(class_names_test) +
+                logger.info("Counter "+str(counter) + " from " + str(len(images_path_train) + len(class_names_test) +
                                                                len(class_names_val)))
 
         with open(os.path.join(self.root, 'compacted_datasets', 'mini_imagenet_train.pickle'), 'wb') as handle:
@@ -140,10 +140,10 @@ class MiniImagenet(data.Dataset):
         with open(os.path.join(self.root, 'compacted_datasets', 'mini_imagenet_label_encoder.pickle'), 'wb') as handle:
             pickle.dump(label_encoder, handle, protocol=2)
 
-        print('Images preprocessed')
+        logger.info('Images preprocessed')
 
     def load_dataset(self, partition, size=(84, 84)):
-        print("Loading dataset")
+        logger.info("Loading dataset")
         if partition == 'train_val':
             with open(os.path.join(self.root, 'compacted_datasets', 'mini_imagenet_%s.pickle' % 'train'),
                       'rb') as handle:
@@ -178,9 +178,9 @@ class MiniImagenet(data.Dataset):
 
                 data[class_][i] = image_resized
 
-        print("Num classes " + str(len(data)))
+        logger.info("Num classes " + str(len(data)))
         num_images = 0
         for class_ in data:
             num_images += len(data[class_])
-        print("Num images " + str(num_images))
+        logger.info("Num images " + str(num_images))
         return data, label_encoder

@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from models import gnn_iclr
-
+from . import gnn_iclr
+from pytorchgo.utils import logger
 
 class EmbeddingOmniglot(nn.Module):
     ''' In this network the input image is supposed to be 28x28 '''
@@ -129,9 +129,9 @@ class MetricNN(nn.Module):
         labels_yi = [zero_pad] + labels_yi
         zi_s = [z] + zi_s
 
-        nodes = [torch.cat([zi, label_yi], 1) for zi, label_yi in zip(zi_s, labels_yi)]
-        nodes = [node.unsqueeze(1) for node in nodes]
-        nodes = torch.cat(nodes, 1)
+        nodes = [torch.cat([zi, label_yi], 1) for zi, label_yi in zip(zi_s, labels_yi)] #[40,128+5]
+        nodes = [node.unsqueeze(1) for node in nodes]#[40,1,133]
+        nodes = torch.cat(nodes, 1)#[40,26,133]
 
         logits = self.gnn_obj(nodes).squeeze(-1)
         outputs = F.sigmoid(logits)
@@ -183,13 +183,13 @@ class SoftmaxModule():
             raise(NotImplementedError)
 
 
-def load_model(model_name, args, io):
+def load_model(model_name, args):
     try:
         model = torch.load('checkpoints/%s/models/%s.t7' % (args.exp_name, model_name))
-        io.cprint('Loading Parameters from the last trained %s Model' % model_name)
+        logger.info('Loading Parameters from the last trained %s Model' % model_name)
         return model
     except:
-        io.cprint('Initiallize new Network Weights for %s' % model_name)
+        logger.info('Initiallize new Network Weights for %s' % model_name)
         pass
     return None
 

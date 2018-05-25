@@ -1,13 +1,12 @@
 import numpy as np
-from utils import io_utils
 from data import generator
 from torch.autograd import Variable
-
+from pytorchgo.utils import logger
 
 def test_one_shot(args, model, test_samples=5000, partition='test'):
-    io = io_utils.IOStream('checkpoints/' + args.exp_name + '/run.log')
 
-    io.cprint('\n**** TESTING WITH %s ***' % (partition,))
+
+    logger.info('**** TESTING WITH %s ***' % (partition,))
 
     loader = generator.Generator(args.dataset_root, args, partition=partition, dataset=args.dataset)
 
@@ -56,10 +55,10 @@ def test_one_shot(args, model, test_samples=5000, partition='test'):
             total += 1
 
         if (i+1) % 100 == 0:
-            io.cprint('{} correct from {} \tAccuracy: {:.3f}%)'.format(correct, total, 100.0*correct/total))
+            logger.info('{} correct from {} \tAccuracy: {:.3f}%'.format(correct, total, 100.0*correct/total))
 
-    io.cprint('{} correct from {} \tAccuracy: {:.3f}%)'.format(correct, total, 100.0*correct/total))
-    io.cprint('*** TEST FINISHED ***\n'.format(correct, total, 100.0 * correct / total))
+    logger.info('{} correct from {} \tAccuracy: {:.3f}%'.format(correct, total, 100.0*correct/total))
+    logger.info('*** TEST FINISHED ***\n'.format(correct, total, 100.0 * correct / total))
     enc_nn.train()
     metric_nn.train()
 
