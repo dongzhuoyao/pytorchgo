@@ -35,4 +35,5 @@ reborn2.best.1_10_10.uniform_data||epoch1=6,terminated|
 reborn2.best.2sgd|epoch2=4%,terminated
 reborn2.best.1_5_1|epoch6,largest=27%,terminated|
 reborn2.best.1_10_1.uniform_data|epoch3=38,run out|
+reborn2.best.feat_distill|epoch4=28.1,run out|
 
