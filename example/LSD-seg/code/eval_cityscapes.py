@@ -74,7 +74,7 @@ def transform_label(label_orig, sz):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
-    parser.add_argument('--model_file',default='logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar', help='Model path')
+    parser.add_argument('--model_file',default='train_log/train.class16/model_best.pth.tar', help='Model path')
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
@@ -84,15 +84,17 @@ def main():
 
     model_file = args.model_file
 
+    n_class = 16
+    print("n_class: {}".format(n_class))
+
     image_size=[640, 320]
     dset = 'cityscapes'
     val_loader = torch.utils.data.DataLoader(
-        torchfcn.datasets.CityScapes(dset, args.dataroot, split='val', transform=True, image_size=image_size),
+        torchfcn.datasets.CityScapes(dset, args.dataroot,class_num = n_class,  split='val', transform=True, image_size=image_size),
         batch_size=1, shuffle=False)
     
     # Defining and loading model
-    
-    n_class = 19
+
     if args.method == 'sourceonly':
         model = torchfcn.models.FCN8s_sourceonly(n_class=n_class)
     elif args.method == 'LSD':
@@ -113,6 +115,7 @@ def main():
     model.eval()
 
     # Evaluation
+    print("best_mean_iu: {}".format(model_data['best_mean_iu']))
     
     print('==> Evaluating with CityScapes validation')
     visualizations = []

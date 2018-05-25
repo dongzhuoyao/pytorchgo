@@ -1,34 +1,12 @@
 # README #
 
-**my running result is 28% mIoU**
+train.class16.py
 
-
-==> Loading FCN8s_LSD model file: logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar
+best_mean_iu: 0.438589131977
 ==> Evaluating with CityScapes validation
-tensorpack mIoU: 0.234553658922
-tensorpack mean_accuracy: 0.337092400824
-tensorpack accuracy: 0.663078122518
-('Num classes', 19)
-===>road:	45.95
-===>sidewalk:	19.18
-===>building:	61.01
-===>wall:	4.82
-===>fence:	0.46
-===>pole:	20.07
-===>light:	2.02
-===>sign:	9.52
-===>vegetation:	75.04
-===>terrain:	0.0
-===>sky:	76.94
-===>person:	41.75
-===>rider:	14.29
-===>car:	48.81
-===>truck:	0.0
-===>bus:	6.03
-===>train:	0.0
-===>motocycle:	7.17
-===>bicycle:	12.6
-===> mIoU: 23.46
+tensorpack mIoU: 0.330048044221
+
+
 
 
 ==> Loading FCN8s_LSD model file: logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar
