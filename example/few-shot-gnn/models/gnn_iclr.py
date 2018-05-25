@@ -18,15 +18,15 @@ else:
 
 def gmul(input):
     W, x = input
-    # x is a tensor of size (bs, N, num_features)
-    # W is a tensor of size (bs, N, N, J)
+    # x is a tensor of size (bs, N, num_features). [40, 26, 181]
+    # W is a tensor of size (bs, N, N, J), [40, 26, 26, 2]
     x_size = x.size()
     W_size = W.size()
     N = W_size[-2]
     W = W.split(1, 3)
-    W = torch.cat(W, 1).squeeze(3) # W is now a tensor of size (bs, J*N, N)
+    W = torch.cat(W, 1).squeeze(3) # W is now a tensor of size (bs, J*N, N)   x is a tensor of size (bs, N, num_features)
     output = torch.bmm(W, x) # output has size (bs, J*N, num_features)
-    output = output.split(N, 1)
+    output = output.split(N, 1) #spli into  a list with length=J, size: [bs, N, num_features]
     output = torch.cat(output, 2) # output has size (bs, N, J*num_features)
     return output
 
@@ -81,6 +81,8 @@ class Wcompute(nn.Module):
         self.activation = activation
 
     def forward(self, x, W_id):
+        #x : [40, 26, 133]
+        #W_id:[40, 26, 26, 1]
         W1 = x.unsqueeze(2)
         W2 = torch.transpose(W1, 1, 2) #size: bs x N x N x num_features
         W_new = torch.abs(W1 - W2) #size: bs x N x N x num_features
@@ -109,7 +111,7 @@ class Wcompute(nn.Module):
 
         if self.activation == 'softmax':
             W_new = W_new - W_id.expand_as(W_new) * 1e8
-            W_new = torch.transpose(W_new, 2, 3)
+            W_new = torch.transpose(W_new, 2, 3) # after transpose, [40, 26, 1, 26]
             # Applying Softmax
             W_new = W_new.contiguous()
             W_new_size = W_new.size()
@@ -203,7 +205,7 @@ class GNN_nl(nn.Module):
         self.layer_last = Gconv(self.input_features + int(self.nf / 2) * self.num_layers, args.train_N_way, 2, bn_bool=False)
 
     def forward(self, x):#[40, 26, 133]
-        W_init = Variable(torch.eye(x.size(1)).unsqueeze(0).repeat(x.size(0), 1, 1).unsqueeze(3))#[40, 26, 26, 1]
+        W_init = Variable(torch.eye(x.size(1)).unsqueeze(0).repeat(x.size(0), 1, 1).unsqueeze(3))#[40, 26, 26, 1], the start of Graph Neural Network
         if self.args.cuda:
             W_init = W_init.cuda()
 
