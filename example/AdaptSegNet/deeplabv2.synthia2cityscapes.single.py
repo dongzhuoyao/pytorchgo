@@ -451,8 +451,9 @@ def main():
 
         if i_iter%100 ==0:
             logger.info(
-        'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}, lr={:.7f}, lr_D={:.7f}'.format(
-            i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2, lr, lr_D1))
+                'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}, lr={:.7f}, lr_D={:.7f}, best miou16= {:.5f}'.format(
+                    i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1,
+                    loss_adv_target_value2, loss_D_value1, loss_D_value2, lr, lr_D1, best_mIoU))
 
 
 

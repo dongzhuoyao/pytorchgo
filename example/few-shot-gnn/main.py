@@ -11,6 +11,7 @@ import test
 import numpy as np
 
 from pytorchgo.utils import logger
+from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
 
 # Training settings
 parser = argparse.ArgumentParser(description='Few-Shot Learning with Graph Neural Networks')
@@ -140,6 +141,8 @@ def train():
     opt_enc_nn = optim.Adam(enc_nn.parameters(), lr=args.lr, weight_decay=weight_decay)
     opt_metric_nn = optim.Adam(metric_nn.parameters(), lr=args.lr, weight_decay=weight_decay)
 
+    model_summary([enc_nn, metric_nn])
+    optimizer_summary([opt_enc_nn, opt_metric_nn])
     enc_nn.train()
     metric_nn.train()
     counter = 0

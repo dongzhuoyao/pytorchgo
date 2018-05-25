@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
+from pytorchgo.utils import logger
 
 if torch.cuda.is_available():
     dtype = torch.cuda.FloatTensor
@@ -62,6 +63,7 @@ class Gconv(nn.Module):
 class Wcompute(nn.Module):
     def __init__(self, input_features, nf, operator='J2', activation='softmax', ratio=[2,2,1,1], num_operators=1, drop=False):
         super(Wcompute, self).__init__()
+        logger.info("Wcompute activation type: {}".format(activation))
         self.num_features = nf
         self.operator = operator
         self.conv2d_1 = nn.Conv2d(input_features, int(nf * ratio[0]), 1, stride=1)
