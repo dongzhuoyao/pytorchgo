@@ -2,13 +2,12 @@
 
 train.class16.py
 
-best_mean_iu: 0.438589131977
-==> Evaluating with CityScapes validation
-tensorpack mIoU: 0.330048044221
+|eval mIoU| final mIoU|
+|----|----|
+|0.438589131977|0.330048044221|
+|0.439850007412|0.341838778973|
 
-best_mean_iu: 0.439850007412
-==> Evaluating with CityScapes validation
-tensorpack mIoU: 0.341838778973
+
 
 
 
