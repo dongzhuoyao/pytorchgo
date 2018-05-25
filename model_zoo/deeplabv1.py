@@ -282,9 +282,8 @@ def VGG16_LargeFoV(class_num, image_size, pretrained=False,  **kwargs):
     model = FCN(vgg_input, **kwargs)
 
     if pretrained:
-        #saved_state_dict = torch.load("/home/hutao/lab/pytorchgo/model_zoo/caffe_to_pytorch/deeplabv1/deeplabv1.pth")
-        #saved_state_dict =checkpoint.state_dict()
-        saved_state_dict = model_zoo.load_url('https://dongzhuoyao.oss-cn-qingdao.aliyuncs.com/deeplabv1_init_model.pth')
+        saved_state_dict = torch.load("/home/hutao/lab/pytorchgo/model_zoo/caffe_to_pytorch/deeplabv1/deeplabv1.pth")
+        #saved_state_dict = model_zoo.load_url('https://dongzhuoyao.oss-cn-qingdao.aliyuncs.com/deeplabv1_init_model.pth')
         logger.info("dictionary weight: {}".format(saved_state_dict.keys()))
         new_params = model.state_dict().copy()
         logger.info("model weight keys: {}".format(new_params.keys()))

@@ -133,7 +133,7 @@ if __name__ == '__main__':
                         help='Enable input image scales normalization [0, 1] | True by default')
     parser.add_argument('--no-img_norm', dest='img_norm', action='store_false', 
                         help='Disable input image scales normalization [0, 1] | True by default')
-    parser.set_defaults(img_norm=True)
+    parser.set_defaults(img_norm=False)
 
     parser.add_argument('--n_epoch', nargs='?', type=int, default=20,
                         help='# of the epochs')
