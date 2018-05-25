@@ -119,9 +119,10 @@ class Classifier_Module(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, num_classes):
+    def __init__(self, block, layers, num_classes, multi_scale):
         self.inplanes = 64
         super(ResNet, self).__init__()
+        self.multi_scale = multi_scale
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64, affine=affine_par)
@@ -180,7 +181,10 @@ class ResNet(nn.Module):
         x2 = self.layer4(x)
         x2 = self.layer6(x2)
 
-        return x1, x2
+        if self.multi_scale:
+            return x1, x2
+        else:
+            return x2
 
     def get_1x_lr_params_NOscale(self):
         """
@@ -224,7 +228,7 @@ class ResNet(nn.Module):
                 {'params': self.get_10x_lr_params(), 'lr': 10 * args.learning_rate}]
 
 
-def Res_Deeplab(num_classes=21):
-    model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes)
+def Res_Deeplab(num_classes=21, multi_scale = True):
+    model = ResNet(Bottleneck, [3, 4, 23, 3], num_classes, multi_scale)
     return model
 
