@@ -6,6 +6,10 @@ best_mean_iu: 0.438589131977
 ==> Evaluating with CityScapes validation
 tensorpack mIoU: 0.330048044221
 
+best_mean_iu: 0.439850007412
+==> Evaluating with CityScapes validation
+tensorpack mIoU: 0.341838778973
+
 
 
 
