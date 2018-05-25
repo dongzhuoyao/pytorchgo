@@ -71,7 +71,7 @@ elif SOURCE_DATA == "SYNTHIA":
     LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
 
     NUM_STEPS = 70000
-    NUM_STEPS_STOP = 20000  # early stopping
+    NUM_STEPS_STOP = 30000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
     raise
@@ -207,10 +207,7 @@ def proceed_test(model, quick_test = 1e10):
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
-
-    logger.info("tensorpack mIoU: {}".format(stat.mIoU))
-    logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
-    logger.info("tensorpack accuracy: {}".format(stat.accuracy))
+    print("tensorpack class16 IoU: {}".format(np.sum(stat.IoU) / 16))
     model.train()
 
 
@@ -456,7 +453,6 @@ def main():
             torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-
             proceed_test(model)
 
         if i_iter >= args.num_steps_stop - 1:

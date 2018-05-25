@@ -74,7 +74,7 @@ def transform_label(label_orig, sz):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
-    parser.add_argument('--model_file',default='train_log/train.class16/model_best.pth.tar', help='Model path')
+    parser.add_argument('--model_file',default='train_log/train/model_best.pth.tar', help='Model path')
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
@@ -84,7 +84,7 @@ def main():
 
     model_file = args.model_file
 
-    n_class = 16
+    n_class = 19
     print("n_class: {}".format(n_class))
 
     image_size=[640, 320]
