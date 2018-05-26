@@ -1,4 +1,5 @@
-#norm=False: 67.79
+#norm=False: 67.79%
+#norm=True: mIoU:3%
 
 import sys, os
 import torch

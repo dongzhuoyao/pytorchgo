@@ -1,11 +1,18 @@
 # README #
 
-train.class16.py
+##  train.class16.py
 
 |eval mIoU| final mIoU|
 |----|----|
 |0.438589131977|0.330048044221|
 |0.439850007412|0.341838778973|
+
+
+##  train.class16.py
+
+|eval mIoU| final mIoU|
+|----|----|
+|0.4473|0.33923684|
 
 
 
