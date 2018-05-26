@@ -38,7 +38,7 @@ LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_CLASSES = 19
 
-INPUT_SIZE = '1024,512'  #'1280,720'
+INPUT_SIZE = '1280,720' #'1024,512'  #
 INPUT_SIZE_TARGET = '1024,512'
 
 
@@ -191,10 +191,10 @@ def proceed_test(model, quick_test = 1e10):
     model.eval()
     model.cuda()
     testloader = data.DataLoader(
-        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
+        cityscapesDataSet(crop_size=(1024, 512), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
         batch_size=1, shuffle=False, pin_memory=True)
 
-    interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
+    interp = nn.Upsample(size=(512, 1024), mode='bilinear')
 
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
@@ -205,14 +205,14 @@ def proceed_test(model, quick_test = 1e10):
         image, label, _, name = batch
         image, label = Variable(image, volatile=True), Variable(label)
 
-        output1, output2 = model(image.cuda())#(1,19,129,257)
+        output2 = model(image.cuda())#(1,19,129,257)
         output = interp(output2).cpu().data[0].numpy()
         output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
     miou16 = np.sum(stat.IoU) / 16
-    print("tensorpack class16 IoU: {}".format(miou16))
+    print("tensorpack class16 IoU with 1024x512: {}".format(miou16))
     model.train()
     return miou16
 

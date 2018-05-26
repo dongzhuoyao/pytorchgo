@@ -1,12 +1,12 @@
 {
   "pascal":
   {
-    "data_path": "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012"
+    "data_path": "~/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012"
   },
 
   "sbd":
   {
-    "data_path": "/data1/dataset/pascalvoc2012/benchmark_RELEASE"
+    "data_path": "~/dataset/benchmark_RELEASE"
   },
 
   "camvid":
