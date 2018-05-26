@@ -1,3 +1,6 @@
+#Notice for deeplabv2
+# Image scale to [-127, 128]
+
 import sys, os
 import torch
 import argparse
@@ -76,7 +79,7 @@ def train(args):
         else:
             logger.info("No checkpoint found at '{}'".format(args.resume))
 
-    best_iou = -100.0 
+    best_iou = 0
     for epoch in tqdm(range(args.n_epoch),total=args.n_epoch):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader),total=len(trainloader), desc="training epoch {}/{}".format(epoch, args.n_epoch)):
@@ -89,7 +92,6 @@ def train(args):
 
             optimizer.zero_grad()
             outputs = model(images)
-            #print(np.unique(outputs.data[0].cpu().numpy()))
             loss = CrossEntropyLoss2d_Seg(input=outputs, target=labels, class_num=n_classes)
 
             loss.backward()
@@ -137,7 +139,7 @@ if __name__ == '__main__':
                         help='Enable input image scales normalization [0, 1] | True by default')
     parser.add_argument('--no-img_norm', dest='img_norm', action='store_false', 
                         help='Disable input image scales normalization [0, 1] | True by default')
-    parser.set_defaults(img_norm=True)
+    parser.set_defaults(img_norm=False)
 
     parser.add_argument('--n_epoch', nargs='?', type=int, default=20,
                         help='# of the epochs')

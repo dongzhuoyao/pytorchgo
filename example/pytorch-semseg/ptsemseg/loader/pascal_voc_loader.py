@@ -109,7 +109,8 @@ class pascalVOCLoader(data.Dataset):
         # HWC -> CHW
         img = img.transpose(2, 0, 1)
 
-        lbl[lbl==255] = 0#TODO ????buggy?
+        lbl[lbl==255] = 0#The boundary label (255 in ground truth labels) has not been ignored in the loss function in the current version, instead it has been merged with the background.
+        # The ignore_label caffe parameter would be implemented in the future versions.
         lbl = lbl.astype(float)
         lbl = m.imresize(lbl, (self.img_size[0], self.img_size[1]), 'nearest',
                          mode='F')
