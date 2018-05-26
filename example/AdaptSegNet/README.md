@@ -5,6 +5,16 @@
 |deeplabv2.synthia2cityscapes.single|0.329757171308|
 |fcn8s.synthia2cityscapes.single|0.29426|
 
+## paper result
+
+|arch|dataset|result|
+|----|----|----|
+|Deeplabv1-largeFOV(single-level)|SYNTHIA|37.6|
+|Deeplabv2-ResNet101(single-level)|SYNTHIA|45.9|
+|Deeplabv2-ResNet101(multi-level)|SYNTHIA|46.7|
+|Deeplabv1-largeFOV(single-level)|GTA5|35.0|
+|Deeplabv2-ResNet101(multi-level)|GTA5|42.4|
+
 
 # Learning to Adapt Structured Output Space for Semantic Segmentation
 

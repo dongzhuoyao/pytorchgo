@@ -87,7 +87,7 @@ def main():
     n_class = 16
     print("warning!!!!!!!!! n_class: {}, if you use train.class16, please change class num to 16!!!!".format(n_class))
 
-    image_size=[2048, 1024]
+    image_size=[640, 320]
     print("image size: {}".format(image_size))
     dset = 'cityscapes'
     val_loader = torch.utils.data.DataLoader(
