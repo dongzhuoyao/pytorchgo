@@ -1,23 +1,31 @@
 # README #
 
-##  train.class16.py
-
-|eval mIoU| final mIoU|
-|----|----|
-|0.438589131977|0.330048044221|
-|0.439850007412|0.341838778973|
-
 
 ##  train.class16.py
 
-|eval mIoU| final mIoU|
-|----|----|
-|0.4473|0.33923684|
+|image size|eval mIoU| final mIoU|
+|----|----|----|
+|640x320|0.438589131977|0.330048044221|
+|640x320|0.439850007412|0.341838778973|
+
+
+##  train.py
+
+|image size|eval mIoU| final mIoU|
+|----|----|----|
+|640x320|0.4473|0.33923684|
+
+## paper result
+
+|arch|dataset|result|
+|----|----|----|
+|FCN8S|SYNTHIA|36.1|
+|FCN8S|GTA5|37.1|
 
 
 
 
-
+```
 
 ==> Loading FCN8s_LSD model file: logs/MODEL-LSD_CFG-Adam_LR_0.00001000/model_best.pth.tar
 ==> Evaluating with CityScapes validation
@@ -48,6 +56,7 @@ tensorpack accuracy: 0.798419604166
 
 class16-mIoU= 34.06
 
+```
 
 
 

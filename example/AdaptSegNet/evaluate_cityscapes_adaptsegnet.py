@@ -27,7 +27,7 @@ SAVE_PATH = './result/cityscapes'
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
 #RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
-RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single/SYNTHIA_18000.pth'
+RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single/model_best.pth.tar'
 SET = 'val'
 
 palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,
@@ -86,10 +86,13 @@ def main():
         saved_state_dict = model_zoo.load_url(args.restore_from)
     else:
         saved_state_dict = torch.load(args.restore_from)
-    model.load_state_dict(saved_state_dict)
+    model.load_state_dict(saved_state_dict['model_state_dict'])
 
     model.eval()
     model.cuda(gpu0)
+
+    print ("evaluating {}".format(args.restore_from))
+    print ("************ best mIoU:{} *******".format(saved_state_dict['best_mean_iu']))
 
     testloader = data.DataLoader(cityscapesDataSet( crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
                                     batch_size=1, shuffle=False, pin_memory=True)

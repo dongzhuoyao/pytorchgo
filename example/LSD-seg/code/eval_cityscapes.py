@@ -84,10 +84,11 @@ def main():
 
     model_file = args.model_file
 
-    n_class = 19
-    print("n_class: {}".format(n_class))
+    n_class = 16
+    print("warning!!!!!!!!! n_class: {}, if you use train.class16, please change class num to 16!!!!".format(n_class))
 
-    image_size=[640, 320]
+    image_size=[2048, 1024]
+    print("image size: {}".format(image_size))
     dset = 'cityscapes'
     val_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.CityScapes(dset, args.dataroot,class_num = n_class,  split='val', transform=True, image_size=image_size),
