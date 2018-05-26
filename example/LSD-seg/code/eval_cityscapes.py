@@ -111,6 +111,7 @@ def main():
     try:
         model.load_state_dict(model_data)
     except Exception:
+        print("model load exception..")
         model.load_state_dict(model_data['model_state_dict'])
     model.eval()
 
@@ -125,7 +126,7 @@ def main():
     label_trues, label_preds = [], []
     for batch_idx, (data, target) in tqdm.tqdm(enumerate(val_loader),
                                                total=len(val_loader),
-                                               ncols=80, leave=False):
+                                               ):
         if torch.cuda.is_available():
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)

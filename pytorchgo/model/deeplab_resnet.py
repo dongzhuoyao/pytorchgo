@@ -219,7 +219,7 @@ class MS_Deeplab(nn.Module):
         temp1 = torch.max(out[0],x2Out_interp)
         out.append(torch.max(temp1,x3Out_interp))
         #return out # here, for simplicity, we only use first output, which is original output size
-        return self.interp_origin(out[0])
+        return self.interp_origin(out[-1])
 
     def optimizer_params(self, base_lr):# for optimizer usage
         return [{'params': self.get_1x_lr_params_NOscale(), 'lr': base_lr},

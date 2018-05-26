@@ -98,7 +98,8 @@ class pascalVOCLoader(data.Dataset):
 
 
     def transform(self, img, lbl):
-        img = m.imresize(img, (self.img_size[0], self.img_size[1])) # uint8 with RGB mode
+        if  "train" in self.split:
+            img = m.imresize(img, (self.img_size[0], self.img_size[1])) # uint8 with RGB mode
         img = img[:, :, ::-1] # RGB -> BGR
         img = img.astype(np.float64)
         img -= self.mean
@@ -112,11 +113,13 @@ class pascalVOCLoader(data.Dataset):
         lbl[lbl==255] = 0#The boundary label (255 in ground truth labels) has not been ignored in the loss function in the current version, instead it has been merged with the background.
         # The ignore_label caffe parameter would be implemented in the future versions.
         lbl = lbl.astype(float)
-        lbl = m.imresize(lbl, (self.img_size[0], self.img_size[1]), 'nearest',
+        if  "train" in self.split:
+            lbl = m.imresize(lbl, (self.img_size[0], self.img_size[1]), 'nearest',
                          mode='F')
         lbl = lbl.astype(int)
-        img = torch.from_numpy(img).float()
-        lbl = torch.from_numpy(lbl).long()
+        if "train" in self.split:
+            img = torch.from_numpy(img).float()
+            lbl = torch.from_numpy(lbl).long()
         return img, lbl
 
 

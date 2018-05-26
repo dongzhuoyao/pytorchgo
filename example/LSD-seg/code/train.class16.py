@@ -513,6 +513,7 @@ class Trainer_LSD(object):
                 outG_src_ = (outG_src) * 255.0
                 outG_tgt_ = (outG_tgt) * 255.0
                 outG_src_ = outG_src_.data.cpu().numpy().squeeze().transpose((1, 2, 0))[:, :, ::-1].astype(np.uint8)
+                outG_src_ = outG_src_.data.cpu().numpy().squeeze().transpose((1, 2, 0))[:, :, ::-1].astype(np.uint8)
                 outG_tgt_ = outG_tgt_.data.cpu().numpy().squeeze().transpose((1, 2, 0))[:, :, ::-1].astype(np.uint8)
 
                 generations.append(source_img)

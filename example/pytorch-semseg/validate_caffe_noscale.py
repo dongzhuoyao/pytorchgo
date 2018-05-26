@@ -31,7 +31,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '4'
 def validate(args):
     data_loader = get_loader(args.dataset)
     data_path = get_data_path(args.dataset)
-    loader = data_loader(data_path, split=args.split, is_transform=True, img_size=(args.img_rows, args.img_cols), img_norm=args.img_norm)
+    loader = data_loader(data_path, split=args.split, is_transform=True, img_size=None, img_norm=args.img_norm)
     n_classes = loader.n_classes
     valloader = data.DataLoader(loader, batch_size=args.batch_size, num_workers=4)
     running_metrics = runningScore(n_classes)
@@ -44,30 +44,22 @@ def validate(args):
     model.load_state_dict(state)
     model.eval()
     model.cuda()
+    print "pra"
 
-    for i, (images, labels) in enumerate(valloader):
+    for i, (images, labels) in tqdm(enumerate(valloader)):
         start_time = timeit.default_timer()
+        labels = Variable(labels.cuda(), volatile=True)
 
-        images = Variable(images.cuda(), volatile=True)
-        #labels = Variable(labels.cuda(), volatile=True)
+        img_large = np.zeros((1, 3, 513, 513))
+        img_large[:,:,:images.shape[2], :images.shape[3]] = images
 
-        if args.eval_flip:
-            outputs = model(images)
 
-            # Flip images in numpy (not support in tensor)
-            outputs = outputs.data.cpu().numpy()
-            flipped_images = np.copy(images.data.cpu().numpy()[:, :, :, ::-1])
-            flipped_images = Variable(torch.from_numpy( flipped_images ).float().cuda(), volatile=True)
-            outputs_flipped = model( flipped_images )
-            outputs_flipped = outputs_flipped.data.cpu().numpy()
-            outputs = (outputs + outputs_flipped[:, :, :, ::-1]) / 2.0
+        output = model(
+            Variable(torch.from_numpy(img_large[np.newaxis, :].transpose(0, 3, 1, 2)).float(), volatile=True).cuda())
+        output = output.data.max(1)[1].cpu().numpy()
+        pred = output[:, :images.shape[2], :images.shape[3]]
 
-            pred = np.argmax(outputs, axis=1)
-        else:
-            outputs = model(images)
-            pred = outputs.data.max(1)[1].cpu().numpy()
 
-        #gt = labels.data.cpu().numpy()
         gt = labels.numpy()
 
         if args.measure_time:
