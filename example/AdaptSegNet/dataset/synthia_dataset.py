@@ -61,7 +61,9 @@ class SynthiaDataSet(data.Dataset):
         image = np.asarray(image, np.float32)
         label = np.asarray(label, np.float32)
 
-
+        if False:
+            cv2.imshow("img", image)
+            cv2.imshow("label", label)
 
         size = image.shape
         image = image[:, :, ::-1]  # change to BGR
