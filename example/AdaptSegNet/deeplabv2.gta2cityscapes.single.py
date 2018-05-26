@@ -209,10 +209,10 @@ def proceed_test(model, input_size, quick_test = 1e10):
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
-    miou16 = np.sum(stat.IoU) / 16
-    print("tensorpack class16 IoU: {}".format(miou16))
+    print("tensorpack  class19 IoU: {}".format(stat.mIoU_beautify))
+    print("tensorpack class19 mIoU: {}".format(stat.mIoU))
     model.train()
-    return miou16
+    return stat.mIoU
 
 
 
