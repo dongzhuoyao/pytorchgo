@@ -25,6 +25,7 @@ from tqdm import tqdm
 
 IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
 
+cityscape_image_size = (2048, 1024)
 MODEL = 'DeepLab'
 BATCH_SIZE = 1
 ITER_SIZE = 1
@@ -46,16 +47,16 @@ SAVE_NUM_IMAGES = 2
 WEIGHT_DECAY = 0.0005
 
 LEARNING_RATE_D = 1e-4
-LAMBDA_SEG = 0.1
-LAMBDA_ADV_TARGET1 = 0.0002
+LAMBDA_SEG = 0
+LAMBDA_ADV_TARGET1 = 0
 LAMBDA_ADV_TARGET2 = 0.001
 
 TARGET = 'cityscapes'
 SET = 'train'
-GPU = 2
+GPU = 4
 
-#SOURCE_DATA = "GTA5"
-SOURCE_DATA = "SYNTHIA"
+
+SOURCE_DATA = "GTA5"
 
 if SOURCE_DATA == "GTA5":
     DATA_DIRECTORY = './data/GTA5'
@@ -70,11 +71,11 @@ elif SOURCE_DATA == "SYNTHIA":
     DATA_LIST_PATH = './dataset/synthia_list/SYNTHIA_imagelist_train.txt'
     LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
 
-    NUM_STEPS = 70000
-    NUM_STEPS_STOP = 20000  # early stopping
+    NUM_STEPS = 160000
+    NUM_STEPS_STOP = 50000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
-    raise
+    raise ValueError
 
 
 def get_arguments():
@@ -173,6 +174,7 @@ def adjust_learning_rate(optimizer, i_iter):
     optimizer.param_groups[0]['lr'] = lr
     if len(optimizer.param_groups) > 1:
         optimizer.param_groups[1]['lr'] = lr * 10
+    return lr
 
 
 def adjust_learning_rate_D(optimizer, i_iter):
@@ -180,26 +182,26 @@ def adjust_learning_rate_D(optimizer, i_iter):
     optimizer.param_groups[0]['lr'] = lr
     if len(optimizer.param_groups) > 1:
         optimizer.param_groups[1]['lr'] = lr * 10
+    return lr
 
-def proceed_test(model, quick_test = 1e10):
+def proceed_test(model, input_size, quick_test = 1e10):
     logger.info("proceed test on cityscapes val set...")
     model.eval()
     model.cuda()
     testloader = data.DataLoader(
-        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
+        cityscapesDataSet(crop_size=input_size, mean=IMG_MEAN, scale=False, mirror=False, set="val"),
         batch_size=1, shuffle=False, pin_memory=True)
 
-    interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
+    interp = nn.Upsample(size=(cityscape_image_size[1], cityscape_image_size[0]), mode='bilinear')
 
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
 
-    for index, batch in tqdm(enumerate(testloader)):
+    for index, batch in tqdm(enumerate(testloader), desc="validation"):
         if index > quick_test: break
 
         image, label, _, name = batch
         image, label = Variable(image, volatile=True), Variable(label)
-
 
         output1, output2 = model(image.cuda())#(1,19,129,257)
         output = interp(output2).cpu().data[0].numpy()
@@ -207,11 +209,11 @@ def proceed_test(model, quick_test = 1e10):
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
-
-    logger.info("tensorpack mIoU: {}".format(stat.mIoU))
-    logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
-    logger.info("tensorpack accuracy: {}".format(stat.accuracy))
+    miou16 = np.sum(stat.IoU) / 16
+    print("tensorpack class16 IoU: {}".format(miou16))
     model.train()
+    return miou16
+
 
 
 def main():
@@ -224,8 +226,9 @@ def main():
     input_size_target = (h, w)
 
     cudnn.enabled = True
-    gpu = args.gpu
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
+    from pytorchgo.utils.pytorch_utils import set_gpu
+    set_gpu(args.gpu)
+
 
     # Create network
     if args.model == 'DeepLab':
@@ -245,7 +248,7 @@ def main():
                 # print i_parts
         model.load_state_dict(new_params)
     else:
-        raise
+        raise ValueError
 
     model.train()
     model.cuda()
@@ -277,7 +280,7 @@ def main():
             batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
         trainloader_iter = enumerate(trainloader)
     else:
-        raise
+        raise ValueError
 
 
 
@@ -313,7 +316,9 @@ def main():
     source_label = 0
     target_label = 1
 
-    for i_iter in tqdm(range(args.num_steps)):
+    best_mIoU = 0
+
+    for i_iter in tqdm(range(args.num_steps_stop),total=args.num_steps_stop, desc="training"):
 
         loss_seg_value1 = 0
         loss_adv_target_value1 = 0
@@ -324,12 +329,12 @@ def main():
         loss_D_value2 = 0
 
         optimizer.zero_grad()
-        adjust_learning_rate(optimizer, i_iter)
+        lr = adjust_learning_rate(optimizer, i_iter)
 
         optimizer_D1.zero_grad()
         optimizer_D2.zero_grad()
-        adjust_learning_rate_D(optimizer_D1, i_iter)
-        adjust_learning_rate_D(optimizer_D2, i_iter)
+        lr_D1 = adjust_learning_rate_D(optimizer_D1, i_iter)
+        lr_D2 = adjust_learning_rate_D(optimizer_D2, i_iter)
 
         for sub_i in range(args.iter_size):
 
@@ -448,25 +453,37 @@ def main():
 
         if i_iter%100 ==0:
             logger.info(
-        'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}'.format(
-            i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1, loss_adv_target_value2, loss_D_value1, loss_D_value2))
+                'iter = {}/{},loss_seg1 = {:.3f} loss_seg2 = {:.3f} loss_adv1 = {:.3f}, loss_adv2 = {:.3f} loss_D1 = {:.3f} loss_D2 = {:.3f}, lr={:.7f}, lr_D={:.7f}, best miou16= {:.5f}'.format(
+                    i_iter, args.num_steps_stop, loss_seg_value1, loss_seg_value2, loss_adv_target_value1,
+                    loss_adv_target_value2, loss_D_value1, loss_D_value2, lr, lr_D1, best_mIoU))
+
 
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
-            logger.info('taking snapshot ...')
-            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
+            logger.info("saving snapshot.....")
+            cur_miou16 = proceed_test(model, input_size)
+            is_best = True if best_mIoU < cur_miou16 else False
+            if is_best:
+                best_mIoU = cur_miou16
+            torch.save({
+                'iteration': i_iter,
+                'optim_state_dict': optimizer.state_dict(),
+                'optim_D1_state_dict': optimizer_D1.state_dict(),
+                'optim_D2_state_dict': optimizer_D2.state_dict(),
+                'model_state_dict': model.state_dict(),
+                'model_D1_state_dict': model_D1.state_dict(),
+                'model_D2_state_dict': model_D2.state_dict(),
+                'best_mean_iu': cur_miou16,
+            }, osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'))
+            if is_best:
+                import shutil
+                shutil.copy(osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'),
+                            osp.join(logger.get_logger_dir(), 'model_best.pth.tar'))
 
-            proceed_test(model)
 
         if i_iter >= args.num_steps_stop - 1:
-            logger.info('save model ...')
-            logger.info("{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, args.num_steps))
-            torch.save(model.state_dict(), "{}/{}_{}.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D1.state_dict(), "{}/{}_{}_D1.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
-            torch.save(model_D2.state_dict(), "{}/{}_{}_D2.pth".format(logger.get_logger_dir(), SOURCE_DATA, i_iter))
             break
+
 
 
 if __name__ == '__main__':

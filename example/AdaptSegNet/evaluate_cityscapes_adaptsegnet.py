@@ -83,9 +83,9 @@ def main():
     if not os.path.exists(args.save):
         os.makedirs(args.save)
 
-    #model = Res_Deeplab(num_classes=args.num_classes)
-    from pytorchgo.model.MyFCN8s import MyFCN8s
-    model = MyFCN8s(n_class=NUM_CLASSES)
+    model = Res_Deeplab(num_classes=args.num_classes)
+    #from pytorchgo.model.MyFCN8s import MyFCN8s
+    #model = MyFCN8s(n_class=NUM_CLASSES)
 
     if args.restore_from[:4] == 'http' :
         saved_state_dict = model_zoo.load_url(args.restore_from)
@@ -115,8 +115,8 @@ def main():
         image,label, _, name = batch
         image, label = Variable(image, volatile=True), Variable(label)
 
-        output2 = model(image.cuda(gpu0))
-        #output1, output2 = model(image.cuda(gpu0))
+        #output2 = model(image.cuda(gpu0))
+        output1, output2 = model(image.cuda(gpu0))
         output = interp(output2).cpu().data[0].numpy()
 
         output = output.transpose(1,2,0)

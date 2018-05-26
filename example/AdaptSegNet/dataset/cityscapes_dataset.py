@@ -27,7 +27,7 @@ class cityscapesDataSet(data.Dataset):
             self.list_path = val_img
             self.label_list_path = val_label
         else:
-            raise
+            raise ValueError("Invalid Set")
 
         self.crop_size = crop_size
         self.scale = scale
@@ -80,14 +80,4 @@ class cityscapesDataSet(data.Dataset):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    dst = GTA5DataSet("./data", is_transform=True)
-    trainloader = data.DataLoader(dst, batch_size=4)
-    for i, data in enumerate(trainloader):
-        imgs, labels = data
-        if i == 0:
-            img = torchvision.utils.make_grid(imgs).numpy()
-            img = np.transpose(img, (1, 2, 0))
-            img = img[:, :, ::-1]
-            plt.imshow(img)
-            plt.show()
+    pass
