@@ -6,7 +6,7 @@
 |eval mIoU| final mIoU|
 |----|----|
 |0.438589131977|0.330048044221|
-|0.439850007412(640x320)|0.341838778973(640x320), 0.309032409613(2048x1024)|
+|0.439850007412(640x320)|**0.341838778973(640x320)**, 0.309032409613(2048x1024)|
 
 so if you use the size 640x320 for training, when evaluation, you'd better also use 640x320 rather than 2048x1024, we can see it will drop down 3 point(34-30.9) in mIOU.
 

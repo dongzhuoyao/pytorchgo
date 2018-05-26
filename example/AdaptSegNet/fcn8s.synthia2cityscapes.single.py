@@ -230,8 +230,8 @@ def main():
     input_size_target = (h, w)
 
     cudnn.enabled = True
-    gpu = args.gpu
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
+    from pytorchgo.utils.pytorch_utils import set_gpu
+    set_gpu(args.gpu)
 
     # Create network
     if args.model == 'DeepLab':

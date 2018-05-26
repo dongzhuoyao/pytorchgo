@@ -74,7 +74,7 @@ elif SOURCE_DATA == "SYNTHIA":
     NUM_STEPS_STOP = 20000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
-    raise
+    raise ValueError
 
 
 def get_arguments():
@@ -245,7 +245,7 @@ def main():
                 # print i_parts
         model.load_state_dict(new_params)
     else:
-        raise
+        raise ValueError
 
     model.train()
     model.cuda()
@@ -277,7 +277,7 @@ def main():
             batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
         trainloader_iter = enumerate(trainloader)
     else:
-        raise
+        raise ValueError
 
 
 

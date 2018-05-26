@@ -4,7 +4,14 @@ import torch
 from . import logger
 from termcolor import colored
 from tabulate import tabulate
-import warnings
+import warnings,os
+
+
+def set_gpu(gpu):
+    if isinstance(gpu, int):
+        gpu = str(gpu)
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 def model_summary(model_list):
     if not isinstance(model_list, list):

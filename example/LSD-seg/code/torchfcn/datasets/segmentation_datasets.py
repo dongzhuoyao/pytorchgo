@@ -198,7 +198,7 @@ class SYNTHIA(SegmentationData_BaseClass):
             else:
                 raise ValueError('Invalid split type. Should be train or val')
         else:
-            raise
+            raise ValueError("invalid class number")
             
         for did,lid in zip(imgsets_file,label_file):
             img_file = osp.join(dataset_dir, '%s' % did.rstrip('\n'))
@@ -249,7 +249,7 @@ class SYNTHIA(SegmentationData_BaseClass):
 
             if i>=MAX_TRY:
                 print "current image is not normal, max try: {}".format(i)
-                raise
+                raise ValueError("too many try..")
 
             im_ = im_[x_rand:x_rand+data_size[1],y_rand:y_rand+data_size[0],:]
             #print "synthia:"
