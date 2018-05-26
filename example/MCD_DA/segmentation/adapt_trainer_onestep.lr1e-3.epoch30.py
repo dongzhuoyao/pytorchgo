@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os
+import os,shutil
 
 import torch
 from tqdm import tqdm
@@ -21,6 +21,8 @@ from pytorchgo.utils import logger
 from pytorchgo.loss import CrossEntropyLoss2d_Seg
 import numpy as np
 
+cityscapes_image_shape = (2048, 1024)
+is_debug = 0
 
 # from visualize import LinePlotter
 # set_debugger_org_frc() #TODO interesting tool
@@ -43,7 +45,7 @@ parser.add_argument("--is_data_parallel", action="store_true",
 # ---------- Hyperparameters ---------- #
 parser.add_argument('--opt', type=str, default="sgd", choices=['sgd', 'adam'],
                     help="network optimizer")
-parser.add_argument('--lr', type=float, default=1e-4,
+parser.add_argument('--lr', type=float, default=1e-3,
                     help='learning rate (default: 0.001)')
 parser.add_argument("--adjust_lr", default=True,
                     help='whether you change lr')
@@ -90,9 +92,6 @@ parser.add_argument('--gpu', type=str,default='4',
 parser.add_argument("--n_class", type=int, default=16)
 parser.add_argument("--use_f2", type=bool, default=True)
 
-C_WEIGHT = 1
-D_WEIGHT = 5000
-
 
 logger.auto_set_dir()
 
@@ -104,8 +103,8 @@ check_src_tgt_ok(args.src_dataset, args.tgt_dataset)
 weight = torch.ones(args.n_class)
 
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+from pytorchgo.utils.pytorch_utils import set_gpu
+set_gpu(args.gpu)
 
 args.start_epoch = 0
 resume_flg = True if args.resume else False
@@ -185,6 +184,7 @@ img_transform_list = [
     ToTensor(),
     Normalize([.485, .456, .406], [.229, .224, .225])
 ]
+logger.warn("if you choose deeplab or other weight file, please remember to change the image transform list...")
 if args.augment:
     aug_list = [
         RandomRotation(),
@@ -225,23 +225,28 @@ if torch.cuda.is_available():
 
 
 
-def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
+def get_validation_miou(model_g, model_f1, model_f2, quick_test=1e10):
+    if is_debug == 1:
+        quick_test = 2
+
     logger.info("proceed test on cityscapes val set...")
     model_g.eval()
     model_f1.eval()
     model_f2.eval()
 
-    test_img_shape = (2048, 1024)
+
 
     val_img_transform = Compose([
-        Scale(test_img_shape, Image.BILINEAR),
+        Scale(train_img_shape, Image.BILINEAR),
         ToTensor(),
         Normalize([.485, .456, .406], [.229, .224, .225]),
 
     ])
-    val_label_transform = Compose([Scale(test_img_shape, Image.BILINEAR),
+    val_label_transform = Compose([Scale(cityscapes_image_shape, Image.NEAREST),
                                # ToTensor()
                                ])
+
+    #notice here, training, validation size difference, this is very tricky.
 
     target_loader = data.DataLoader(get_dataset(dataset_name="city16", split="val",
         img_transform=val_img_transform,label_transform=val_label_transform, test=True, input_ch=3),
@@ -250,10 +255,11 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(args.n_class)
 
+    interp = torch.nn.Upsample(size=(cityscapes_image_shape[1], cityscapes_image_shape[0]), mode='bilinear')
+
     for index, (origin_imgs, labels, paths) in tqdm(enumerate(target_loader)):
         if index > quick_test: break
         path = paths[0]
-        # if index > 10: break
         imgs = Variable(origin_imgs.cuda(), volatile=True)
 
         feature = model_g(imgs)
@@ -263,7 +269,7 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
             outputs += model_f2(feature)
 
 
-        pred = outputs[0, :].data.max(0)[1].cpu()
+        pred = interp(outputs)[0, :].data.max(0)[1].cpu()
 
         feed_predict = np.squeeze(np.uint8(pred.numpy()))
         feed_label = np.squeeze(np.asarray(labels.numpy()))
@@ -271,13 +277,13 @@ def proceed_test(model_g,model_f1,model_f2, quick_test=1e10):
 
         stat.feed(feed_predict, feed_label)
 
-
-    logger.info("tensorpack mIoU: {}".format(stat.mIoU))
-    logger.info("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
-    logger.info("tensorpack accuracy: {}".format(stat.accuracy))
+    logger.info("tensorpack IoU16: {}".format(stat.mIoU_beautify))
+    logger.info("tensorpack mIoU16: {}".format(stat.mIoU))
     model_g.train()
     model_f1.train()
     model_f2.train()
+
+    return stat.mIoU
 
 
 
@@ -286,11 +292,12 @@ criterion_d = get_prob_distance_criterion(args.d_loss)
 model_g.train()
 model_f1.train()
 model_f2.train()
+best_mIoU = 0
 for epoch in tqdm(range(start_epoch, args.epochs)):
     d_loss_per_epoch = 0
     c_loss_per_epoch = 0
-    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader),desc='epoch={}/{}'.format(epoch, args.epochs)):
-        #if ind > 300:break
+    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader)):
+        if is_debug ==1 and ind > 3:break
         source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
         tgt_imgs = Variable(target[0])
@@ -310,7 +317,6 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
 
         c_loss = CrossEntropyLoss2d_Seg(outputs1, src_lbls, class_num=args.n_class)
         c_loss += CrossEntropyLoss2d_Seg(outputs2, src_lbls,  class_num=args.n_class)
-        c_loss = c_loss*C_WEIGHT
         c_loss.backward(retain_graph=True)
         ####################
         lambd = 1.0
@@ -319,7 +325,7 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
         outputs = model_g(tgt_imgs)
         outputs1 = model_f1(outputs, reverse=True)
         outputs2 = model_f2(outputs, reverse=True)
-        loss = - criterion_d(outputs1, outputs2)*D_WEIGHT
+        loss = - criterion_d(outputs1, outputs2)
         loss.backward()
         optimizer_f.step()
         optimizer_g.step()
@@ -329,12 +335,13 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
         c_loss = c_loss.data[0]
         c_loss_per_epoch += c_loss
         if ind % 100 == 0:
-            logger.info("iter [%d/%d] DLoss: %.6f CLoss: %.4f Lambd: %.4f  LR: %.7f" % (ind, len(train_loader), d_loss, c_loss, lambd, args.lr))
+            logger.info("iter [%d/%d] DLoss: %.6f CLoss: %.4f  LR: %.7f, best mIoU: %.5f" % (ind, len(train_loader), d_loss, c_loss, args.lr, best_mIoU))
 
 
     log_value('c_loss', c_loss_per_epoch, epoch)
     log_value('d_loss', d_loss_per_epoch, epoch)
     log_value('lr', args.lr, epoch)
+    log_value('best_miou', best_mIoU, epoch)
 
 
     args.lr = adjust_learning_rate(optimizer_g, args.lr, args.weight_decay, epoch, args.epochs)
@@ -343,11 +350,16 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
     logger.info("Epoch [%d/%d] DLoss: %.4f CLoss: %.4f LR: %.7f" % (
     epoch, args.epochs, d_loss_per_epoch, c_loss_per_epoch, args.lr))
 
-    checkpoint_fn = os.path.join(pth_dir, "%s-%s.pth.tar" % (model_name, epoch + 1))
+    cur_mIoU = get_validation_miou(model_g, model_f1, model_f2)
+
+    is_best = True if cur_mIoU > best_mIoU else False
+
+    checkpoint_fn = os.path.join(pth_dir, "current.pth.tar")
     args.start_epoch = epoch + 1
     save_dic = {
         'epoch': epoch + 1,
         'args': args,
+        'best_miou': best_mIoU,
         'g_state_dict': model_g.state_dict(),
         'f1_state_dict': model_f1.state_dict(),
         'optimizer_g': optimizer_g.state_dict(),
@@ -355,7 +367,10 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
     }
     if not args.uses_one_classifier:
         save_dic['f2_state_dict'] = model_f2.state_dict()
+    torch.save(save_dic, checkpoint_fn)
 
-    save_checkpoint(save_dic, is_best=False, filename=checkpoint_fn)
-    proceed_test(model_g,model_f1,model_f2)
+    if is_best:
+        best_mIoU = cur_mIoU
+        shutil.copyfile(checkpoint_fn, os.path.join(pth_dir, "model_best.pth.tar"))
+
 

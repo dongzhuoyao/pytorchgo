@@ -43,7 +43,7 @@ def get_models(net_name, input_ch, n_class, res="50", method="MCD", uses_one_cla
                 model_f2 = DRNSegPixelClassifier(n_class=n_class)
 
         else:
-            raise NotImplementedError("Only FCN (Including Dilated FCN), SegNet, PSPNetare supported!")
+            raise NotImplementedError("Only FCN (Including Dilated FCN), SegNet, PSPNet are supported!")
 
         return model_g, model_f1, model_f2
 

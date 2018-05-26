@@ -41,25 +41,28 @@ class CityDataSet(data.Dataset):
         self.test = test
         # for split in ["train", "trainval", "val"]:
         if split == "train":
-            imgsets_dir = "data/filelist/cityscapes_labellist_train_label16.txt"
+            img_path = 'data/filelist/cityscapes_imagelist_train.txt'
+            label_path = "data/filelist/cityscapes_labellist_train_label16.txt"
         elif split == "val":
-            imgsets_dir = "data/filelist/cityscapes_labellist_val_label16.txt"
+            img_path = 'data/filelist/cityscapes_imagelist_val.txt'
+            label_path = "data/filelist/cityscapes_labellist_val_label16.txt"
         else:
-            raise
-        with open(imgsets_dir) as imgset_file:
-            for name in imgset_file:
-                name = name.strip()
-                img_file = osp.join(self.root, "label16_for_synthia/%s" % name)
-                if label_type == "label16":
-                    name = os.path.join("label16_for_synthia",name)
-                else:
-                    raise
+            raise ValueError
 
-                label_file = osp.join(self.root,  name)
-                self.files[split].append({
-                    "img": img_file,
-                    "label": label_file
-                })
+
+        with open(img_path,"r") as f:
+            rgb_fn_list = [os.path.join(self.root,"leftImg8bit", split, tmp.strip()) for tmp in f.readlines()]
+
+        with open(label_path, "r") as f:
+            gt_fn_list =  [os.path.join(self.root, "label16_for_synthia", tmp.strip()) for tmp in f.readlines()]
+
+        for rgb_fn, gt_fn in zip(rgb_fn_list, gt_fn_list):
+            self.files[split].append({
+                "img": rgb_fn,
+                "label": gt_fn
+            })
+
+
 
     def __len__(self):
         return len(self.files[self.split])
@@ -71,6 +74,10 @@ class CityDataSet(data.Dataset):
         img = Image.open(img_file).convert('RGB')
         label_file = datafiles["label"]
         label = Image.open(label_file).convert("P")
+
+        if False:
+            print img_file
+            print label_file
 
         if self.img_transform:
             img = self.img_transform(img)
@@ -172,7 +179,7 @@ class SynthiaDataSet(data.Dataset):
             img_path = "data/filelist/SYNTHIA_imagelist_train.txt"
             label_path = "data/filelist/SYNTHIA_labellist_train.txt"
         else:
-            raise
+            raise ValueError
         with open(img_path,"r") as f:
             rgb_fn_list = [os.path.join(self.root, tmp.strip()) for tmp in f.readlines()]
 
@@ -288,3 +295,13 @@ def get_n_class(src_dataset_name):
         return 20
     else:
         raise NotImplementedError("You have to define the class of %s dataset" % src_dataset_name)
+
+if __name__ == "__main__":
+
+    train_loader = torch.utils.data.DataLoader(
+        CityDataSet(root="data/cityscapes", split="train",label_type = "label16"),
+        batch_size=1, shuffle=True,
+        pin_memory=True)
+
+    for idx, data in enumerate(train_loader):
+        pass
