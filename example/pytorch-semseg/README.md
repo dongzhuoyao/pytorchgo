@@ -1,8 +1,8 @@
 # dongzhuoyao
 
-|arch|result|
-|----|----|
-train.pascal.deeplabv1|55.7|
+|arch|result|target|
+|----|----|----|
+train.pascal.deeplabv1|55.7|?|
 
 # pytorch-semseg
 

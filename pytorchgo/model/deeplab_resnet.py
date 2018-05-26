@@ -1,9 +1,9 @@
+# Acknowledgement: most codes are borrowed from: https://github.com/isht7/pytorch-deeplab-resnet
+
 import torch.nn as nn
-import math
-import torch.utils.model_zoo as model_zoo
 import torch
 import numpy as np
-import fcn,os
+import fcn, os
 from pytorchgo.utils import logger
 affine_par = True
 
@@ -14,6 +14,7 @@ def outS(i):
     i = int(np.ceil((i+1)/2.0))
     i = (i+1)/2
     return i
+
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -202,25 +203,25 @@ class MS_Deeplab(nn.Module):
 
     def forward(self,x):
         input_size = x.size()[2]
-        self.interp1 = nn.UpsamplingBilinear2d(size = (  int(input_size*0.75)+1,  int(input_size*0.75)+1  ))
-        self.interp2 = nn.UpsamplingBilinear2d(size = (  int(input_size*0.5)+1,   int(input_size*0.5)+1   ))
+        self.interp75 = nn.UpsamplingBilinear2d(size = (int(input_size * 0.75) + 1, int(input_size * 0.75) + 1))
+        self.interp50 = nn.UpsamplingBilinear2d(size = (int(input_size * 0.5) + 1, int(input_size * 0.5) + 1))
         self.interp3 = nn.UpsamplingBilinear2d(size = (  outS(input_size),   outS(input_size)   ))
 
         self.interp_origin = nn.UpsamplingBilinear2d(size = (x.size()[2],x.size()[3]))
         out = []
-        x2 = self.interp1(x)
-        x3 = self.interp2(x)
+        x75 = self.interp75(x)
+        x50 = self.interp50(x)
         out.append(self.Scale(x))	# for original scale
-        out.append(self.interp3(self.Scale(x2)))	# for 0.75x scale
-        out.append(self.Scale(x3))	# for 0.5x scale
+        out.append(self.interp3(self.Scale(x75)))	# for 0.75x scale
+        out.append(self.Scale(x50))	# for 0.5x scale
         x2Out_interp = out[1]
         x3Out_interp = self.interp3(out[2])
         temp1 = torch.max(out[0],x2Out_interp)
         out.append(torch.max(temp1,x3Out_interp))
-        #return out # here, for simplicity, we only use first output
+        #return out # here, for simplicity, we only use first output, which is original output size
         return self.interp_origin(out[0])
 
-    def optimizer_params(self, base_lr):
+    def optimizer_params(self, base_lr):# for optimizer usage
         return [{'params': self.get_1x_lr_params_NOscale(), 'lr': base_lr},
          {'params': self.get_10x_lr_params(), 'lr': 10 * base_lr}]
 
@@ -272,3 +273,7 @@ def Res_Deeplab(NoLabels=21, pretrained = False):
 
     return model
 
+
+if __name__ == '__main__':
+    i = 120
+    print(outS(i))

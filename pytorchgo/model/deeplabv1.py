@@ -256,9 +256,7 @@ def VGG16_LargeFoV(class_num, image_size, pretrained=False,  **kwargs):
     layers += [nn.Conv2d(512, 512, kernel_size=3, dilation=2, padding=1), nn.ReLU(inplace=True)]
     layers += [nn.MaxPool2d(kernel_size=2, stride=1)]
     layers += [nn.Conv2d(512, 1024, kernel_size=3,dilation=12,padding=1), nn.ReLU(inplace=True), nn.Dropout2d()]#todo dropout
-
     layers += [nn.Conv2d(1024, 1024, kernel_size=3, dilation=1, padding=1), nn.ReLU(inplace=True), nn.Dropout2d()]  # todo dropout
-
     layers += [nn.Conv2d(1024, class_num, kernel_size=3, dilation=1, padding=1)]
 
     layers += [nn.Upsample(size=image_size, mode='bilinear')]
@@ -287,13 +285,3 @@ def VGG16_LargeFoV(class_num, image_size, pretrained=False,  **kwargs):
     logger.info("deeplabv1 model structure: {}".format(model))
     model_summary(model)
     return model
-
-# The DeepLab-LargeFOV model can be represented as follows:
-## input -> [conv-relu](dilation=1, channels=64) x 2 -> [max_pool](stride=2)
-##       -> [conv-relu](dilation=1, channels=128) x 2 -> [max_pool](stride=2)
-##       -> [conv-relu](dilation=1, channels=256) x 3 -> [max_pool](stride=2)
-##       -> [conv-relu](dilation=1, channels=512) x 3 -> [max_pool](stride=1)
-##       -> [conv-relu](dilation=2, channels=512) x 3 -> [max_pool](stride=1) -> [avg_pool](stride=1)
-##       -> [conv-relu](dilation=12, channels=1024) -> [dropout]
-##       -> [conv-relu](dilation=1, channels=1024) -> [dropout]
-##       -> [conv-relu](dilation=1, channels=21) -> [pixel-wise softmax loss].

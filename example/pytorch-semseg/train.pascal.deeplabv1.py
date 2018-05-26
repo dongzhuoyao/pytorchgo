@@ -48,9 +48,6 @@ def train(args):
     # Setup Model
     from pytorchgo.model.deeplabv1 import VGG16_LargeFoV
     model = VGG16_LargeFoV(class_num=n_classes, image_size=[args.img_cols, args.img_rows],pretrained=True)
-
-
-    #model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     model.cuda()
     
     # Check if model has custom optimizer / loss
@@ -72,7 +69,7 @@ def train(args):
         else:
             logger.info("No checkpoint found at '{}'".format(args.resume))
 
-    best_iou = -100.0 
+    best_iou = 0
     for epoch in tqdm(range(args.n_epoch),total=args.n_epoch):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader),total=len(trainloader), desc="training epoch {}/{}".format(epoch, args.n_epoch)):
