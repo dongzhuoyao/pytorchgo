@@ -75,7 +75,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataroot', default='/home/hutao/lab/pytorchgo/example/LSD-seg/data', help='Path to source dataset')
     parser.add_argument('--model_file',default='train_log/train/model_best.pth.tar', help='Model path')
-    parser.add_argument('--gpu', type=int, default=0)
+    parser.add_argument('--gpu', type=int, default=4)
     parser.add_argument('--method', default='LSD', help="Method to use for training | LSD, sourceonly")
     args = parser.parse_args()
 
@@ -143,7 +143,7 @@ def main():
         label_preds.append(lbl_pred_new.squeeze())
         stat.feed(label_preds[-1], label_trues[-1])
 
-    print("tensorpack mIoU: {}".format(stat.mIoU))
+    print("tensorpack mIoU16: {}".format(np.sum(stat.IoU)/16))
     print("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
     print("tensorpack accuracy: {}".format(stat.accuracy))
 
