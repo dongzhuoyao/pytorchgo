@@ -2,7 +2,7 @@
 
 ## Details you should notice
 
-Except recover the weight, you also need recover the image loading pattern.
+Except recover the weight, you also need recover the image loading pattern. So the best practical method is (1). validate on the pretrained the model. (2). train on the initial model.
 
 
 ## caffe model
