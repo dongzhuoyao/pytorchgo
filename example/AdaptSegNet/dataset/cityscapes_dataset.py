@@ -65,7 +65,8 @@ class cityscapesDataSet(data.Dataset):
 
         # resize
         image = image.resize(self.crop_size, Image.BICUBIC)
-        label = label.resize(self.crop_size, Image.NEAREST)
+        if "train" in self.set: # for evaluation, testing, label dont need resize, just upsample the inference result to label size.
+            label = label.resize(self.crop_size, Image.NEAREST)
 
         image = np.asarray(image, np.float32)
         label = np.asarray(label, np.float32)

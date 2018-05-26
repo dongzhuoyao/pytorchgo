@@ -41,6 +41,7 @@ NUM_CLASSES = 19
 INPUT_SIZE = '1280,720' #'1024,512'  #
 INPUT_SIZE_TARGET = '1024,512'
 
+cityscape_image_size = (2048, 1024)
 
 POWER = 0.9
 RANDOM_SEED = 1234
@@ -77,7 +78,7 @@ elif SOURCE_DATA == "SYNTHIA":
     NUM_STEPS_STOP = 50000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
-    raise
+    raise ValueError
 
 
 def get_arguments():
@@ -186,15 +187,15 @@ def adjust_learning_rate_D(optimizer, i_iter):
         optimizer.param_groups[1]['lr'] = lr * 10
     return lr
 
-def proceed_test(model, quick_test = 1e10):
+def proceed_test(model, input_size, quick_test = 1e10):
     logger.info("proceed test on cityscapes val set...")
     model.eval()
     model.cuda()
     testloader = data.DataLoader(
-        cityscapesDataSet(crop_size=(1024, 512), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
+        cityscapesDataSet(crop_size=input_size, mean=IMG_MEAN, scale=False, mirror=False, set="val"),
         batch_size=1, shuffle=False, pin_memory=True)
 
-    interp = nn.Upsample(size=(512, 1024), mode='bilinear')
+    interp = nn.Upsample(size=(cityscape_image_size[1], cityscape_image_size[0]), mode='bilinear')
 
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
@@ -212,7 +213,7 @@ def proceed_test(model, quick_test = 1e10):
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
     miou16 = np.sum(stat.IoU) / 16
-    print("tensorpack class16 IoU with 1024x512: {}".format(miou16))
+    print("tensorpack class16 IoU with: {}".format(miou16))
     model.train()
     return miou16
 
@@ -220,6 +221,7 @@ def proceed_test(model, quick_test = 1e10):
 
 def main():
     """Create the model and start the training."""
+
 
     h, w = map(int, args.input_size.split(','))
     input_size = (h, w)
@@ -263,7 +265,7 @@ def main():
                               lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
 
     else:
-        raise
+        raise ValueError
 
     model.train()
     model.cuda()
@@ -297,7 +299,7 @@ def main():
             batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
         trainloader_iter = enumerate(trainloader)
     else:
-        raise
+        raise ValueError
 
 
 
@@ -453,7 +455,7 @@ def main():
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info("saving snapshot.....")
-            cur_miou16 = proceed_test(model)
+            cur_miou16 = proceed_test(model, input_size)
             is_best = True if best_mIoU < cur_miou16 else False
             if is_best:
                 best_mIoU = cur_miou16

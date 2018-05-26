@@ -27,7 +27,7 @@ SAVE_PATH = './result/cityscapes'
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
 #RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
-RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single/model_best.pth.tar'
+RESTORE_FROM = 'train_log/fcn8s.synthia2cityscapes.single/model_best.pth.tar'
 SET = 'val'
 
 palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,
@@ -72,6 +72,9 @@ def get_arguments():
 
 def main():
     """Create the model and start the evaluation process."""
+    import warnings
+    if not sys.warnoptions:
+        warnings.simplefilter("ignore")
 
     args = get_arguments()
 
@@ -80,7 +83,9 @@ def main():
     if not os.path.exists(args.save):
         os.makedirs(args.save)
 
-    model = Res_Deeplab(num_classes=args.num_classes)
+    #model = Res_Deeplab(num_classes=args.num_classes)
+    from pytorchgo.model.MyFCN8s import MyFCN8s
+    model = MyFCN8s(n_class=NUM_CLASSES)
 
     if args.restore_from[:4] == 'http' :
         saved_state_dict = model_zoo.load_url(args.restore_from)
@@ -91,13 +96,17 @@ def main():
     model.eval()
     model.cuda(gpu0)
 
+    image_size = (1280,720) #(2048, 1024)
+    cityscape_image_size = (2048, 1024)
+
     print ("evaluating {}".format(args.restore_from))
     print ("************ best mIoU:{} *******".format(saved_state_dict['best_mean_iu']))
+    print("evaluation image size: {}, please make sure this image size is equal to your training image size, this is important for your final mIoU!".format(image_size))
 
-    testloader = data.DataLoader(cityscapesDataSet( crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
+    testloader = data.DataLoader(cityscapesDataSet( crop_size=(image_size[0], image_size[1]), mean=IMG_MEAN, scale=False, mirror=False, set=args.set),
                                     batch_size=1, shuffle=False, pin_memory=True)
 
-    interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
+    interp = nn.Upsample(size=(cityscape_image_size[1], cityscape_image_size[0]), mode='bilinear')
 
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
@@ -106,7 +115,8 @@ def main():
         image,label, _, name = batch
         image, label = Variable(image, volatile=True), Variable(label)
 
-        output1, output2 = model(image.cuda(gpu0))
+        output2 = model(image.cuda(gpu0))
+        #output1, output2 = model(image.cuda(gpu0))
         output = interp(output2).cpu().data[0].numpy()
 
         output = output.transpose(1,2,0)

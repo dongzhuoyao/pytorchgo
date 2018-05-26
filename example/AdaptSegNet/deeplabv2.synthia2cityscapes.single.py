@@ -25,6 +25,7 @@ from tqdm import tqdm
 
 IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
 
+cityscape_image_size = (2048, 1024)
 MODEL = 'DeepLab'
 BATCH_SIZE = 1
 ITER_SIZE = 1
@@ -52,7 +53,7 @@ LAMBDA_ADV_TARGET2 = 0.001
 
 TARGET = 'cityscapes'
 SET = 'train'
-GPU = 3
+GPU = 1
 
 #SOURCE_DATA = "GTA5"
 SOURCE_DATA = "SYNTHIA"
@@ -74,7 +75,7 @@ elif SOURCE_DATA == "SYNTHIA":
     NUM_STEPS_STOP = 50000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
-    raise
+    raise ValueError
 
 
 def get_arguments():
@@ -183,15 +184,15 @@ def adjust_learning_rate_D(optimizer, i_iter):
         optimizer.param_groups[1]['lr'] = lr * 10
     return lr
 
-def proceed_test(model, quick_test = 1e10):
+def proceed_test(model, input_size, quick_test = 1e10):
     logger.info("proceed test on cityscapes val set...")
     model.eval()
     model.cuda()
     testloader = data.DataLoader(
-        cityscapesDataSet(crop_size=(2048, 1024), mean=IMG_MEAN, scale=False, mirror=False, set="val"),
+        cityscapesDataSet(crop_size=input_size, mean=IMG_MEAN, scale=False, mirror=False, set="val"),
         batch_size=1, shuffle=False, pin_memory=True)
 
-    interp = nn.Upsample(size=(1024, 2048), mode='bilinear')
+    interp = nn.Upsample(size=(cityscape_image_size[1], cityscape_image_size[0]), mode='bilinear')
 
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
@@ -228,6 +229,7 @@ def main():
     gpu = args.gpu
     os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
 
+
     # Create network
     if args.model == 'DeepLab':
         model = Res_Deeplab(num_classes=args.num_classes)
@@ -246,7 +248,7 @@ def main():
                 # print i_parts
         model.load_state_dict(new_params)
     else:
-        raise
+        raise ValueError
 
     model.train()
     model.cuda()
@@ -278,7 +280,7 @@ def main():
             batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
         trainloader_iter = enumerate(trainloader)
     else:
-        raise
+        raise ValueError
 
 
 
@@ -459,7 +461,7 @@ def main():
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info("saving snapshot.....")
-            cur_miou16 = proceed_test(model)
+            cur_miou16 = proceed_test(model, input_size)
             is_best = True if best_mIoU < cur_miou16 else False
             if is_best:
                 best_mIoU = cur_miou16
