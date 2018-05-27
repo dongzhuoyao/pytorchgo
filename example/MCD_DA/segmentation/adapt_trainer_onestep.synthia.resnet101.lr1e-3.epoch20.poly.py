@@ -32,11 +32,11 @@ parser.add_argument('--savename', type=str, default="normal", help="save name(Do
 parser.add_argument('--epochs', type=int, default=20,
                     help='number of epochs to train (default: 10)')
 # ---------- Define Network ---------- #
-parser.add_argument('--net', type=str, default="drn_d_105", help="network structure",
-                    choices=['fcn', 'psp', 'segnet', 'fcnvgg',
+parser.add_argument('--net', type=str, default="fcnresnet", help="network structure",
+                    choices=['fcnresnet', 'psp', 'segnet', 'fcnvgg',
                              "drn_c_26", "drn_c_42", "drn_c_58", "drn_d_22",
                              "drn_d_38", "drn_d_54", "drn_d_105"])
-parser.add_argument('--res', type=str, default='50', metavar="ResnetLayerNum",
+parser.add_argument('--res', type=str, default='101', metavar="ResnetLayerNum",
                     choices=["18", "34", "50", "101", "152"], help='which resnet 18,50,101,152')
 parser.add_argument("--is_data_parallel", action="store_true",
                     help='whether you use torch.nn.DataParallel')
@@ -85,7 +85,7 @@ parser.add_argument('--uses_one_classifier', default=False,
                     help="adversarial dropout regularization")
 
 
-parser.add_argument('--gpu', type=str,default='4',
+parser.add_argument('--gpu', type=str,default='5',
                     help="")
 
 parser.add_argument("--n_class", type=int, default=16)

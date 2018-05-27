@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from easydict import EasyDict as edict
 
 from models import extended_resnet
-
+from models.grad_reversal import grad_reverse
 
 class Upsample(nn.Module):
     def __init__(self, inplanes, planes):
@@ -263,8 +263,23 @@ class ResClassifier(nn.Module):
             nn.Conv2d(inplanes / 2, self.num_classes, 1),
         )
 
-    def forward(self, gen_out_dic):
+
+    def set_lambda(self, lambd):
+        self.lambd = lambd
+
+
+    def forward(self, gen_out_dic, reverse=False):
+
         gen_out_dic = edict(gen_out_dic)
+
+        if reverse:
+            gen_out_dic.fm4 = grad_reverse(gen_out_dic.fm4, self.lambd)
+            gen_out_dic.fm3 = grad_reverse(gen_out_dic.fm3, self.lambd)
+            gen_out_dic.fm2 = grad_reverse(gen_out_dic.fm2, self.lambd)
+            gen_out_dic.pool_x = grad_reverse(gen_out_dic.pool_x, self.lambd)
+            gen_out_dic.conv_x = grad_reverse(gen_out_dic.conv_x, self.lambd)
+
+
         fsfm1 = self.fs1(gen_out_dic.fm3, self.upsample1(gen_out_dic.fm4, gen_out_dic.fm3.size()[2:]))
         fsfm2 = self.fs2(gen_out_dic.fm2, self.upsample2(fsfm1, gen_out_dic.fm2.size()[2:]))
         fsfm3 = self.fs4(gen_out_dic.pool_x, self.upsample3(fsfm2, gen_out_dic.pool_x.size()[2:]))

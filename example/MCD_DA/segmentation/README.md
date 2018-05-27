@@ -1,4 +1,6 @@
 # dongzhuoyao
+adapt_trainer_onestep.lr1e-3.epoch30, terminated, use poly instead
+
 
 # paper result
 |arch|dataset|mIoU|
