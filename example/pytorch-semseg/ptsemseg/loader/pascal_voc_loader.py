@@ -207,9 +207,10 @@ class pascalVOCLoader(data.Dataset):
 if __name__ == '__main__':
 
 
-    t_loader = pascalVOCLoader('~/dataset/pascalvoc2012', split='train', is_transform=True, img_size=(473, 474), epoch_scale=1, augmentations=None, img_norm=False)
+    t_loader = pascalVOCLoader('~/dataset/pascalvoc2012', split='val', is_transform=True, img_size=(513, 513), epoch_scale=1, augmentations=None, img_norm=False)
 
     n_classes = t_loader.n_classes
     trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
     for idx, data in enumerate(trainloader):
-        pass
+        print idx
+        print data
