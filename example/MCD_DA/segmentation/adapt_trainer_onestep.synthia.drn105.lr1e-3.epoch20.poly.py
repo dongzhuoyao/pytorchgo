@@ -307,7 +307,7 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
     cur_lr = update_learning_rate_poly(optimizer_g, args.lr,  epoch, args.epochs)
     cur_lr = update_learning_rate_poly(optimizer_f, args.lr,  epoch, args.epochs)
 
-    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader)):
+    for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader), desc="epoch {}/{}".format(epoch, args.epochs)):
         if is_debug ==1 and ind > 3:break
         source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
