@@ -7,6 +7,24 @@
 |VGG16|GTA5|28.8|
 |DRN-105|GTA5|39.7|
 
+
+
+
+# Overall Result
+|method|arch|dataset|mIoU|
+|----|----|----|----|
+|MCD|DRN-105|synthia|37.2|
+|LSD-seg|FCN8S|SYNTHIA|36.1|
+|AdaptSeg|Deeplabv1-largeFOV(single-level)|SYNTHIA|37.6|
+|AdaptSeg|Deeplabv2-ResNet101(single-level)|SYNTHIA|45.9|
+|AdaptSeg|Deeplabv2-ResNet101(multi-level)|SYNTHIA|46.7|
+|----|----|----|----|
+|MCD|VGG16|GTA5|28.8|
+|MCD|DRN-105|GTA5|39.7|
+|LSD-seg|FCN8S|GTA5|37.1|
+|AdaptSeg|Deeplabv1-largeFOV(single-level)|GTA5|35.0|
+|AdaptSeg|Deeplabv2-ResNet101(multi-level)|GTA5|42.4|
+
 # Maximum Classifier Discrepancy for Domain Adaptation with Semantic Segmentation Implemented by PyTorch
 
 <img src='../docs/result_seg.png' width=900/>  
