@@ -58,8 +58,7 @@ def train(args):
     from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
     model_summary(model)
 
-    def mymodel(image):
-        return model(image)[-1]
+
 
 
     def get_validation_miou(model):
@@ -71,7 +70,8 @@ def train(args):
             img_large = torch.Tensor(np.zeros((1, 3, 513, 513)))
             img_large[:, :, :images_val.shape[2], :images_val.shape[3]] = images_val
 
-            output = mymodel(Variable(img_large, volatile=True).cuda())
+            output = model(Variable(img_large, volatile=True).cuda())
+            output = output[-1]
             output = output.data.max(1)[1].cpu().numpy()
             pred = output[:, :images_val.shape[2], :images_val.shape[3]]
 
@@ -119,8 +119,11 @@ def train(args):
             labels = Variable(labels.cuda())
 
             optimizer.zero_grad()
-            outputs = mymodel(images) # use fusion score
-            loss = CrossEntropyLoss2d_Seg(input=outputs, target=labels, class_num=n_classes)
+            outputs = model(images) # use fusion score
+            loss = 0 #= CrossEntropyLoss2d_Seg(input=outputs[0], target=labels, class_num=n_classes)
+
+            for i in range(len(outputs) - 1):
+                loss = loss + CrossEntropyLoss2d_Seg(input=outputs[i], target=labels, class_num=n_classes)
 
             loss.backward()
             optimizer.step()
