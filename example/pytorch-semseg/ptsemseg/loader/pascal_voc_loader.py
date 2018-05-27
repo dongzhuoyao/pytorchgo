@@ -63,6 +63,7 @@ class pascalVOCLoader(data.Dataset):
         self.img_size = img_size if isinstance(img_size, tuple) \
                                                else (img_size, img_size)
         self.epoch_scale = epoch_scale
+        """
         print("{} set, epoch scale: {}".format(self.split, epoch_scale))
         for tmp in ['train', 'val', 'trainval']:
             path = pjoin(self.root, 'ImageSets/Segmentation', tmp + '.txt')
@@ -72,24 +73,41 @@ class pascalVOCLoader(data.Dataset):
 
 
         self.setup_annotations()
+        """
+        datalist = "/home/hutao/lab/pytorchgo/dataset_list/pascalvoc12"
+        if self.split == 'train':
+            with open(os.path.join(datalist, 'train.txt'),'r') as f:
+                lines = f.readlines()
+                self.files[self.split] = [tmp.strip() for tmp in lines] * epoch_scale
+                # here multiply a epoch scale to make the epoch size scalable!!
 
-        if 'train' in self.split:
-            self.files[split] = self.files[self.split] * epoch_scale
-            pass
+        if self.split == 'train_aug':
+            with open(os.path.join(datalist, 'train_aug.txt'),'r') as f:
+                lines = f.readlines()
+                self.files[self.split] = [tmp.strip() for tmp in lines]
+
+        if self.split == 'val':
+            with open(os.path.join(datalist, 'val.txt'),'r') as f:
+                lines = f.readlines()
+                self.files[self.split] = [tmp.strip() for tmp in lines]
+
+
+
+
 
 
     def __len__(self):
         return len(self.files[self.split])
 
     def __getitem__(self, index):
-        im_name = self.files[self.split][index]
-        im_path = pjoin(self.root, 'JPEGImages',  im_name + '.jpg')
-        lbl_path = pjoin(self.root, 'SegmentationClass/pre_encoded',
-                                                   im_name + '.png')
+        img_label_str = self.files[self.split][index]
+        im_path, lbl_path = img_label_str.strip().split()
+        im_path = os.path.join(self.root, 'VOC2012trainval/VOCdevkit/VOC2012', im_path)
+        lbl_path = os.path.join(self.root,  'VOC2012trainval/VOCdevkit/VOC2012', lbl_path)
         im = m.imread(im_path)
         im = np.array(im, dtype=np.uint8)
         lbl = m.imread(lbl_path)
-        lbl = np.array(lbl, dtype=np.int8)
+        lbl = np.array(lbl, dtype=np.uint8)
         if self.augmentations is not None:
             im, lbl = self.augmentations(im, lbl)
         if self.is_transform:
@@ -185,68 +203,13 @@ class pascalVOCLoader(data.Dataset):
         else:
             return rgb
 
-    def setup_annotations(self):
-        """Sets up Berkley annotations by adding image indices to the
-        `train_aug` split and pre-encode all segmentation labels into the
-        common label_mask format (if this has not already been done). This
-        function also defines the `train_aug` and `train_aug_val` data splits
-        according to the description in the class docstring
-        """
-        sbd_path = get_data_path('sbd')
-        target_path = pjoin(self.root, 'SegmentationClass/pre_encoded')
-        if not os.path.exists(target_path): os.makedirs(target_path)
-        path = pjoin(sbd_path, 'dataset/train.txt')
-        sbd_train_list = tuple(open(path, 'r'))
-        sbd_train_list = [id_.rstrip() for id_ in sbd_train_list]
-        train_aug = self.files['train'] + sbd_train_list
 
-        # keep unique elements (stable)
-        train_aug = [train_aug[i] for i in \
-                          sorted(np.unique(train_aug, return_index=True)[1])]
-        self.files['train_aug'] = train_aug
-        set_diff = set(self.files['val']) - set(train_aug) # remove overlap
-        self.files['train_aug_val'] = list(set_diff)
+if __name__ == '__main__':
 
-        pre_encoded = glob.glob(pjoin(target_path, '*.png'))
-        expected = np.unique(self.files['train_aug'] + self.files['val']).size
 
-        if len(pre_encoded) != expected:
-            print("Pre-encoding segmentation masks...")
-            for ii in tqdm(sbd_train_list):
-                lbl_path = pjoin(sbd_path, 'dataset/cls', ii + '.mat')
-                data = io.loadmat(lbl_path)
-                lbl = data['GTcls'][0]['Segmentation'][0].astype(np.int32)
-                lbl = m.toimage(lbl, high=lbl.max(), low=lbl.min())
-                m.imsave(pjoin(target_path, ii + '.png'), lbl)
+    t_loader = pascalVOCLoader('~/dataset/pascalvoc2012', split='train', is_transform=True, img_size=(473, 474), epoch_scale=1, augmentations=None, img_norm=False)
 
-            for ii in tqdm(self.files['trainval']):
-                fname = ii + '.png'
-                lbl_path = pjoin(self.root, 'SegmentationClass', fname)
-                lbl = self.encode_segmap(m.imread(lbl_path))
-                lbl = m.toimage(lbl, high=lbl.max(), low=lbl.min())
-                m.imsave(pjoin(target_path, fname), lbl)
-
-        assert expected == 9733, 'unexpected dataset sizes'
-
-# Leave code for debugging purposes
-# import ptsemseg.augmentations as aug
-# if __name__ == '__main__':
-    # # local_path = '/home/meetshah1995/datasets/VOCdevkit/VOC2012/'
-    # bs = 4
-    # augs = aug.Compose([aug.RandomRotate(10), aug.RandomHorizontallyFlip()])
-    # dst = pascalVOCLoader(root=local_path, is_transform=True, augmentations=augs)
-    # trainloader = data.DataLoader(dst, batch_size=bs)
-    # for i, data in enumerate(trainloader):
-        # imgs, labels = data
-        # imgs = imgs.numpy()[:, ::-1, :, :]
-        # imgs = np.transpose(imgs, [0,2,3,1])
-        # f, axarr = plt.subplots(bs, 2)
-        # for j in range(bs):
-            # axarr[j][0].imshow(imgs[j])
-            # axarr[j][1].imshow(dst.decode_segmap(labels.numpy()[j]))
-        # plt.show()
-        # a = raw_input()
-        # if a == 'ex':
-            # break
-        # else:
-            # plt.close()
+    n_classes = t_loader.n_classes
+    trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
+    for idx, data in enumerate(trainloader):
+        pass

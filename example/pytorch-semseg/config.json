@@ -1,7 +1,7 @@
 {
   "pascal":
   {
-    "data_path": "~/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012"
+    "data_path": "/home/hutao/dataset/pascalvoc2012"
   },
 
   "sbd":

@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--batch_size', nargs='?', type=int, default=1, 
                         help='Batch Size')
-    parser.add_argument('--split', nargs='?', type=str, default='val', 
+    parser.add_argument('--split', nargs='?', type=str, default='val',
                         help='Split of dataset to test on')
 
     parser.add_argument('--measure_time', dest='measure_time', action='store_true', 
