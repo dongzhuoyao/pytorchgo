@@ -201,7 +201,7 @@ class MS_Deeplab(nn.Module):
 	super(MS_Deeplab,self).__init__()
 	self.Scale = ResNet(block,[3, 4, 23, 3],NoLabels)   #changed to fix #4
 
-    def forward(self,x):
+    def forward(self,x):#x;[513, 513]
         input_size = x.size()[2]
         self.interp75 = nn.UpsamplingBilinear2d(size = (int(input_size * 0.75) + 1, int(input_size * 0.75) + 1))
         self.interp50 = nn.UpsamplingBilinear2d(size = (int(input_size * 0.5) + 1, int(input_size * 0.5) + 1))
@@ -209,14 +209,15 @@ class MS_Deeplab(nn.Module):
 
         self.interp_origin = nn.UpsamplingBilinear2d(size = (x.size()[2],x.size()[3]))
         out = []
-        x75 = self.interp75(x)
-        x50 = self.interp50(x)
-        out.append(self.Scale(x))	# for original scale
-        out.append(self.interp3(self.Scale(x75)))	# for 0.75x scale
-        out.append(self.Scale(x50))	# for 0.5x scale
-        x2Out_interp = out[1]
-        x3Out_interp = self.interp3(out[2])
-        temp1 = torch.max(out[0],x2Out_interp)
+        x75 = self.interp75(x)#[1,3,385, 385]
+        x50 = self.interp50(x) #[1, 3, 257, 257]
+        out.append(self.Scale(x))	# for original scale, [1, 21, 65, 65]
+        out.append(self.interp3(self.Scale(x75)))	# for 0.75x scale, #[1, 21, 65, 65]
+        out.append(self.Scale(x50))	# for 0.5x scale #[1, 21, 33, 33]
+        x2Out_interp = out[1]#[1, 21, 65, 65]
+        x3Out_interp = self.interp3(out[2]) #[1, 21, 65, 65]
+
+        temp1 = torch.max(out[0],x2Out_interp)#two continuous max to obtain largest value betwwen 075,050,100 size elementwisely.
         out.append(torch.max(temp1,x3Out_interp))
         #return out # here, for simplicity, we only use first output, which is original output size
         return [self.interp_origin(tmp) for tmp in out]

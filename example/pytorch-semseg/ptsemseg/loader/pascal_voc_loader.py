@@ -107,7 +107,7 @@ class pascalVOCLoader(data.Dataset):
         im = m.imread(im_path)
         im = np.array(im, dtype=np.uint8)
         lbl = m.imread(lbl_path)
-        lbl = np.array(lbl, dtype=np.uint8)
+        lbl = np.array(lbl, dtype=np.int8) #np.int8 will make 255 overflow to -1, this is a trick!
         if self.augmentations is not None:
             im, lbl = self.augmentations(im, lbl)
         if self.is_transform:
