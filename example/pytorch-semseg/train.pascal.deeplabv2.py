@@ -91,7 +91,7 @@ def train(args):
             labels = Variable(labels.cuda())
 
             optimizer.zero_grad()
-            outputs = model(images)
+            outputs = model(images)[-1] # use fusion score
             loss = CrossEntropyLoss2d_Seg(input=outputs, target=labels, class_num=n_classes)
 
             loss.backward()
@@ -106,7 +106,7 @@ def train(args):
             images_val = Variable(images_val.cuda(), volatile=True)
             labels_val = Variable(labels_val.cuda(), volatile=True)
 
-            outputs = model(images_val)
+            outputs = model(images_val)[-1] # use fusion score
             pred = outputs.data.max(1)[1].cpu().numpy()
             gt = labels_val.data.cpu().numpy()
             running_metrics.update(gt, pred)
@@ -141,7 +141,7 @@ if __name__ == '__main__':
                         help='Disable input image scales normalization [0, 1] | True by default')
     parser.set_defaults(img_norm=False)
 
-    parser.add_argument('--n_epoch', nargs='?', type=int, default=20,
+    parser.add_argument('--n_epoch', nargs='?', type=int, default=25,
                         help='# of the epochs')
     parser.add_argument('--batch_size', nargs='?', type=int, default=3,
                         help='Batch Size')
