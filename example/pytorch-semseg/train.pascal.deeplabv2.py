@@ -122,7 +122,7 @@ def train(args):
                      'mIoU': best_iou,
                      'model_state': model.state_dict(),
                      'optimizer_state' : optimizer.state_dict(),}
-            torch.save(state, os.path.join(logger.get_logger_dir(), "best_model.pkl"))
+            torch.save(state, os.path.join(logger.get_logger_dir(), "best_model.pth"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hyperparams')

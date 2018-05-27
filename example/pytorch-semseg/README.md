@@ -3,6 +3,7 @@
 |arch|result|target|
 |----|----|----|
 train.pascal.deeplabv1|55.7|?|
+train.pascal.deeplabv2|64.46|
 
 # pytorch-semseg
 
