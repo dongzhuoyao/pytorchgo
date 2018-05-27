@@ -1,5 +1,6 @@
 #norm=False, output1: 67.79%
 #norm=False, output1-fusion: 69.08%
+#norm=False, output1-fusion, 513 padding:   70.5%
 #norm=True: mIoU:3%
 
 import sys, os
@@ -28,6 +29,7 @@ torch.backends.cudnn.benchmark = True
 cudnn.benchmark = True
 os.environ['CUDA_VISIBLE_DEVICES'] = '4'
 
+#
 def validate(args):
     data_loader = get_loader(args.dataset)
     data_path = get_data_path(args.dataset)
@@ -38,7 +40,6 @@ def validate(args):
 
     # Setup Model
     from pytorchgo.model.deeplab_resnet import Res_Deeplab
-
     model = Res_Deeplab(NoLabels=n_classes, pretrained=False)
     state = torch.load("/home/hutao/MS_DeepLab_resnet_trained_VOC.pth")
     model.load_state_dict(state)
@@ -46,19 +47,15 @@ def validate(args):
     model.cuda()
     print "pra"
 
-    for i, (images, labels) in tqdm(enumerate(valloader)):
+    for i, (images, labels) in tqdm(enumerate(valloader),desc="validation"):
         start_time = timeit.default_timer()
-        labels = Variable(labels.cuda(), volatile=True)
-
-        img_large = np.zeros((1, 3, 513, 513))
+        img_large = torch.Tensor(np.zeros((1, 3, 513, 513)))
         img_large[:,:,:images.shape[2], :images.shape[3]] = images
 
 
-        output = model(
-            Variable(torch.from_numpy(img_large[np.newaxis, :].transpose(0, 3, 1, 2)).float(), volatile=True).cuda())
+        output = model(Variable(img_large, volatile=True).cuda())
         output = output.data.max(1)[1].cpu().numpy()
         pred = output[:, :images.shape[2], :images.shape[3]]
-
 
         gt = labels.numpy()
 

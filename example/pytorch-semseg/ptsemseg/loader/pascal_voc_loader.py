@@ -117,9 +117,8 @@ class pascalVOCLoader(data.Dataset):
             lbl = m.imresize(lbl, (self.img_size[0], self.img_size[1]), 'nearest',
                          mode='F')
         lbl = lbl.astype(int)
-        if "train" in self.split:
-            img = torch.from_numpy(img).float()
-            lbl = torch.from_numpy(lbl).long()
+        img = torch.from_numpy(img).float()
+        lbl = torch.from_numpy(lbl).long()
         return img, lbl
 
 
