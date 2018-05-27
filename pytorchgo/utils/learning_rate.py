@@ -5,6 +5,13 @@ def lr_poly(base_lr, iter, max_iter, power):
     return base_lr * ((1 - float(iter) / max_iter) ** (power))
 
 
+def update_learning_rate_poly(optimizer, base_lr, epoch, num_epochs):
+    lr = lr_poly(base_lr, epoch, num_epochs,power= 0.9)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+    return lr
+
+
 def adjust_learning_rate(optimizer, base_lr, i_iter, total_iter, power=0.9):
     lr = lr_poly(base_lr, i_iter, total_iter, power)
     optimizer.param_groups[0]['lr'] = lr

@@ -83,11 +83,10 @@ def emphasize_str(string):
     print ('#' * 100)
 
 
-def adjust_learning_rate(optimizer, lr_init, decay_rate, epoch, num_epochs, decay_epoch=15):
+def adjust_learning_rate_poly(optimizer, base_lr, epoch, num_epochs):
     """Decay Learning rate at 1/2 and 3/4 of the num_epochs"""
-    lr = lr_init
-    if epoch == decay_epoch:
-        lr *= 0.1
+    from pytorchgo.utils.learning_rate import lr_poly
+    lr = lr_poly(base_lr, epoch, num_epochs,power= 0.9)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     return lr

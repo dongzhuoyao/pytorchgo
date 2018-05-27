@@ -75,12 +75,15 @@ class CityDataSet(data.Dataset):
         label_file = datafiles["label"]
         label = Image.open(label_file).convert("P")
 
+
+        if self.img_transform:
+            img = self.img_transform(img)
+
+
         if False:
             print img_file
             print label_file
 
-        if self.img_transform:
-            img = self.img_transform(img)
 
         if self.label_transform:
             label = self.label_transform(label)
