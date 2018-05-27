@@ -27,7 +27,7 @@ SAVE_PATH = './result/cityscapes'
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
 #RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
-RESTORE_FROM = 'train_log/fcn8s.synthia2cityscapes.single/model_best.pth.tar'
+RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single/model_best.pth.tar'
 SET = 'val'
 
 palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,

@@ -3,6 +3,7 @@
 |arch|uniform 2048x1024 mIoU|mIoU|
 |----|----|----|
 |deeplabv2.synthia2cityscapes.single|0.329757171308|36.74|
+|deeplabv2.synthia2cityscapes.single|0.335974649209|37.56|
 |fcn8s.synthia2cityscapes.single|0.29426|27????|
 
 ## paper result
