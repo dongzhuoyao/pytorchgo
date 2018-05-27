@@ -5,6 +5,7 @@ class GradReverse(Function):
     def __init__(self, lambd):
         self.lambd = lambd
     def forward(self, x):
+        x = x.contiguous()#add by dongzhuoyao
         return x.view_as(x)
     def backward(self, grad_output):
         return (grad_output*-self.lambd)

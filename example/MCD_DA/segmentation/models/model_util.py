@@ -43,8 +43,10 @@ def get_models(net_name, input_ch, n_class, res="50", method="MCD", uses_one_cla
                 model_f2 = DRNSegPixelClassifier(n_class=n_class)
 
         elif 'deeplabv2' == net_name:
-            from pytorchgo.model.deeplab_resnet import Res_Deeplab
-            model = Res_Deeplab(NoLabels=n_class, pretrained=True)
+            from deeplabv2_related import Res_Deeplab, DeeplabPixelClassifier
+            model_g = Res_Deeplab(NoLabels=n_class, pretrained=True)
+            model_f1 = DeeplabPixelClassifier(n_class=n_class)
+            model_f2 = DeeplabPixelClassifier(n_class=n_class)
 
 
         else:

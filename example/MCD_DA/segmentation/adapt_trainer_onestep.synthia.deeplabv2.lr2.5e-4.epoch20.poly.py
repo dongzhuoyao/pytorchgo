@@ -85,7 +85,7 @@ parser.add_argument('--uses_one_classifier', default=False,
                     help="adversarial dropout regularization")
 
 
-parser.add_argument('--gpu', type=str,default='4',
+parser.add_argument('--gpu', type=str,default='5',
                     help="")
 
 parser.add_argument("--n_class", type=int, default=16)
@@ -185,20 +185,18 @@ check_if_done(json_fn)
 save_dic_to_json(args.__dict__, json_fn)
 
 train_img_shape = tuple([int(x) for x in args.train_img_shape])
-img_transform_list = [
+from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR
+img_transform_list = [#notice the order!!!
     Scale(train_img_shape, Image.BILINEAR),
+    PIL2NP(),
+    RGB2BGR(),
+    SubtractMeans(),
     ToTensor(),
-    Normalize([.485, .456, .406], [.229, .224, .225])
+    #Normalize([.485, .456, .406], [.229, .224, .225]), must delete!!!
 ]
 logger.warn("if you choose deeplab or other weight file, please remember to change the image transform list...")
-if args.augment:
-    aug_list = [
-        RandomRotation(),
-        # RandomVerticalFlip(), # non-realistic
-        RandomHorizontalFlip(),
-        RandomSizedCrop()
-    ]
-    img_transform_list = aug_list + img_transform_list
+
+
 
 img_transform = Compose(img_transform_list)
 
