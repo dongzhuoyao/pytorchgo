@@ -197,9 +197,11 @@ class MS_Deeplab(nn.Module):
         )
 
 
-    def __init__(self,block,NoLabels):
-	super(MS_Deeplab,self).__init__()
-	self.Scale = ResNet(block,[3, 4, 23, 3],NoLabels)   #changed to fix #4
+    def __init__(self, block, NoLabels, output_all):
+        super(MS_Deeplab,self).__init__()
+        self.Scale = ResNet(block,[3, 4, 23, 3],NoLabels)   #changed to fix #4
+        self.output_all = output_all
+
 
     def forward(self,x):#x;[513, 513]
         input_size = x.size()[2]
@@ -219,8 +221,10 @@ class MS_Deeplab(nn.Module):
 
         temp1 = torch.max(out[0],x2Out_interp)#two continuous max to obtain largest value betwwen 075,050,100 size elementwisely.
         out.append(torch.max(temp1,x3Out_interp))
-        #return out # here, for simplicity, we only use first output, which is original output size
-        return [self.interp_origin(tmp) for tmp in out]
+        if self.output_all:
+            return [self.interp_origin(tmp) for tmp in out] # will cost 3x memory!!!!
+        else:
+            return self.interp_origin(out[0])
 
     def optimizer_params(self, base_lr):# for optimizer usage
         return [{'params': self.get_1x_lr_params_NOscale(), 'lr': base_lr},
@@ -264,8 +268,8 @@ class MS_Deeplab(nn.Module):
                 yield i
 
 
-def Res_Deeplab(NoLabels=21, pretrained = False):
-    model = MS_Deeplab(Bottleneck,NoLabels)
+def Res_Deeplab(NoLabels=21, pretrained = False, output_all = False):
+    model = MS_Deeplab(Bottleneck,NoLabels, output_all)
     if pretrained:
         logger.info("initializing pretrained deeplabv2 model....")
         model_file = MS_Deeplab.download()

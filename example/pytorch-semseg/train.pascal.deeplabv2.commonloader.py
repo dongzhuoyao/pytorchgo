@@ -85,7 +85,7 @@ def train(args):
     from pytorchgo.model.deeplabv1 import VGG16_LargeFoV
     from pytorchgo.model.deeplab_resnet import Res_Deeplab
 
-    model = Res_Deeplab(NoLabels=n_classes, pretrained=True)
+    model = Res_Deeplab(NoLabels=n_classes, pretrained=True, output_all=False)
 
     from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
     model_summary(model)
@@ -97,11 +97,13 @@ def train(args):
         model.eval()
         for i_val, (images_val, labels_val) in tqdm(enumerate(valloader), total=len(valloader), desc="validation"):
             if i_val > 5 and is_debug==1: break
+            if i_val > 200 and is_debug==2:break
+
             #img_large = torch.Tensor(np.zeros((1, 3, 513, 513)))
             #img_large[:, :, :images_val.shape[2], :images_val.shape[3]] = images_val
 
             output = model(Variable(images_val, volatile=True).cuda())
-            output = output[0]
+            output = output
             pred = output.data.max(1)[1].cpu().numpy()
             #pred = output[:, :images_val.shape[2], :images_val.shape[3]]
 
@@ -155,7 +157,7 @@ def train(args):
 
             optimizer.zero_grad()
             outputs = model(images) # use fusion score
-            loss = CrossEntropyLoss2d_Seg(input=outputs[0], target=labels, class_num=n_classes)
+            loss = CrossEntropyLoss2d_Seg(input=outputs, target=labels, class_num=n_classes)
 
             #for i in range(len(outputs) - 1):
             #for i in range(1):
@@ -170,7 +172,6 @@ def train(args):
 
 
         cur_miou = get_validation_miou(model)
-
         if cur_miou >= best_iou:
             best_iou = cur_miou
             state = {'epoch': epoch+1,
@@ -185,20 +186,10 @@ if __name__ == '__main__':
                         help='Architecture to use [\'fcn8s, unet, segnet etc\']')
     parser.add_argument('--dataset', nargs='?', type=str, default='pascal', 
                         help='Dataset to use [\'pascal, camvid, ade20k etc\']')
-    parser.add_argument('--img_rows', nargs='?', type=int, default=513,
-                        help='Height of the input image')
-    parser.add_argument('--img_cols', nargs='?', type=int, default=513,
-                        help='Width of the input image')
-
-    parser.add_argument('--img_norm', dest='img_norm', action='store_true', 
-                        help='Enable input image scales normalization [0, 1] | True by default')
-    parser.add_argument('--no-img_norm', dest='img_norm', action='store_false', 
-                        help='Disable input image scales normalization [0, 1] | True by default')
-    parser.set_defaults(img_norm=False)
 
     parser.add_argument('--n_epoch', nargs='?', type=int, default=16,
                         help='# of the epochs')
-    parser.add_argument('--batch_size', nargs='?', type=int, default=1,
+    parser.add_argument('--batch_size', nargs='?', type=int, default=3,
                         help='Batch Size')
     parser.add_argument('--l_rate', nargs='?', type=float, default=2.5e-4, # original implementation of deeplabv1 learning rate is 1e-3 and poly update
                         help='Learning Rate')
