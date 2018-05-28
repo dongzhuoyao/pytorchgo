@@ -46,7 +46,7 @@ class SubtractMeans(object):
         image -= self.mean
         return image
 
-class Scale(object):
+class PIL_Scale(object):
     def __init__(self, size, interpolation=Image.BILINEAR):
         assert isinstance(size, int) or (isinstance(size, collections.Iterable) and len(size) == 2)
         self.size = size

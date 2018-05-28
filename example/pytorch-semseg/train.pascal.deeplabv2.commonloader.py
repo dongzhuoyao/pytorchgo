@@ -37,10 +37,10 @@ def train(args):
 
 
     # Setup Dataloader
-    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR,Scale, Value255to0, ToLabel
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR,PIL_Scale, Value255to0, ToLabel
     from torchvision.transforms import Compose, Normalize, ToTensor
     img_transform = Compose([  # notice the order!!!
-        Scale(train_img_shape, Image.BILINEAR),
+        PIL_Scale(train_img_shape, Image.BILINEAR),
         PIL2NP(),
         RGB2BGR(),
         SubtractMeans(),
@@ -48,7 +48,7 @@ def train(args):
     ])
 
     label_transform = Compose([
-        Scale(train_img_shape, Image.NEAREST),
+        PIL_Scale(train_img_shape, Image.NEAREST),
         PIL2NP(),
         Value255to0(),
         ToLabel()
@@ -56,13 +56,13 @@ def train(args):
     ])
 
     val_img_transform = Compose([
-        Scale(train_img_shape, Image.BILINEAR),
+        PIL_Scale(train_img_shape, Image.BILINEAR),
         PIL2NP(),
         RGB2BGR(),
         SubtractMeans(),
         ToTensor(),
     ])
-    val_label_transform = Compose([Scale(train_img_shape, Image.NEAREST),
+    val_label_transform = Compose([PIL_Scale(train_img_shape, Image.NEAREST),
                                    PIL2NP(),
                                    ToLabel(),
                                    # notice here, training, validation size difference, this is very tricky.
