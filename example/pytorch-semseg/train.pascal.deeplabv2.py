@@ -30,7 +30,8 @@ is_debug = 0
 def train(args):
 
     logger.auto_set_dir()
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+    from pytorchgo.utils.pytorch_utils import set_gpu
+    set_gpu(2)
 
     # Setup Augmentations
     data_aug= Compose([RandomRotate(10),                                        
@@ -108,12 +109,17 @@ def train(args):
             logger.info("No checkpoint found at '{}'".format(args.resume))
 
     best_iou = 0
+    logger.info('start!!')
     for epoch in tqdm(range(args.n_epoch),total=args.n_epoch):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader),total=len(trainloader), desc="training epoch {}/{}".format(epoch, args.n_epoch)):
+            if i > 10 and is_debug: break
+
+            if i> 200:break
+
             cur_iter = i + epoch*len(trainloader)
             cur_lr = adjust_learning_rate(optimizer,args.l_rate,cur_iter,args.n_epoch*len(trainloader),power=0.9)
-            if i > 10 and is_debug:break
+
 
             images = Variable(images.cuda())
             labels = Variable(labels.cuda())

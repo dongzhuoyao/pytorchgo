@@ -107,7 +107,9 @@ class pascalVOCLoader(data.Dataset):
         im = m.imread(im_path)
         im = np.array(im, dtype=np.uint8)
         lbl = m.imread(lbl_path)
-        lbl = np.array(lbl, dtype=np.int8) #np.int8 will make 255 overflow to -1, this is a trick!
+        lbl = np.array(lbl, dtype=np.uint8)
+        if True:
+            pass
         if self.augmentations is not None:
             im, lbl = self.augmentations(im, lbl)
         if self.is_transform:
@@ -213,4 +215,8 @@ if __name__ == '__main__':
     trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
     for idx, data in enumerate(trainloader):
         print idx
-        print data
+        image, label = data
+        #image = image.numpy()
+        #label = label.numpy()
+        from pytorchgo.utils.vis import vis_seg
+        vis_seg(image, label)

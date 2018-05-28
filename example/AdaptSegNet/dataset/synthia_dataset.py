@@ -79,11 +79,12 @@ if __name__ == '__main__':
                          list_path="synthia_list/SYNTHIA_imagelist_train.txt",
                          label_list_path="synthia_list/SYNTHIA_labellist_train.txt")
     trainloader = data.DataLoader(dst, batch_size=4)
-    import cv2
-    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
+
     for i, data in enumerate(trainloader):
         imgs, labels, size, name = data
 
+        import cv2
+        from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
         img = torchvision.utils.make_grid(imgs).numpy()
         img = np.transpose(img, (1, 2, 0))
         img = img[:, :, ::-1]+128

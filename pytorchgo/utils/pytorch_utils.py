@@ -8,7 +8,7 @@ import warnings,os
 
 
 def set_gpu(gpu):
-    if isinstance(gpu, int):
+    if not isinstance(gpu, str):
         gpu = str(gpu)
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
