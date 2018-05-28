@@ -11,6 +11,7 @@ import glob
 
 from tqdm import tqdm
 from torch.utils import data
+from PIL import Image
 
 def get_data_path(name):
     """Extract path to data from config file.
@@ -50,18 +51,17 @@ class pascalVOCLoader(data.Dataset):
                    the validation set used in FCN PAMI paper, but with VOC 2012
                    rather than VOC 2011) - 904 images
     """
-    def __init__(self, root, split='train_aug', is_transform=False,
-                 img_size=512, epoch_scale=1, augmentations=None,):
-        self.root = os.path.expanduser(root)
-        self.split = split
-        self.is_transform = is_transform
-        self.augmentations = augmentations
-        self.n_classes = 21
-        self.files = collections.defaultdict(list)
-        self.img_size = img_size if isinstance(img_size, tuple) \
-                                               else (img_size, img_size)
-        self.epoch_scale = epoch_scale
+    def __init__(self, split='train_aug',
+                  epoch_scale=1,img_transform=None, label_transform=None):
+        assert  split in ['train', 'train_aug', 'val']
+        self.root = '/home/hutao/dataset/pascalvoc2012'
         datalist = "/home/hutao/lab/pytorchgo/dataset_list/pascalvoc12"
+        self.split = split
+        self.n_classes = 21
+        self.label_transform = label_transform
+        self.img_transform = img_transform
+        self.files = collections.defaultdict(list)
+        self.epoch_scale = epoch_scale
         if self.split == 'train':
             with open(os.path.join(datalist, 'train.txt'),'r') as f:
                 lines = f.readlines()
@@ -92,6 +92,21 @@ class pascalVOCLoader(data.Dataset):
         im_path = os.path.join(self.root, 'VOC2012trainval/VOCdevkit/VOC2012', im_path)
         lbl_path = os.path.join(self.root,  'VOC2012trainval/VOCdevkit/VOC2012', lbl_path)
 
+        img_file = im_path
+        img = Image.open(img_file).convert('RGB')
+        label_file = lbl_path
+        label = Image.open(label_file).convert("P")
+
+        if False:
+            print img_file
+            print label_file
+
+        if self.img_transform:
+            img = self.img_transform(img)
+        if self.label_transform:
+            label = self.label_transform(label)
+
+        return img, label
 
 """
         im = m.imread(im_path)

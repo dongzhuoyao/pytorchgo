@@ -35,8 +35,8 @@ def CrossEntropyLoss2d_Seg(input, target, class_num, weight=None, size_average=T
     # log_p: (n, c, h, w)
     log_p = F.log_softmax(input)
 
-    # log_p: (n*h*w, c)
-    log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
+
+    log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)# log_p: (n*h*w, c)
     try:
         log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) < class_num]
     except:
@@ -52,6 +52,8 @@ def CrossEntropyLoss2d_Seg(input, target, class_num, weight=None, size_average=T
     try:
         loss = F.nll_loss(log_p, target, weight=weight, size_average=size_average)
     except:
+        print "log_p size: {}".format(log_p.size())
+        print "target size: {}".format(target.size())
         import traceback
         traceback.print_exc()
         import ipdb
