@@ -13,18 +13,6 @@ from tqdm import tqdm
 from torch.utils import data
 from PIL import Image
 
-def get_data_path(name):
-    """Extract path to data from config file.
-
-    Args:
-        name (str): The name of the dataset.
-
-    Returns:
-        (str): The path to the root directory containing the dataset.
-    """
-    js = open('config.json').read()
-    data = json.loads(js)
-    return os.path.expanduser(data[name]['data_path'])
 
 class pascalVOCLoader(data.Dataset):
     """Data loader for the Pascal VOC semantic segmentation dataset.
@@ -107,46 +95,6 @@ class pascalVOCLoader(data.Dataset):
             label = self.label_transform(label)
 
         return img, label
-
-"""
-        im = m.imread(im_path)
-        im = np.array(im, dtype=np.uint8)
-        lbl = m.imread(lbl_path)
-        lbl = np.array(lbl, dtype=np.uint8)
-        if True:
-            pass
-        if self.augmentations is not None:
-            im, lbl = self.augmentations(im, lbl)
-        if self.is_transform:
-            im, lbl = self.transform(im, lbl)
-        return im, lbl
-
-
-    def transform(self, img, lbl):
-        #if  "train" in self.split or "val" :
-        img = m.imresize(img, (self.img_size[0], self.img_size[1])) # uint8 with RGB mode
-        img = img[:, :, ::-1] # RGB -> BGR
-        img = img.astype(np.float64)
-        img -= self.mean
-        if self.img_norm:
-            # Resize scales images from 0 to 255, thus we need
-            # to divide by 255.0
-            img = img.astype(float) / 255.0
-        # HWC -> CHW
-        img = img.transpose(2, 0, 1)
-
-        lbl[lbl==255] = 0#The boundary label (255 in ground truth labels) has not been ignored in the loss function in the current version, instead it has been merged with the background.
-        # The ignore_label caffe parameter would be implemented in the future versions.
-        lbl = lbl.astype(float)
-        #if  "train" in self.split:
-        lbl = m.imresize(lbl, (self.img_size[0], self.img_size[1]), 'nearest',mode='F')
-
-        lbl = lbl.astype(int)
-        img = torch.from_numpy(img).float()
-        lbl = torch.from_numpy(lbl).long()
-        return img, lbl
-"""
-
 
 
 
