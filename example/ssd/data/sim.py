@@ -103,7 +103,9 @@ class SimDetection(data.Dataset):
         self.name = dataset_name
         self._annopath = osp.join(self.root, 'Annotations', '%s.xml')
         self._imgpath = osp.join(self.root, 'JPEGImages', '%s.jpg')
-        self.ids = [tmp.replace(".jpg", "") for tmp in os.listdir(os.path.join(self.root,"JPEGImages"))]
+        img_list = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
+        with open(img_list,"r") as f:
+            self.ids = [tmp.strip().replace(".jpg", "") for tmp in f.readlines()]
 
     def __getitem__(self, index):
         im, gt, h, w = self.pull_item(index)

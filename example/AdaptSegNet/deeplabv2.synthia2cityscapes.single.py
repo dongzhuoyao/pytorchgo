@@ -210,7 +210,7 @@ def proceed_test(model, input_size, quick_test = 1e10):
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
     miou16 = np.sum(stat.IoU) / 16
-    print("tensorpack class16 IoU: {}".format(miou16))
+    logger.info("tensorpack class16 IoU: {}".format(miou16))
     model.train()
     return miou16
 
