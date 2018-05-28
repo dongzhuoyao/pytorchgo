@@ -17,6 +17,10 @@ import argparse
 from pytorchgo.utils import logger
 from tqdm import tqdm
 
+from pytorchgo.utils.easy_debug import set_debugger_org_frc
+
+set_debugger_org_frc()
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 

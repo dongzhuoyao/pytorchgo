@@ -187,7 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', nargs='?', type=str, default='pascal', 
                         help='Dataset to use [\'pascal, camvid, ade20k etc\']')
 
-    parser.add_argument('--n_epoch', nargs='?', type=int, default=16,
+    parser.add_argument('--n_epoch', nargs='?', type=int, default=25,
                         help='# of the epochs')
     parser.add_argument('--batch_size', nargs='?', type=int, default=3,
                         help='Batch Size')

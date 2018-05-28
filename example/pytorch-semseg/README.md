@@ -5,6 +5,8 @@
 train.pascal.deeplabv1|55.7|?|
 train.pascal.deeplabv2|64.46|
 
+batch size=1 training will cause very low mIoU.
+
 # pytorch-semseg
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/meetshah1995/pytorch-semseg/blob/master/LICENSE)

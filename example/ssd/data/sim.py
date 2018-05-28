@@ -24,7 +24,7 @@ Sim_CLASSES = (  # always index 0
 # note: if you used our download scripts, this should be right
 Sim_ROOT = 'data/sim-dataset/VOC2012'#osp.join(HOME, "data/VOCdevkit/")
 
-
+#size:  (1052, 1914)
 class SimAnnotationTransform(object):
     """Transforms a VOC annotation into a Tensor of bbox coords and label index
     Initilized with a dictionary lookup of classnames to indexes
@@ -125,6 +125,7 @@ class SimDetection(data.Dataset):
 
         if self.transform is not None:
             target = np.array(target)
+
             try:
                 img, boxes, labels = self.transform(img, target[:, :4], target[:, 4]) #TODO, buggy here!!
             except:
@@ -132,6 +133,7 @@ class SimDetection(data.Dataset):
                 traceback.print_exc()
                 import ipdb
                 ipdb.set_trace()
+
             # to rgb
             img = img[:, :, (2, 1, 0)]
             # img = img.transpose(2, 0, 1)
