@@ -21,6 +21,7 @@ from pytorchgo.loss import CrossEntropyLoss2d_Seg
 import numpy as np
 
 cityscapes_image_shape = (2048, 1024)
+
 is_debug = 0
 
 # from visualize import LinePlotter
@@ -185,25 +186,33 @@ check_if_done(json_fn)
 save_dic_to_json(args.__dict__, json_fn)
 
 train_img_shape = tuple([int(x) for x in args.train_img_shape])
+
 from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR
-img_transform_list = [#notice the order!!!
+logger.warn("if you choose deeplab or other weight file, please remember to change the image transform list...")
+img_transform = Compose([#notice the order!!!
     Scale(train_img_shape, Image.BILINEAR),
     PIL2NP(),
     RGB2BGR(),
     SubtractMeans(),
     ToTensor(),
     #Normalize([.485, .456, .406], [.229, .224, .225]), must delete!!!
-]
-logger.warn("if you choose deeplab or other weight file, please remember to change the image transform list...")
-
-
-
-img_transform = Compose(img_transform_list)
+])
 
 label_transform = Compose([
     Scale(train_img_shape, Image.NEAREST),
     ToLabel(),
 ])
+
+val_img_transform = Compose([
+Scale(train_img_shape, Image.BILINEAR),
+    PIL2NP(),
+    RGB2BGR(),
+    SubtractMeans(),
+    ToTensor(),
+])
+val_label_transform = Compose([Scale(cityscapes_image_shape, Image.NEAREST),# notice here, training, validation size difference, this is very tricky.
+                               ])
+
 
 src_dataset = get_dataset(dataset_name=args.src_dataset, split=args.src_split, img_transform=img_transform,
                           label_transform=label_transform, test=False, input_ch=args.input_ch)
@@ -239,18 +248,6 @@ def get_validation_miou(model_g, model_f1, model_f2, quick_test=1e10):
     model_f2.eval()
 
 
-
-    val_img_transform = Compose([
-        Scale(train_img_shape, Image.BILINEAR),
-        ToTensor(),
-        Normalize([.485, .456, .406], [.229, .224, .225]),
-
-    ])
-    val_label_transform = Compose([Scale(cityscapes_image_shape, Image.NEAREST),
-                               # ToTensor()
-                               ])
-
-    #notice here, training, validation size difference, this is very tricky.
 
     target_loader = data.DataLoader(get_dataset(dataset_name="city16", split="val",
         img_transform=val_img_transform,label_transform=val_label_transform, test=True, input_ch=3),
@@ -307,6 +304,8 @@ for epoch in tqdm(range(start_epoch, args.epochs)):
 
     for ind, batch_data in tqdm(enumerate(train_loader),total=len(train_loader), desc="epoch {}/{}".format(epoch, args.epochs)):
         if is_debug ==1 and ind > 3:break
+
+        if is_debug==2 and ind > 200:break
         source, target = batch_data
         src_imgs, src_lbls = Variable(source[0]), Variable(source[1])
         tgt_imgs = Variable(target[0])

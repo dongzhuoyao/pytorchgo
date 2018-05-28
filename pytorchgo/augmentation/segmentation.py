@@ -22,7 +22,7 @@ class RGB2BGR(object):
 
 
 class SubtractMeans(object):
-    def __init__(self, mean=(104, 117, 123)):
+    def __init__(self, mean=(104.00699, 116.66877, 122.67892)):#BGR order!
         self.mean = np.array(mean, dtype=np.float32)
 
     def __call__(self, image):

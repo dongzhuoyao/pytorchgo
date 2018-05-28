@@ -230,8 +230,10 @@ class MS_Deeplab(nn.Module):
     def forward(self,x):#x;[513, 513]
         input_size_x = x.size()[2]/8
         input_size_y = x.size()[3]/8
+        interp_origin = nn.UpsamplingBilinear2d(size=(input_size_x,input_size_y))
         result = self.Scale(x)# for original scale, [1, 21, 65, 65]
-        result = result[:,:,:input_size_x, :input_size_y]# qu zheng shu
+        #result = result[:,:,:input_size_x, :input_size_y]# qu zheng shu
+        result = interp_origin(result)
         return result
 
 

@@ -40,7 +40,7 @@ def train(args):
     # Setup Dataloader
     data_loader = get_loader(args.dataset)
     data_path = get_data_path(args.dataset)
-    t_loader = data_loader(data_path, is_transform=True, img_size=(args.img_rows, args.img_cols), epoch_scale=1, augmentations=data_aug, img_norm=args.img_norm)
+    t_loader = data_loader(data_path, is_transform=True, img_size=(args.img_rows, args.img_cols), epoch_scale=1, augmentations=data_aug, img_norm=False)
 
     n_classes = t_loader.n_classes
     trainloader = data.DataLoader(t_loader, batch_size=args.batch_size, num_workers=8, shuffle=True)
@@ -64,7 +64,7 @@ def train(args):
 
     def get_validation_miou(model):
         model.eval()
-        v_loader = data_loader(data_path, is_transform=True, split='val', img_size=(513, 513), img_norm=args.img_norm)
+        v_loader = data_loader(data_path, is_transform=True, split='val', img_size=(513, 513), img_norm=False)
         valloader = data.DataLoader(v_loader, batch_size=args.batch_size, num_workers=8)
         for i_val, (images_val, labels_val) in tqdm(enumerate(valloader), total=len(valloader), desc="validation"):
             if i_val > 5 and is_debug: break
@@ -72,7 +72,7 @@ def train(args):
             img_large[:, :, :images_val.shape[2], :images_val.shape[3]] = images_val
 
             output = model(Variable(img_large, volatile=True).cuda())
-            output = output[-1]
+            output = output[0]
             output = output.data.max(1)[1].cpu().numpy()
             pred = output[:, :images_val.shape[2], :images_val.shape[3]]
 
@@ -126,10 +126,11 @@ def train(args):
 
             optimizer.zero_grad()
             outputs = model(images) # use fusion score
-            loss = 0 #= CrossEntropyLoss2d_Seg(input=outputs[0], target=labels, class_num=n_classes)
+            loss = CrossEntropyLoss2d_Seg(input=outputs[0], target=labels, class_num=n_classes)
 
-            for i in range(len(outputs) - 1):
-                loss = loss + CrossEntropyLoss2d_Seg(input=outputs[i], target=labels, class_num=n_classes)
+            #for i in range(len(outputs) - 1):
+            #for i in range(1):
+            #    loss = loss + CrossEntropyLoss2d_Seg(input=outputs[i], target=labels, class_num=n_classes)
 
             loss.backward()
             optimizer.step()
