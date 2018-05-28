@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--n_epoch', nargs='?', type=int, default=16,
                         help='# of the epochs')
-    parser.add_argument('--batch_size', nargs='?', type=int, default=3,
+    parser.add_argument('--batch_size', nargs='?', type=int, default=1,
                         help='Batch Size')
     parser.add_argument('--l_rate', nargs='?', type=float, default=2.5e-4, # original implementation of deeplabv1 learning rate is 1e-3 and poly update
                         help='Learning Rate')

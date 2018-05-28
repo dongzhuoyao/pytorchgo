@@ -138,7 +138,7 @@ def train():
     logger.info('Loading the dataset...')
 
     epoch_size = len(dataset) // args.batch_size
-    logger.info('Training SSD on:', dataset.name)
+    logger.info('Training SSD on:{}'.format(dataset.name))
     logger.info('Using the specified args:')
     logger.info(args)
 
