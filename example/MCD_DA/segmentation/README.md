@@ -1,4 +1,7 @@
 # dongzhuoyao
+|arch|mIoU|
+|----|----|
+|adapt_trainer_onestep.synthia.drn105.lr1e-3.epoch20.poly|35.6|
 adapt_trainer_onestep.lr1e-3.epoch30, terminated, use poly instead
 
 
