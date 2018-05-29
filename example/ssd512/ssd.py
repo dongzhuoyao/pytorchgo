@@ -3,8 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from layers import *
-from data import voc, coco
+from data import v as cfg
 import os
+from IPython import embed
 
 
 class SSD(nn.Module):
@@ -19,8 +20,7 @@ class SSD(nn.Module):
 
     Args:
         phase: (string) Can be "test" or "train"
-        size: input image size
-        base: VGG16 layers for input, size of either 300 or 500
+        base: VGG16 layers for input, size of either 512
         extras: extra layers that feed to multibox loc and conf layers
         head: "multibox head" consists of loc and conf conv layers
     """
@@ -29,8 +29,8 @@ class SSD(nn.Module):
         super(SSD, self).__init__()
         self.phase = phase
         self.num_classes = num_classes
-        self.cfg = (coco, voc)[num_classes == 21]
-        self.priorbox = PriorBox(self.cfg)
+        # TODO: implement __call__ in PriorBox
+        self.priorbox = PriorBox(cfg[str(size)])
         self.priors = Variable(self.priorbox.forward(), volatile=True)
         self.size = size
 
@@ -43,15 +43,15 @@ class SSD(nn.Module):
         self.loc = nn.ModuleList(head[0])
         self.conf = nn.ModuleList(head[1])
 
-        if phase == 'test':
-            self.softmax = nn.Softmax(dim=-1)
-            self.detect = Detect(num_classes, bkg_label = 0, top_k = 200, conf_thresh = 0.01, nms_thresh = 0.45)
+        if self.phase == 'test':
+            self.softmax = nn.Softmax()
+            self.detect = Detect(num_classes, self.size, 0, 200, 0.01, 0.45)
 
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
 
         Args:
-            x: input image or batch of images. Shape: [batch,3,300,300].
+            x: input image or batch of images. Shape: [batch,3,300,300]. or [batch,3,512,512]
 
         Return:
             Depending on phase:
@@ -62,9 +62,9 @@ class SSD(nn.Module):
 
             train:
                 list of concat outputs from:
-                    1: confidence layers, Shape: [batch*num_priors,num_classes]
-                    2: localization layers, Shape: [batch,num_priors*4]
-                    3: priorbox layers, Shape: [2,num_priors*4]
+                    1: confidence layers, Shape: [batch,num_priors,num_classes]
+                    2: localization layers, Shape: [batch,num_priors,4]
+                    3: priorbox layers, Shape: [num_priors,4]
         """
         sources = list()
         loc = list()
@@ -98,8 +98,7 @@ class SSD(nn.Module):
         if self.phase == "test":
             output = self.detect(
                 loc.view(loc.size(0), -1, 4),                   # loc preds
-                self.softmax(conf.view(conf.size(0), -1,
-                             self.num_classes)),                # conf preds
+                self.softmax(conf.view(-1, self.num_classes)),  # conf preds
                 self.priors.type(type(x.data))                  # default boxes
             )
         else:
@@ -114,8 +113,7 @@ class SSD(nn.Module):
         other, ext = os.path.splitext(base_file)
         if ext == '.pkl' or '.pth':
             print('Loading weights into state dict...')
-            self.load_state_dict(torch.load(base_file,
-                                 map_location=lambda storage, loc: storage))
+            self.load_state_dict(torch.load(base_file, map_location=lambda storage, loc: storage))
             print('Finished!')
         else:
             print('Sorry only .pth and .pkl files supported.')
@@ -146,7 +144,7 @@ def vgg(cfg, i, batch_norm=False):
     return layers
 
 
-def add_extras(cfg, i, batch_norm=False):
+def add_extras(cfg, size, i, batch_norm=False):
     # Extra layers added to VGG for feature scaling
     layers = []
     in_channels = i
@@ -160,18 +158,25 @@ def add_extras(cfg, i, batch_norm=False):
                 layers += [nn.Conv2d(in_channels, v, kernel_size=(1, 3)[flag])]
             flag = not flag
         in_channels = v
+    # SSD512 need add one more Conv layer(Conv12_2)
+    if size == 512:
+        layers += [nn.Conv2d(in_channels, 256, kernel_size=4, padding=1)]
     return layers
 
 
 def multibox(vgg, extra_layers, cfg, num_classes):
     loc_layers = []
     conf_layers = []
-    vgg_source = [21, -2]
+    vgg_source = [24, -2]
     for k, v in enumerate(vgg_source):
-        loc_layers += [nn.Conv2d(vgg[v].out_channels,
-                                 cfg[k] * 4, kernel_size=3, padding=1)]
-        conf_layers += [nn.Conv2d(vgg[v].out_channels,
-                        cfg[k] * num_classes, kernel_size=3, padding=1)]
+        try:
+            loc_layers += [nn.Conv2d(vgg[v].out_channels,
+                                     cfg[k] * 4, kernel_size=3, padding=1)]
+            conf_layers += [nn.Conv2d(vgg[v].out_channels,
+                            cfg[k] * num_classes, kernel_size=3, padding=1)]
+        except:
+            import ipdb
+            ipdb.set_trace()
     for k, v in enumerate(extra_layers[1::2], 2):
         loc_layers += [nn.Conv2d(v.out_channels, cfg[k]
                                  * 4, kernel_size=3, padding=1)]
@@ -196,15 +201,16 @@ mbox = {
 }
 
 
-def build_ssd(phase, size=300, num_classes=21):
+def build_ssd(phase, size=512, num_classes=21):
     if phase != "test" and phase != "train":
-        print("ERROR: Phase: " + phase + " not recognized")
+        print("Error: Phase not recognized")
         return
-    if size != 300:
-        print("ERROR: You specified size " + repr(size) + ". However, " +
-              "currently only SSD300 (size=300) is supported!")
+    if size != 300 and size != 512:
+        print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
+
     base_, extras_, head_ = multibox(vgg(base[str(size)], 3),
-                                     add_extras(extras[str(size)], 1024),
-                                     mbox[str(size)], num_classes)
-    return SSD(phase, size, base_, extras_, head_, num_classes)
+             add_extras(extras[str(size)], size, 1024),
+             mbox[str(size)], num_classes)
+
+    return SSD(phase, size, base_, extras_, head_,  num_classes)

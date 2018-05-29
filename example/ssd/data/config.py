@@ -41,6 +41,22 @@ sim = { # simply a copy of voc
     'name': 'SIM10K',
 }
 
+sim512 = {
+        'num_classes': 2,
+        'lr_steps': (30000, 40000),  # (80000, 100000, 120000),
+        'max_iter': 40000,  # 120000,
+        'feature_maps' : [64, 32, 16, 8, 4, 2, 1],
+        'min_dim' : 512,
+        'steps' : [8, 16, 32, 64, 128, 256, 512],
+        'min_sizes' : [20, 51, 133, 215, 296, 378, 460],
+        'max_sizes' : [51, 133, 215, 296, 378, 460, 542],
+        'aspect_ratios' : [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],
+        'variance' : [0.1, 0.2],
+        'clip' : True,
+        'name' : 'SIM10K_512',
+}
+
+
 coco = {
     'num_classes': 201,
     'lr_steps': (280000, 360000, 400000),
