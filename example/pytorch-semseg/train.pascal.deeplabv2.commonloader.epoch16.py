@@ -27,24 +27,55 @@ from pytorchgo.loss import CrossEntropyLoss2d_Seg
 
 is_debug = 0
 
+train_img_shape = (473, 473)
+
 def train(args):
 
     logger.auto_set_dir()
     from pytorchgo.utils.pytorch_utils import set_gpu
-    set_gpu(2)
+    set_gpu(args.gpu)
 
-    # Setup Augmentations
-    data_aug= Compose([RandomRotate(10),                                        
-                       RandomHorizontallyFlip()])
 
     # Setup Dataloader
-    data_loader = get_loader(args.dataset)
-    data_path = get_data_path(args.dataset)
-    t_loader = data_loader(data_path, is_transform=True, img_size=(args.img_rows, args.img_cols), epoch_scale=1, augmentations=data_aug, img_norm=False)
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR,PIL_Scale, Value255to0, ToLabel
+    from torchvision.transforms import Compose, Normalize, ToTensor
+    img_transform = Compose([  # notice the order!!!
+        PIL_Scale(train_img_shape, Image.BILINEAR),
+        PIL2NP(),
+        RGB2BGR(),
+        SubtractMeans(),
+        ToTensor(),
+    ])
 
-    n_classes = t_loader.n_classes
-    trainloader = data.DataLoader(t_loader, batch_size=args.batch_size, num_workers=8, shuffle=True)
+    label_transform = Compose([
+        PIL_Scale(train_img_shape, Image.NEAREST),
+        PIL2NP(),
+        Value255to0(),
+        ToLabel()
 
+    ])
+
+    val_img_transform = Compose([
+        PIL_Scale(train_img_shape, Image.BILINEAR),
+        PIL2NP(),
+        RGB2BGR(),
+        SubtractMeans(),
+        ToTensor(),
+    ])
+    val_label_transform = Compose([PIL_Scale(train_img_shape, Image.NEAREST),
+                                   PIL2NP(),
+                                   ToLabel(),
+                                   # notice here, training, validation size difference, this is very tricky.
+                                   ])
+
+    from pytorchgo.dataloader.pascal_voc_loader import pascalVOCLoader as common_voc_loader
+    train_loader = common_voc_loader( split="train_aug", epoch_scale=1, img_transform=img_transform, label_transform=label_transform)
+
+    n_classes = train_loader.n_classes
+    trainloader = data.DataLoader(train_loader, batch_size=args.batch_size, num_workers=8, shuffle=True)
+
+    validation_loader = common_voc_loader(split='val',  img_transform=val_img_transform, label_transform=val_label_transform)
+    valloader = data.DataLoader(validation_loader, batch_size=args.batch_size, num_workers=8)
 
     # Setup Metrics
     running_metrics = runningScore(n_classes)
@@ -54,7 +85,7 @@ def train(args):
     from pytorchgo.model.deeplabv1 import VGG16_LargeFoV
     from pytorchgo.model.deeplab_resnet import Res_Deeplab
 
-    model = Res_Deeplab(NoLabels=n_classes, pretrained=True)
+    model = Res_Deeplab(NoLabels=n_classes, pretrained=True, output_all=False)
 
     from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
     model_summary(model)
@@ -64,17 +95,17 @@ def train(args):
 
     def get_validation_miou(model):
         model.eval()
-        v_loader = data_loader(data_path, is_transform=True, split='val', img_size=(513, 513), img_norm=False)
-        valloader = data.DataLoader(v_loader, batch_size=args.batch_size, num_workers=8)
         for i_val, (images_val, labels_val) in tqdm(enumerate(valloader), total=len(valloader), desc="validation"):
-            if i_val > 5 and is_debug: break
-            img_large = torch.Tensor(np.zeros((1, 3, 513, 513)))
-            img_large[:, :, :images_val.shape[2], :images_val.shape[3]] = images_val
+            if i_val > 5 and is_debug==1: break
+            if i_val > 200 and is_debug==2:break
 
-            output = model(Variable(img_large, volatile=True).cuda())
-            output = output[0]
-            output = output.data.max(1)[1].cpu().numpy()
-            pred = output[:, :images_val.shape[2], :images_val.shape[3]]
+            #img_large = torch.Tensor(np.zeros((1, 3, 513, 513)))
+            #img_large[:, :, :images_val.shape[2], :images_val.shape[3]] = images_val
+
+            output = model(Variable(images_val, volatile=True).cuda())
+            output = output
+            pred = output.data.max(1)[1].cpu().numpy()
+            #pred = output[:, :images_val.shape[2], :images_val.shape[3]]
 
             gt = labels_val.numpy()
 
@@ -113,9 +144,9 @@ def train(args):
     for epoch in tqdm(range(args.n_epoch),total=args.n_epoch):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader),total=len(trainloader), desc="training epoch {}/{}".format(epoch, args.n_epoch)):
-            if i > 10 and is_debug: break
+            if i > 10 and is_debug==1: break
 
-            if i> 200:break
+            if i> 200 and is_debug==2:break
 
             cur_iter = i + epoch*len(trainloader)
             cur_lr = adjust_learning_rate(optimizer,args.l_rate,cur_iter,args.n_epoch*len(trainloader),power=0.9)
@@ -126,7 +157,7 @@ def train(args):
 
             optimizer.zero_grad()
             outputs = model(images) # use fusion score
-            loss = CrossEntropyLoss2d_Seg(input=outputs[0], target=labels, class_num=n_classes)
+            loss = CrossEntropyLoss2d_Seg(input=outputs, target=labels, class_num=n_classes)
 
             #for i in range(len(outputs) - 1):
             #for i in range(1):
@@ -141,7 +172,6 @@ def train(args):
 
 
         cur_miou = get_validation_miou(model)
-
         if cur_miou >= best_iou:
             best_iou = cur_miou
             state = {'epoch': epoch+1,
@@ -156,20 +186,10 @@ if __name__ == '__main__':
                         help='Architecture to use [\'fcn8s, unet, segnet etc\']')
     parser.add_argument('--dataset', nargs='?', type=str, default='pascal', 
                         help='Dataset to use [\'pascal, camvid, ade20k etc\']')
-    parser.add_argument('--img_rows', nargs='?', type=int, default=513,
-                        help='Height of the input image')
-    parser.add_argument('--img_cols', nargs='?', type=int, default=513,
-                        help='Width of the input image')
-
-    parser.add_argument('--img_norm', dest='img_norm', action='store_true', 
-                        help='Enable input image scales normalization [0, 1] | True by default')
-    parser.add_argument('--no-img_norm', dest='img_norm', action='store_false', 
-                        help='Disable input image scales normalization [0, 1] | True by default')
-    parser.set_defaults(img_norm=False)
 
     parser.add_argument('--n_epoch', nargs='?', type=int, default=16,
                         help='# of the epochs')
-    parser.add_argument('--batch_size', nargs='?', type=int, default=1,
+    parser.add_argument('--batch_size', nargs='?', type=int, default=3,
                         help='Batch Size')
     parser.add_argument('--l_rate', nargs='?', type=float, default=2.5e-4, # original implementation of deeplabv1 learning rate is 1e-3 and poly update
                         help='Learning Rate')
@@ -177,6 +197,8 @@ if __name__ == '__main__':
                         help='Divider for # of features to use')
     parser.add_argument('--resume', nargs='?', type=str, default=None,    
                         help='Path to previous saved model to restart from')
+    parser.add_argument('--gpu', type=int, default=1,
+                        help='gpu')
 
 
     args = parser.parse_args()

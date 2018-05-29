@@ -2,6 +2,7 @@
 |arch|mIoU|
 |----|----|
 |adapt_trainer_onestep.synthia.drn105.lr1e-3.epoch20.poly|35.6|
+|adapt_trainer_onestep.synthia.deeplabv2.lr2.5e-4.epoch20|29.6|
 adapt_trainer_onestep.lr1e-3.epoch30, terminated, use poly instead
 
 
