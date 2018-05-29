@@ -4,7 +4,7 @@ import torch
 from . import logger
 from termcolor import colored
 from tabulate import tabulate
-import warnings,os
+import warnings,os, sys
 
 
 def set_gpu(gpu):
@@ -18,6 +18,8 @@ def model_summary(model_list):
         model_list = [model_list]
 
     from operator import mul
+    if sys.version_info[0] >=3:
+        from functools import reduce
 
     for model in model_list:
         state_dict = model.state_dict().copy()

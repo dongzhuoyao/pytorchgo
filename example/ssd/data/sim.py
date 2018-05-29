@@ -129,7 +129,7 @@ class SimDetection(data.Dataset):
             target = np.array(target)
 
             try:
-                img, boxes, labels = self.transform(img, target[:, :4], target[:, 4]) #TODO, buggy here!!
+                img, boxes, labels = self.transform(img, target[:, :4], target[:, 4])
             except:
                 import traceback
                 traceback.print_exc()

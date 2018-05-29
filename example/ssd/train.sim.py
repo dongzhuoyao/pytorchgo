@@ -107,9 +107,13 @@ def train():
     ssd_net = build_ssd('train', cfg['min_dim'], cfg['num_classes'])
     net = ssd_net
 
-    if args.cuda:
+    from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
+
+    model_summary(ssd_net)
+
+    #if args.cuda:
         #net = torch.nn.DataParallel(ssd_net), if only one gpu, just comment it!!
-        cudnn.benchmark = True
+    #    cudnn.benchmark = True
 
     if args.resume:
         logger.info('Resuming training, loading {}...'.format(args.resume))
