@@ -86,6 +86,8 @@ def train(args):
         model.train()
         for i, (images, labels) in tqdm(enumerate(trainloader), total=len(trainloader),
                                         desc="training epoch {}/{}".format(epoch, args.n_epoch)):
+
+            #if i > 10:break
             cur_iter = i + epoch * len(trainloader)
             cur_lr = adjust_learning_rate(optimizer, args.l_rate, cur_iter, args.n_epoch * len(trainloader), power=0.9)
             # if i > 10:break

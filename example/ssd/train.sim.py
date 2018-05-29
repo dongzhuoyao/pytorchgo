@@ -44,7 +44,7 @@ parser.add_argument('--num_workers', default=4, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use CUDA to train model')
-parser.add_argument('--lr', '--learning-rate', default=1e-4, type=float,
+parser.add_argument('--lr', '--learning-rate', default=6e-4, type=float,
                     help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float,
                     help='Momentum value for optim')
@@ -166,6 +166,9 @@ def train():
 
     # create batch iterator
     batch_iterator = iter(data_loader)
+
+    cur_lr = args.lr
+
     for iteration in tqdm(range(args.start_iter, cfg['max_iter'])):
         if args.visdom and iteration != 0 and (iteration % epoch_size == 0):
             update_vis_plot(epoch, loc_loss, conf_loss, epoch_plot, None,
@@ -177,7 +180,7 @@ def train():
 
         if iteration in cfg['lr_steps']:
             step_index += 1
-            adjust_learning_rate(optimizer, args.gamma, step_index)
+            cur_lr = adjust_learning_rate(optimizer, args.gamma, step_index)
 
         # load train data
         #images, targets = next(batch_iterator)
@@ -208,8 +211,8 @@ def train():
         conf_loss += loss_c.data[0]
 
         if iteration % 10 == 0:
-            logger.info('timer: {} sec.'.format(t1 - t0))
-            logger.info('iter {}/{} || Loss: {} ||'.format(repr(iteration), cfg['max_iter'], loss.data[0]))
+            #logger.info('timer: {} sec.'.format(t1 - t0))
+            logger.info('iter {}/{}  Loss: {} lr:{}'.format(repr(iteration), cfg['max_iter'], loss.data[0], cur_lr))
 
         if args.visdom:
             update_vis_plot(iteration, loss_l.data[0], loss_c.data[0],
@@ -231,6 +234,7 @@ def adjust_learning_rate(optimizer, gamma, step):
     lr = args.lr * (gamma ** (step))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+    return lr
 
 
 def xavier(param):

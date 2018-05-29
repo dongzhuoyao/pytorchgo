@@ -28,7 +28,7 @@ voc = {
 
 sim = { # simply a copy of voc
     'num_classes': 2,
-    'lr_steps': (26000, 33000, 40000),#(80000, 100000, 120000),
+    'lr_steps': (30000, 40000),#(80000, 100000, 120000),
     'max_iter': 40000,#120000,
     'feature_maps': [38, 19, 10, 5, 3, 1],
     'min_dim': 300,#TODO???
