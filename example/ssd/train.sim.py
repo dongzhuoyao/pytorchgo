@@ -44,7 +44,7 @@ parser.add_argument('--num_workers', default=4, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use CUDA to train model')
-parser.add_argument('--lr', '--learning-rate', default=6e-4, type=float,
+parser.add_argument('--lr', '--learning-rate', default=3e-4, type=float,
                     help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float,
                     help='Momentum value for optim')
