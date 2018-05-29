@@ -6,6 +6,9 @@ from termcolor import colored
 from tabulate import tabulate
 import warnings,os, sys
 
+if sys.version_info[0] >= 3:
+    logger.warn("use reduce from functools...")
+    from functools import reduce
 
 def set_gpu(gpu):
     if not isinstance(gpu, str):
@@ -18,8 +21,7 @@ def model_summary(model_list):
         model_list = [model_list]
 
     from operator import mul
-    if sys.version_info[0] >=3:
-        from functools import reduce
+
 
     for model in model_list:
         state_dict = model.state_dict().copy()

@@ -186,3 +186,10 @@ class SimDetection(data.Dataset):
             tensorized version of img, squeezed
         '''
         return torch.Tensor(self.pull_image(index)).unsqueeze_(0)
+
+
+if __name__ == '__main__':
+    from utils.augmentations import SSDAugmentation
+    dataset = SimDetection(root=Sim_ROOT,
+                           transform=SSDAugmentation(300,
+                                                     (104, 117, 123)))

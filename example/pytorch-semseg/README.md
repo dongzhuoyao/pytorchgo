@@ -4,6 +4,7 @@
 |----|----|----|
 train.pascal.deeplabv1|55.7|?|
 train.pascal.deeplabv2|64.46|
+train.pascal.deeplabv2.commonloader(new dataset)|48.48|
 
 batch size=1 training will cause very low mIoU.
 

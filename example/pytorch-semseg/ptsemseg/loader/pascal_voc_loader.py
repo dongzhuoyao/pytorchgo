@@ -96,7 +96,7 @@ class pascalVOCLoader(data.Dataset):
         im = m.imread(im_path)
         im = np.array(im, dtype=np.uint8)
         lbl = m.imread(lbl_path)
-        lbl = np.array(lbl, dtype=np.uint8)
+        lbl = np.array(lbl, dtype=np.int8)
         if True:
             pass
         if self.augmentations is not None:

@@ -37,7 +37,7 @@ def train(args):
     # Setup Dataloader
     from pascal_voc_loader_64_46 import pascalVOCLoader
     data_loader = pascalVOCLoader
-    data_path = "/home/hutao/dataset/pascalvoc2012"
+    data_path = "/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012"
     t_loader = data_loader(data_path, is_transform=True, img_size=(args.img_rows, args.img_cols), epoch_scale=1,
                            augmentations=data_aug, img_norm=args.img_norm)
     v_loader = data_loader(data_path, is_transform=True, split='val', img_size=(args.img_rows, args.img_cols),
