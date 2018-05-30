@@ -24,7 +24,10 @@ import argparse
 import numpy as np
 import pickle
 import cv2
+from pytorchgo.utils import logger
 is_debug = 0
+
+txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
@@ -37,8 +40,6 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detection')
 parser.add_argument('--trained_model', default='/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.sim.512.wrong_settting_car_bg/ssd_39999.pth',
                     type=str, help='Trained state_dict file path to open')
-parser.add_argument('--save_folder', default='eval/', type=str,
-                    help='File path to save results')
 parser.add_argument('--confidence_threshold', default=0.01, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
@@ -48,13 +49,12 @@ parser.add_argument('--cuda', default=True, type=str2bool,
 parser.add_argument('--voc_root', default='/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012', help='Location of VOC root directory')
 
 args = parser.parse_args()
+logger.auto_set_dir()
 
 from pytorchgo.utils.pytorch_utils import set_gpu
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
-if not os.path.exists(args.save_folder):
-    os.mkdir(args.save_folder)
 
 if args.cuda and torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -63,9 +63,6 @@ else:
 
 annopath = os.path.join(args.voc_root, 'Annotations', '%s.xml')
 imgpath = os.path.join(args.voc_root,  'JPEGImages', '%s.jpg')
-imgsetpath = os.path.join(args.voc_root, 'ImageSets', 'Main', '{:s}.txt')
-YEAR = '2007'
-devkit_path = Sim_ROOT
 dataset_mean = (104, 117, 123)
 set_type = 'test'
 
@@ -114,22 +111,11 @@ def parse_rec(filename):
     return objects
 
 
-def get_output_dir(name, phase):
-    """Return the directory where experimental artifacts are placed.
-    If the directory does not exist, it is created.
-    A canonical path is built using the name from an imdb and a network
-    (if not None).
-    """
-    filedir = os.path.join(name, phase)
-    if not os.path.exists(filedir):
-        os.makedirs(filedir)
-    return filedir
-
 
 def get_voc_results_file_template(image_set, cls):
     # VOCdevkit/VOC2007/results/det_test_aeroplane.txt
     filename = 'det_' + image_set + '_%s.txt' % (cls)
-    filedir = os.path.join(devkit_path, 'results')
+    filedir = os.path.join(Sim_ROOT, 'results')
     if not os.path.exists(filedir):
         os.makedirs(filedir)
     path = os.path.join(filedir, filename)
@@ -154,22 +140,21 @@ def write_voc_results_file(all_boxes, dataset):
                                    dets[k, 2] + 1, dets[k, 3] + 1))
 
 
-def do_python_eval(output_dir='output', use_07=True):
-    cachedir = os.path.join(devkit_path, 'annotations_cache')
+def do_python_eval( use_07=True):
+    cachedir = os.path.join(Sim_ROOT, 'annotations_cache')
     aps = []
     # The PASCAL VOC metric changed in 2010
     use_07_metric = use_07
     log.l.info('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
-    if not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
+
     for i, cls in enumerate(labelmap):
         filename = get_voc_results_file_template(set_type, cls)
         rec, prec, ap = voc_eval(
-           filename, annopath, "", cls, cachedir,
+           filename, annopath, cls, cachedir,
            ovthresh=0.5, use_07_metric=use_07_metric)
         aps += [ap]
         log.l.info('AP for {} = {:.4f}'.format(cls, ap))
-        with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:
+        with open(os.path.join(logger.get_logger_dir(), cls + '_pr.pkl'), 'wb') as f:
             pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     log.l.info('Mean AP = {:.4f}'.format(np.mean(aps)))
     log.l.info('~~~~~~~~')
@@ -221,7 +206,6 @@ def voc_ap(rec, prec, use_07_metric=True):
 
 def voc_eval(detpath,
              annopath,
-             imagesetfile,
              classname,
              cachedir,
              ovthresh=0.5,
@@ -253,8 +237,9 @@ cachedir: Directory for caching the annotations
         os.mkdir(cachedir)
     cachefile = os.path.join(cachedir, 'annots.pkl')
     # read list of images
-    with open("/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt", 'r') as f:
+    with open(txt_path, 'r') as f:
         imagenames = [x.strip().split(" ")[0].replace(".jpg","") for x in f.readlines()]
+
     if not os.path.isfile(cachefile):
         # load annots
         recs = {}
@@ -365,7 +350,6 @@ def test_net(net, dataset):
 
     # timers
     _t = {'im_detect': Timer(), 'misc': Timer()}
-    output_dir = get_output_dir('ssd512_120000', set_type)
 
     for i in tqdm(range(num_images),total=num_images):
         if i > 10 and is_debug==1:break
@@ -400,16 +384,16 @@ def test_net(net, dataset):
         log.l.info('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1,
                                                     num_images, detect_time))
 
-    with open(os.path.join(output_dir, 'detections.pkl'), 'wb') as f:
+    with open(os.path.join(logger.get_logger_dir(), 'detections.pkl'), 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
 
     log.l.info('Evaluating detections')
-    evaluate_detections(all_boxes, output_dir, dataset)
+    evaluate_detections(all_boxes, dataset)
 
 
-def evaluate_detections(box_list, output_dir, dataset):
+def evaluate_detections(box_list, dataset):
     write_voc_results_file(box_list, dataset)
-    do_python_eval(output_dir)
+    do_python_eval()
 
 
 if __name__ == '__main__':
