@@ -3,6 +3,11 @@
 Request: Python3.5, Pytorch 0.3.x
 
 
+|arch|mAP|
+|----|----|
+|wrong setting, 2 class|71.3|
+
+
 # pytorch-ssd
 
 by Sheng Tao, Qijie Zhao, Feng Ni. (VDIG，PKU)

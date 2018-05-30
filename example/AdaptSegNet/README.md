@@ -4,6 +4,7 @@
 |----|----|----|
 |deeplabv2.synthia2cityscapes.single|0.329757171308|36.74|
 |deeplabv2.synthia2cityscapes.single|0.335974649209|37.56|
+deeplabv2.synthia2cityscapes.single.8k|--|38.04|
 |deeplabv2.gta2cityscapes.single|--|39.834|
 |~~fcn8s.synthia2cityscapes.single~~|0.29426|27|
 

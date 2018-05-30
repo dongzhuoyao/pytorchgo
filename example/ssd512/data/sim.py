@@ -19,10 +19,10 @@ else:
     import xml.etree.ElementTree as ET
 
 Sim_CLASSES = (  # always index 0
-    'car','motorbike')
+    'car')
 
 # note: if you used our download scripts, this should be right
-Sim_ROOT = 'data/sim-dataset/VOC2012'
+Sim_ROOT = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'
 
 #size:  (1052, 1914)
 class SimAnnotationTransform(object):
@@ -39,8 +39,8 @@ class SimAnnotationTransform(object):
     """
 
     def __init__(self, class_to_ind=None, keep_difficult=False):
-        self.class_to_ind = class_to_ind or dict(
-            zip(Sim_CLASSES, range(len(Sim_CLASSES))))
+        #self.class_to_ind = class_to_ind or dict(zip(Sim_CLASSES, range(len(Sim_CLASSES))))
+        self.class_to_ind = {'car':0}
         self.keep_difficult = keep_difficult
 
     def __call__(self, target, width, height):

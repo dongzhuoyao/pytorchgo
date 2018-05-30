@@ -27,7 +27,7 @@ SAVE_PATH = './result/cityscapes'
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
 #RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
-RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single/model_best.pth.tar'
+RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single.8k/checkpoint.pth.tar'
 SET = 'val'
 
 palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,
@@ -59,9 +59,9 @@ def get_arguments():
                         help="The index of the label to ignore during the training.")
     parser.add_argument("--num-classes", type=int, default=NUM_CLASSES,
                         help="Number of classes to predict (including background).")
-    parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
+    parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
-    parser.add_argument("--gpu", type=int, default=0,
+    parser.add_argument("--gpu", type=int, default=1,
                         help="choose gpu device.")
     parser.add_argument("--set", type=str, default=SET,
                         help="choose evaluation set.")
@@ -96,7 +96,7 @@ def main():
     model.eval()
     model.cuda(gpu0)
 
-    image_size = (1280,720) #(2048, 1024)
+    image_size = (1024, 512)#(1280,720) #(2048, 1024)
     cityscape_image_size = (2048, 1024)
 
     print ("evaluating {}".format(args.restore_from))
@@ -130,6 +130,7 @@ def main():
 
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
+    print("tensorpack IoU: {}".format(stat.mIoU_beautify))
     print("tensorpack class16 IoU: {}".format(np.sum(stat.IoU)/16))
     print("tensorpack mIoU: {}".format(stat.mIoU))
     print("tensorpack mean_accuracy: {}".format(stat.mean_accuracy))
