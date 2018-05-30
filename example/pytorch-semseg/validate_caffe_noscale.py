@@ -27,7 +27,7 @@ from ptsemseg.utils import convert_state_dict
 torch.backends.cudnn.benchmark = True
 
 cudnn.benchmark = True
-os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 #
 def validate(args):
