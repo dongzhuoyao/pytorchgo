@@ -25,9 +25,13 @@ import numpy as np
 import pickle
 import cv2
 from pytorchgo.utils import logger
-is_debug = 1
+is_debug = 0
 
 txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
+sim_path = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'
+restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.sim.512.wrong_settting_car_bg/ssd_39999.pth'
+dataset_mean = (104, 117, 123)
+set_type = 'test'
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
@@ -38,7 +42,7 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detection')
-parser.add_argument('--trained_model', default='/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.sim.512.wrong_settting_car_bg/ssd_39999.pth',
+parser.add_argument('--trained_model', default=restore_from,
                     type=str, help='Trained state_dict file path to open')
 parser.add_argument('--confidence_threshold', default=0.01, type=float,
                     help='Detection confidence threshold')
@@ -46,10 +50,12 @@ parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use cuda to train model')
-parser.add_argument('--voc_root', default='/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012', help='Location of VOC root directory')
+parser.add_argument('--sim_root', default=sim_path, help='Location of VOC root directory')
 
 args = parser.parse_args()
 logger.auto_set_dir()
+
+per_class_result_path = os.path.join(logger.get_logger_dir(),"per_class_det_result.txt")
 
 from pytorchgo.utils.pytorch_utils import set_gpu
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -61,10 +67,9 @@ if args.cuda and torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.voc_root, 'Annotations', '%s.xml')
-imgpath = os.path.join(args.voc_root,  'JPEGImages', '%s.jpg')
-dataset_mean = (104, 117, 123)
-set_type = 'test'
+annopath = os.path.join(args.sim_root, 'Annotations', '%s.xml')
+imgpath = os.path.join(args.sim_root,  'JPEGImages', '%s.jpg')
+
 
 class Timer(object):
     """A simple timer."""
@@ -111,22 +116,10 @@ def parse_rec(filename):
     return objects
 
 
-
-def get_voc_results_file_template(image_set, cls):
-    # VOCdevkit/VOC2007/results/det_test_aeroplane.txt
-    filename = 'det_' + image_set + '_%s.txt' % (cls)
-    filedir = os.path.join(Sim_ROOT, 'results')
-    if not os.path.exists(filedir):
-        os.makedirs(filedir)
-    path = os.path.join(filedir, filename)
-    return path
-
-
 def write_voc_results_file(all_boxes, dataset):
     for cls_ind, cls in enumerate(labelmap):
         log.l.info('Writing {:s} VOC results file'.format(cls))
-        filename = get_voc_results_file_template(set_type, cls)
-        with open(filename, 'wt') as f:
+        with open(per_class_result_path, 'wt') as f:
             for im_ind, index in enumerate(dataset.ids):
                 dets = all_boxes[cls_ind+1][im_ind]
                 if dets == []:
@@ -148,9 +141,8 @@ def do_python_eval( use_07=True):
     log.l.info('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
 
     for i, cls in enumerate(labelmap):
-        filename = get_voc_results_file_template(set_type, cls)
         rec, prec, ap = voc_eval(
-           filename, annopath, cls, cachedir,
+            per_class_result_path, annopath, cls, cachedir,
            ovthresh=0.5, use_07_metric=use_07_metric)
         aps += [ap]
         log.l.info('AP for {} = {:.4f}'.format(cls, ap))
@@ -361,14 +353,14 @@ def test_net(net, dataset):
         if args.cuda:
             x = x.cuda()
         _t['im_detect'].tic()
-        detections = net(x).data
+        detections = net(x).data #[1, 2, 200, 5]
         detect_time = _t['im_detect'].toc(average=False)
 
         # skip j = 0, because it's the background class
-        for j in range(1, detections.size(1)):#TODO?
-            dets = detections[0, j, :]
-            mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t()
-            dets = torch.masked_select(dets, mask).view(-1, 5)
+        for j in range(1, detections.size(1)):# this is by default!
+            dets = detections[0, j, :]#[200, 5]
+            mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t() #[200, 5]
+            dets = torch.masked_select(dets, mask).view(-1, 5) #[129, 5]
             if dets.dim() == 0:
                 continue
             boxes = dets[:, 1:]
@@ -378,13 +370,13 @@ def test_net(net, dataset):
             boxes[:, 3] *= h
             scores = dets[:, 0].cpu().numpy()
             cls_dets = np.hstack((boxes.cpu().numpy(), scores[:, np.newaxis])) \
-                .astype(np.float32, copy=False)
+                .astype(np.float32, copy=False) #[129, 5]
             all_boxes[j][i] = cls_dets
 
         log.l.info('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1,
                                                     num_images, detect_time))
 
-    with open(os.path.join(logger.get_logger_dir(), 'detections.pkl'), 'wb') as f:
+    with open(os.path.join(logger.get_logger_dir(), 'detection_result.pkl'), 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
 
     log.l.info('Evaluating detections')
