@@ -5,7 +5,8 @@ Request: Python3.5, Pytorch 0.3.x
 
 |arch|mAP|
 |----|----|
-|wrong setting, 2 class|71.3|
+|wrong setting, 2 class,epoch35000|71.3|
+|wrong setting, 2 class,epoch40000|71.2|
 
 
 # pytorch-ssd
