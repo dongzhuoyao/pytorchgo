@@ -14,16 +14,17 @@ import os
 import os.path as osp
 from model import Res_Deeplab
 from loss import CrossEntropy2d
-from datasets_dongzhuoyao import VOCDataSet
+from datasets import VOCDataSet
 import matplotlib.pyplot as plt
 import random
 import timeit
+from tqdm import tqdm
 start = timeit.default_timer()
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 10
-DATA_DIRECTORY = '/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
+DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'train_aug.txt'
 IGNORE_LABEL = 255
 INPUT_SIZE = '321,321'
@@ -33,13 +34,12 @@ NUM_CLASSES = 21
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = './dataset/MS_DeepLab_resnet_pretrained_COCO_init.pth'
+RESTORE_FROM = '/home/hutao/data/models/pytorch/MS_DeepLab_resnet_pretrained_COCO_init.pth'
 SAVE_NUM_IMAGES = 2
 SAVE_PRED_EVERY = 1000
-SNAPSHOT_DIR = './snapshots/'
 WEIGHT_DECAY = 0.0005
 
-
+from pytorchgo.utils import logger
 
 
 def get_arguments():
@@ -85,8 +85,6 @@ def get_arguments():
                         help="How many images to save.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
-    parser.add_argument("--snapshot-dir", type=str, default=SNAPSHOT_DIR,
-                        help="Where to save snapshots of the model.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
     parser.add_argument("--gpu", type=int, default=0,
@@ -94,6 +92,8 @@ def get_arguments():
     return parser.parse_args()
 
 args = get_arguments()
+
+logger.auto_set_dir()
 
 random.seed(args.random_seed)
 
@@ -192,8 +192,7 @@ def main():
     
     cudnn.benchmark = True
 
-    if not os.path.exists(args.snapshot_dir):
-        os.makedirs(args.snapshot_dir)
+
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
         PascalPadding
@@ -226,7 +225,7 @@ def main():
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
 
-    for i_iter, batch in enumerate(trainloader):
+    for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
 
@@ -238,19 +237,19 @@ def main():
         optimizer.step()
 
         
-        print 'iter = ', i_iter, 'of', args.num_steps,'completed, loss = ', loss.data.cpu().numpy()
+        logger.info('loss = {}'.format(loss.data.cpu().numpy()))
 
         if i_iter >= args.num_steps-1:
-            print 'save model ...'
-            torch.save(model.state_dict(),osp.join(args.snapshot_dir, 'VOC12_scenes_'+str(args.num_steps)+'.pth'))
+            logger.info( 'save model ...')
+            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(args.num_steps)+'.pth'))
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
-            print 'taking snapshot ...'
-            torch.save(model.state_dict(),osp.join(args.snapshot_dir, 'VOC12_scenes_'+str(i_iter)+'.pth'))     
+            logger.info('taking snapshot ...')
+            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(i_iter)+'.pth'))
 
     end = timeit.default_timer()
-    print end-start,'seconds'
+    logger.info("Congrats~")
 
 if __name__ == '__main__':
     main()
