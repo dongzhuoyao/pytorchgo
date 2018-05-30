@@ -19,7 +19,7 @@ else:
     import xml.etree.ElementTree as ET
 
 Sim_CLASSES = (  # always index 0
-    'car')
+    'car',)
 
 # note: if you used our download scripts, this should be right
 Sim_ROOT = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'

@@ -25,7 +25,7 @@ import numpy as np
 import pickle
 import cv2
 from pytorchgo.utils import logger
-is_debug = 0
+is_debug = 1
 
 txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
 
@@ -346,7 +346,7 @@ def test_net(net, dataset):
     #    all_boxes[cls][image] = N x 5 array of detections in
     #    (x1, y1, x2, y2, score)
     all_boxes = [[[] for _ in range(num_images)]
-                 for _ in range(len(labelmap)+1)]#one background
+                 for _ in range(len(labelmap)+1)]#plus the background
 
     # timers
     _t = {'im_detect': Timer(), 'misc': Timer()}
@@ -365,7 +365,7 @@ def test_net(net, dataset):
         detect_time = _t['im_detect'].toc(average=False)
 
         # skip j = 0, because it's the background class
-        for j in range(1, detections.size(1)):
+        for j in range(1, detections.size(1)):#TODO?
             dets = detections[0, j, :]
             mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t()
             dets = torch.masked_select(dets, mask).view(-1, 5)
@@ -399,12 +399,13 @@ def evaluate_detections(box_list, dataset):
 if __name__ == '__main__':
     # load net
     num_classes = 2
-    net = build_ssd('test', 512, num_classes) # initialize SSD
+    image_size = 512
+    net = build_ssd('test', image_size, num_classes) # initialize SSD
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
     log.l.info('Finished loading model!')
     # load data
-    dataset = SimDetection(transform=BaseTransform(512, dataset_mean), target_transform=SimAnnotationTransform())
+    dataset = SimDetection(transform=BaseTransform(image_size, dataset_mean), target_transform=SimAnnotationTransform())
     if args.cuda:
         net = net.cuda()
         cudnn.benchmark = True
