@@ -1,11 +1,17 @@
 # dongzhuoyao
+source image size: 1280x720
+
+target image size: 1024x512
+
 
 |arch|uniform 2048x1024 mIoU|mIoU|
 |----|----|----|
-|deeplabv2.synthia2cityscapes.single|0.329757171308|36.74|
-|deeplabv2.synthia2cityscapes.single|0.335974649209|37.56|
-deeplabv2.synthia2cityscapes.single.8k|--|38.04|
-|deeplabv2.gta2cityscapes.single|--|39.834|
+|deeplabv2.synthia2cityscapes.single|0.329757171308|36.74(1280x720,buggy)|
+|deeplabv2.synthia2cityscapes.single|0.335974649209|37.56(1280x720,buggy)|
+deeplabv2.synthia2cityscapes.single.8k|--|38.04(1280x720,buggy)|
+|deeplabv2.gta2cityscapes.single|--|39.834(1280x720,buggy)|
+deeplabv2.gta2cityscapes.multi|--|40.337(1280x720,buggy)|
+deeplabv2.synthia2cityscapes.multi.8k|--|48k iters= 38.69(1280x720,buggy)|
 |~~fcn8s.synthia2cityscapes.single~~|0.29426|27|
 
 ## paper result

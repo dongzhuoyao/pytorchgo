@@ -53,10 +53,10 @@ LAMBDA_ADV_TARGET2 = 0.001
 
 TARGET = 'cityscapes'
 SET = 'train'
-GPU = 0
+GPU = 4
 
-#SOURCE_DATA = "GTA5"
-SOURCE_DATA = "SYNTHIA"
+
+SOURCE_DATA = "GTA5"
 
 if SOURCE_DATA == "GTA5":
     DATA_DIRECTORY = './data/GTA5'
@@ -71,15 +71,11 @@ elif SOURCE_DATA == "SYNTHIA":
     DATA_LIST_PATH = './dataset/synthia_list/SYNTHIA_imagelist_train.txt'
     LABEL_LIST_PATH =  './dataset/synthia_list/SYNTHIA_labellist_train.txt'
 
-    NUM_STEPS = 250000
-    NUM_STEPS_STOP = 80000  # early stopping
+    NUM_STEPS = 160000
+    NUM_STEPS_STOP = 50000  # early stopping
     SAVE_PRED_EVERY = 2000
 else:
     raise ValueError
-
-is_debug = 1
-if is_debug==1:
-    SAVE_PRED_EVERY = 5
 
 
 def get_arguments():
@@ -202,16 +198,10 @@ def proceed_test(model, input_size, quick_test = 1e10):
     from tensorpack.utils.stats import MIoUStatistics
     stat = MIoUStatistics(NUM_CLASSES)
 
-    if is_debug==1: quick_test = 10
-
     for index, batch in tqdm(enumerate(testloader), desc="validation"):
-
         if index > quick_test: break
 
         image, label, _, name = batch
-        if index == 0 and is_debug == 1:
-            pass
-            print name
         image, label = Variable(image, volatile=True), Variable(label)
 
         output1, output2 = model(image.cuda())#(1,19,129,257)
@@ -220,10 +210,10 @@ def proceed_test(model, input_size, quick_test = 1e10):
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
-    miou16 = np.sum(stat.IoU) / 16
-    logger.info("tensorpack class16 IoU: {}".format(miou16))
+    logger.info("tensorpack  class19 IoU: {}".format(stat.mIoU_beautify))
+    logger.info("tensorpack class19 mIoU: {}".format(stat.mIoU))
     model.train()
-    return miou16
+    return stat.mIoU
 
 
 
@@ -328,10 +318,6 @@ def main():
     target_label = 1
 
     best_mIoU = 0
-
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
-    model_summary([model,model_D1,model_D2])
-    optimizer_summary([optimizer,optimizer_D1,optimizer_D2])
 
     for i_iter in tqdm(range(args.num_steps_stop),total=args.num_steps_stop, desc="training"):
 
@@ -476,7 +462,7 @@ def main():
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info("saving snapshot.....")
-            cur_miou16 = proceed_test(model, input_size)
+            cur_miou16 = proceed_test(model, input_size_target)
             is_best = True if best_mIoU < cur_miou16 else False
             if is_best:
                 best_mIoU = cur_miou16
@@ -489,11 +475,11 @@ def main():
                 'model_D1_state_dict': model_D1.state_dict(),
                 'model_D2_state_dict': model_D2.state_dict(),
                 'best_mean_iu': cur_miou16,
-            }, osp.join(logger.get_logger_dir(), 'checkpoint.pth'))
+            }, osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'))
             if is_best:
                 import shutil
-                shutil.copy(osp.join(logger.get_logger_dir(), 'checkpoint.pth'),
-                            osp.join(logger.get_logger_dir(), 'model_best.pth'))
+                shutil.copy(osp.join(logger.get_logger_dir(), 'checkpoint.pth.tar'),
+                            osp.join(logger.get_logger_dir(), 'model_best.pth.tar'))
 
 
         if i_iter >= args.num_steps_stop - 1:

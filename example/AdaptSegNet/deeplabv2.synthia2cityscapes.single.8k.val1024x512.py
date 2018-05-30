@@ -77,7 +77,7 @@ elif SOURCE_DATA == "SYNTHIA":
 else:
     raise ValueError
 
-is_debug = 1
+is_debug = 0
 if is_debug==1:
     SAVE_PRED_EVERY = 5
 
@@ -476,7 +476,7 @@ def main():
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
             logger.info("saving snapshot.....")
-            cur_miou16 = proceed_test(model, input_size)
+            cur_miou16 = proceed_test(model, input_size_target)
             is_best = True if best_mIoU < cur_miou16 else False
             if is_best:
                 best_mIoU = cur_miou16

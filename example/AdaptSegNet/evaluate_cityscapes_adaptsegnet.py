@@ -26,23 +26,11 @@ SAVE_PATH = './result/cityscapes'
 
 IGNORE_LABEL = 255
 NUM_CLASSES = 19
+is_debug = 1
 #RESTORE_FROM = 'http://vllab.ucmerced.edu/ytsai/CVPR18/GTA2Cityscapes_multi-ed35151c.pth'
-RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single.8k/checkpoint.pth.tar'
-SET = 'val'
-
-palette = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102, 156, 190, 153, 153, 153, 153, 153, 250, 170, 30,
-           220, 220, 0, 107, 142, 35, 152, 251, 152, 70, 130, 180, 220, 20, 60, 255, 0, 0, 0, 0, 142, 0, 0, 70,
-           0, 60, 100, 0, 80, 100, 0, 0, 230, 119, 11, 32]
-zero_pad = 256 * 3 - len(palette)
-for i in range(zero_pad):
-    palette.append(0)
+RESTORE_FROM = 'train_log/deeplabv2.synthia2cityscapes.single.8k/model_best.pth'
 
 
-def colorize_mask(mask):
-    # mask: numpy array of the mask
-    new_mask = Image.fromarray(mask.astype(np.uint8)).convert('P')
-    new_mask.putpalette(palette)
-    return new_mask
 
 def get_arguments():
     """Parse all the arguments provided from the CLI.
@@ -61,9 +49,9 @@ def get_arguments():
                         help="Number of classes to predict (including background).")
     parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
-    parser.add_argument("--gpu", type=int, default=1,
+    parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
-    parser.add_argument("--set", type=str, default=SET,
+    parser.add_argument("--set", type=str, default='val',
                         help="choose evaluation set.")
     parser.add_argument("--save", type=str, default=SAVE_PATH,
                         help="Path to save result.")
@@ -78,7 +66,9 @@ def main():
 
     args = get_arguments()
 
-    gpu0 = args.gpu
+
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
     if not os.path.exists(args.save):
         os.makedirs(args.save)
@@ -94,7 +84,7 @@ def main():
     model.load_state_dict(saved_state_dict['model_state_dict'])
 
     model.eval()
-    model.cuda(gpu0)
+    model.cuda()
 
     image_size = (1024, 512)#(1280,720) #(2048, 1024)
     cityscape_image_size = (2048, 1024)
@@ -112,22 +102,18 @@ def main():
     stat = MIoUStatistics(NUM_CLASSES)
 
     for index, batch in tqdm(enumerate(testloader)):
+        if index > 10: break
         image,label, _, name = batch
+        if index == 0 and is_debug == 1:
+            pass
+            print name
+
         image, label = Variable(image, volatile=True), Variable(label)
 
-        #output2 = model(image.cuda(gpu0))
-        output1, output2 = model(image.cuda(gpu0))
+        output1, output2 = model(image.cuda())
         output = interp(output2).cpu().data[0].numpy()
-
         output = output.transpose(1,2,0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
-
-        output_col = colorize_mask(output)
-
-
-        name = name[0].split('/')[-1]
-        output_col.save('%s/%s_color.png' % (args.save, name.split('.')[0]))
-
         stat.feed(output, label.data.cpu().numpy().squeeze())
 
     print("tensorpack IoU: {}".format(stat.mIoU_beautify))
