@@ -44,11 +44,11 @@ def str2bool(v):
 logger.auto_set_dir()
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
-parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
+parser.add_argument('--dim', default=300, type=int, help='Size of the input image, only support 300 or 512')
 parser.add_argument('-d', '--dataset', default='SIM',help='VOC or COCO dataset')
 
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
-parser.add_argument('--batch_size', default=16, type=int, choices=[16, 32], help='Batch size for training')
+parser.add_argument('--batch_size', default=32, type=int, choices=[16, 32], help='Batch size for training')
 parser.add_argument('--resume', default=None, type=str, help='Resume from checkpoint')
 parser.add_argument('--num_workers', default=8, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--iterations', default=iterations, type=int, help='Number of training iterations')
@@ -58,7 +58,7 @@ parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
 parser.add_argument('--visdom', default=False, type=str2bool, help='Use visdom to for loss visualization')
-parser.add_argument('--gpu', default=2, type=int, help='gpu')
+parser.add_argument('--gpu', default=1, type=int, help='gpu')
 args = parser.parse_args()
 
 if args.cuda and torch.cuda.is_available():
