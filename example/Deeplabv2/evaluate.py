@@ -23,7 +23,7 @@ DATA_LIST_PATH = 'val.txt'
 NUM_CLASSES = 21
 NUM_STEPS = 1449 # Number of images in the validation set.
 input_size = (513, 513)
-RESTORE_FROM = 'train_log/train/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
+RESTORE_FROM = 'train_log/train.473/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
 
 def get_arguments():
     """Parse all the arguments provided from the CLI.
