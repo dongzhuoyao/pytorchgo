@@ -8,6 +8,8 @@ Request: Python3.5, Pytorch 0.3.x
 |ssd512,wrong setting, 2 class,epoch40000|71.2|
 |ssd512|71.6|
 |ssd300,wrong setting, 2 class,epoch40000|28.4|
+|ssd512|46.8|
+
 
 # pytorch-ssd
 

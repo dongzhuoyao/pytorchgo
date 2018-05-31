@@ -29,7 +29,7 @@ is_debug = 0
 
 txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
 sim_path = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'
-restore_from = '/home/hutao/lab/pytorchgo/example/ssd/train_log/train.sim/ssd300_SIM_35000.pth'
+restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.sim.300/ssd_39999.pth'
 dataset_mean = (104, 117, 123)
 set_type = 'test'
 
@@ -59,7 +59,7 @@ per_class_result_path = os.path.join(logger.get_logger_dir(),"per_class_det_resu
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 
 
 if args.cuda and torch.cuda.is_available():
