@@ -29,7 +29,7 @@ is_debug = 0
 
 txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
 sim_path = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'
-restore_from = 'train_log/train.sim.512/ssd_39999.pth'
+restore_from = '/home/hutao/lab/pytorchgo/example/ssd/train_log/train.sim/ssd300_SIM_35000.pth'
 dataset_mean = (104, 117, 123)
 set_type = 'test'
 
@@ -391,7 +391,7 @@ def evaluate_detections(box_list, dataset):
 if __name__ == '__main__':
     # load net
     num_classes = 2
-    image_size = 512
+    image_size = 300
     net = build_ssd('test', image_size, num_classes) # initialize SSD
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
