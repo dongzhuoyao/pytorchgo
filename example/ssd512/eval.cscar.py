@@ -10,11 +10,10 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-from data.sim import Sim_ROOT
-from data import Sim_CLASSES as labelmap
+from pytorchgo.dataloader.cs_car_loader import CsCar_CLASSES as labelmap
 import torch.utils.data as data
 from tqdm import tqdm
-from data import  BaseTransform, SimDetection, SimAnnotationTransform
+from data import  BaseTransform
 from ssd import build_ssd
 from log import log
 import sys
@@ -27,16 +26,11 @@ import cv2
 from pytorchgo.utils import logger
 is_debug = 1
 
-txt_path = "/home/hutao/lab/pytorchgo/dataset_list/sim10k/sim10k_car.txt"
-sim_path = '/home/hutao/lab/pytorchgo/example/ssd512/data/sim-dataset/VOC2012'
-restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.sim.300/ssd_39999.pth'
+txt_path = "/home/hutao/lab/pytorchgo/dataset_list/cityscapes_car/car_train.txt"
+sim_path = '/home/hutao/dataset/cityscapes'
+restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.cs_car.512/ssd-30000.pth'
 dataset_mean = (104, 117, 123)
-set_type = 'test'
 
-if sys.version_info[0] == 2:
-    import xml.etree.cElementTree as ET
-else:
-    import xml.etree.ElementTree as ET
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -55,7 +49,7 @@ parser.add_argument('--sim_root', default=sim_path, help='Location of VOC root d
 args = parser.parse_args()
 logger.auto_set_dir()
 
-per_class_result_path = os.path.join(logger.get_logger_dir(),"per_class_det_result.txt")
+per_class_result_path = os.path.join(logger.get_logger_dir(),"{}_det_result.txt")
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -66,9 +60,6 @@ if args.cuda and torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
-
-annopath = os.path.join(args.sim_root, 'Annotations', '%s.xml')
-imgpath = os.path.join(args.sim_root,  'JPEGImages', '%s.jpg')
 
 
 class Timer(object):
@@ -96,45 +87,41 @@ class Timer(object):
             return self.diff
 
 
-def parse_rec(filename):
-    """ Parse a PASCAL VOC xml file """
-    tree = ET.parse(filename)
+def parse_rec(annos):
+    detect_obj = annos.split(";")
     objects = []
-    for obj in tree.findall('object'):
+    for obj in detect_obj:
+        xmin = int(obj.split(",")[0])
+        ymin = int(obj.split(",")[1])
+        xmax = int(obj.split(",")[2])
+        ymax = int(obj.split(",")[3])
         obj_struct = {}
-        obj_struct['name'] = obj.find('name').text
-        obj_struct['pose'] = obj.find('pose').text
-        obj_struct['truncated'] = int(obj.find('truncated').text)
-        obj_struct['difficult'] = int(obj.find('difficult').text)
-        bbox = obj.find('bndbox')
-        obj_struct['bbox'] = [int(bbox.find('xmin').text) - 1,
-                              int(bbox.find('ymin').text) - 1,
-                              int(bbox.find('xmax').text) - 1,
-                              int(bbox.find('ymax').text) - 1]
+        obj_struct['name'] = 'car'
+        obj_struct['difficult'] = 0  # all is not difficult!
+        obj_struct['bbox'] = [xmin,ymin, xmax, ymax]
         objects.append(obj_struct)
 
     return objects
 
 
-def write_voc_results_file(all_boxes, dataset):
+def write_class_results_file(all_boxes, dataset):#each boundingbox a line
     for cls_ind, cls in enumerate(labelmap):
-        log.l.info('Writing {:s} VOC results file'.format(cls))
-        with open(per_class_result_path, 'wt') as f:
-            for im_ind, index in enumerate(dataset.ids):
+        log.l.info('Writing {:s} class det results file'.format(cls))
+        with open(per_class_result_path.format(cls), 'wt') as f:
+            for im_ind, index in enumerate(dataset.files):
                 dets = all_boxes[cls_ind+1][im_ind]
                 if dets == []:
                     continue
                 # the VOCdevkit expects 1-based indices
                 for k in range(dets.shape[0]):
-                    f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.
-                            #format(index[1], dets[k, -1],dongzhuoyao
-                                   format(index, dets[k, -1],
+                    cur_line = '{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(index.split(" ")[0], dets[k, -1],
                                    dets[k, 0] + 1, dets[k, 1] + 1,
-                                   dets[k, 2] + 1, dets[k, 3] + 1))
+                                   dets[k, 2] + 1, dets[k, 3] + 1)# image, score, minx,miny,maxx,maxy
+                    f.write(cur_line)
 
 
 def do_python_eval( use_07=True):
-    cachedir = os.path.join(Sim_ROOT, 'annotations_cache')
+    cachedir = os.path.join(logger.get_logger_dir(), 'annotations_cache')
     aps = []
     # The PASCAL VOC metric changed in 2010
     use_07_metric = use_07
@@ -142,7 +129,7 @@ def do_python_eval( use_07=True):
 
     for i, cls in enumerate(labelmap):
         rec, prec, ap = voc_eval(
-            per_class_result_path, annopath, cls, cachedir,
+            cls, cachedir,
            ovthresh=0.5, use_07_metric=use_07_metric)
         aps += [ap]
         log.l.info('AP for {} = {:.4f}'.format(cls, ap))
@@ -196,8 +183,7 @@ def voc_ap(rec, prec, use_07_metric=True):
     return ap
 
 
-def voc_eval(detpath,
-             annopath,
+def voc_eval(
              classname,
              cachedir,
              ovthresh=0.5,
@@ -230,16 +216,16 @@ cachedir: Directory for caching the annotations
     cachefile = os.path.join(cachedir, 'annots.pkl')
     # read list of images
     with open(txt_path, 'r') as f:
-        imagenames = [x.strip().split(" ")[0].replace(".jpg","") for x in f.readlines()]
+        image_dict = {x.strip().split(" ")[0]:x.strip().split(" ")[1] for x in f.readlines()}
 
-    if not os.path.isfile(cachefile):
+    if True:#not os.path.isfile(cachefile):
         # load annots
         recs = {}
-        for i, imagename in enumerate(imagenames):
-            recs[imagename] = parse_rec(annopath % (imagename))
+        for i, (imagename, annos) in enumerate(image_dict.items()):
+            recs[imagename] = parse_rec(annos)
             if i % 100 == 0:
                 log.l.info('Reading annotation for {:d}/{:d}'.format(
-                   i + 1, len(imagenames)))
+                   i + 1, len(image_dict)))
         # save
         log.l.info('Saving cached annotations to {:s}'.format(cachefile))
         with open(cachefile, 'wb') as f:
@@ -252,7 +238,7 @@ cachedir: Directory for caching the annotations
     # extract gt objects for this class
     class_recs = {}
     npos = 0
-    for imagename in imagenames:
+    for imagename in image_dict:
         R = [obj for obj in recs[imagename] if obj['name'] == classname]
         bbox = np.array([x['bbox'] for x in R])
         difficult = np.array([x['difficult'] for x in R]).astype(np.bool)
@@ -263,13 +249,13 @@ cachedir: Directory for caching the annotations
                                  'det': det}
 
     # read dets
-    detfile = detpath.format(classname)
+    detfile = per_class_result_path.format(classname)
     with open(detfile, 'r') as f:
-        lines = f.readlines()
-    if any(lines) == 1:
+        det_bd_lines = f.readlines()
+    if any(det_bd_lines) == 1:
 
-        splitlines = [x.strip().split(' ') for x in lines]
-        image_ids = [x[0] for x in splitlines]
+        splitlines = [x.strip().split(' ') for x in det_bd_lines]
+        image_ids = [x[0] for x in splitlines] # this may include dunplicat image_id, because each image may include many boundingboxes.
         confidence = np.array([float(x[1]) for x in splitlines])
         BB = np.array([[float(z) for z in x[2:]] for x in splitlines])
 
@@ -280,7 +266,7 @@ cachedir: Directory for caching the annotations
         image_ids = [image_ids[x] for x in sorted_ind]
 
         # go down dets and mark TPs and FPs
-        nd = len(image_ids)
+        nd = len(image_ids) # bound_box number
         tp = np.zeros(nd)
         fp = np.zeros(nd)
         for d in range(nd):
@@ -338,16 +324,16 @@ def test_net(net, dataset):
     #    all_boxes[cls][image] = N x 5 array of detections in
     #    (x1, y1, x2, y2, score)
     all_boxes = [[[] for _ in range(num_images)]
-                 for _ in range(len(labelmap)+1)]#plus the background
+                 for _ in range(len(labelmap)+1)]#plus the background, [class_num, image_num]
 
     # timers
     _t = {'im_detect': Timer(), 'misc': Timer()}
 
     for i in tqdm(range(num_images),total=num_images):
-        if i > 10 and is_debug==1:break
+        if i > 100 and is_debug==1:break
 
 
-        im, gt, h, w = dataset.pull_item(i)
+        im, gt, h, w = dataset.__getitem__(i)
 
         x = Variable(im.unsqueeze(0))
         if args.cuda:
@@ -359,8 +345,10 @@ def test_net(net, dataset):
         # skip j = 0, because it's the background class
         for j in range(1, detections.size(1)):# this is by default!
             dets = detections[0, j, :]#[200, 5]
+
             mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t() #[200, 5]
             dets = torch.masked_select(dets, mask).view(-1, 5) #[129, 5]
+
             if dets.dim() == 0:
                 continue
             boxes = dets[:, 1:]
@@ -384,20 +372,21 @@ def test_net(net, dataset):
 
 
 def evaluate_detections(box_list, dataset):
-    write_voc_results_file(box_list, dataset)
+    write_class_results_file(box_list, dataset)
     do_python_eval()
 
 
 if __name__ == '__main__':
     # load net
     num_classes = 2
-    image_size = 300
+    image_size = 512
     net = build_ssd('test', image_size, num_classes) # initialize SSD
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
     log.l.info('Finished loading model!')
     # load data
-    dataset = SimDetection(transform=BaseTransform(image_size, dataset_mean), target_transform=SimAnnotationTransform())
+    from pytorchgo.dataloader.cs_car_loader import CsCarDetection
+    dataset = CsCarDetection(transform=BaseTransform(image_size, dataset_mean))
     if args.cuda:
         net = net.cuda()
         cudnn.benchmark = True

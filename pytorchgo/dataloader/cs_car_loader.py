@@ -13,6 +13,9 @@ from torch.utils import data
 from PIL import Image
 from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 
+CsCar_CLASSES = (  # always index 0
+    'car',)
+
 
 class CsCarDetection(data.Dataset):
     def __init__(self, split='train',
@@ -25,27 +28,27 @@ class CsCarDetection(data.Dataset):
         self.split = split
         self.n_classes = 1
 
-        self.files = collections.defaultdict(list)
+        self.files = []
         self.epoch_scale = epoch_scale
         if self.split == 'train':
             with open(os.path.join(datalist, 'car_train.txt'),'r') as f:
                 lines = f.readlines()
-                self.files[self.split] = [tmp.strip() for tmp in lines] * epoch_scale
+                self.files = [tmp.strip() for tmp in lines] * epoch_scale
                 # here multiply a epoch scale to make the epoch size scalable!!
 
 
         if self.split == 'val':
             with open(os.path.join(datalist, 'car_val.txt'),'r') as f:
                 lines = f.readlines()
-                self.files[self.split] = [tmp.strip() for tmp in lines]
+                self.files = [tmp.strip() for tmp in lines]
 
 
 
     def __len__(self):
-        return len(self.files[self.split])
+        return len(self.files)
 
     def __getitem__(self, index):
-        img_label_str = self.files[self.split][index]
+        img_label_str = self.files[index]
 
 
         im_path, boundbox_liststr = img_label_str.strip().split(" ")
@@ -61,10 +64,10 @@ class CsCarDetection(data.Dataset):
         if False:
             draw = ImageDraw.Draw(img)
             for bb in boundbox_and_class_list:
-                min_x, max_x, min_y, max_y, class_index = bb
+                min_x,min_y, max_x, max_y, class_index = bb
                 draw.rectangle(((int(min_x), int(min_y)), (int(max_x), int(max_y))), outline="red")
-
             img.save("vis.jpg", "JPEG")
+            return
 
         img = np.asarray(img)
         height, width, channels = img.shape
@@ -73,8 +76,8 @@ class CsCarDetection(data.Dataset):
             min_x, min_y, max_x, max_y, class_index = bb
 
             min_x = float(min_x)/width#normalize 1
-            min_y = float(min_y)/width
-            max_x = float(max_x)/height
+            max_x = float(max_x)/width
+            min_y = float(min_y)/height
             max_y = float(max_y)/height
 
             class_index = int(class_index)
@@ -108,7 +111,7 @@ if __name__ == '__main__':
 
     from pytorchgo.augmentation.segmentation import PIL2NP
     from torchvision.transforms import Compose, Normalize, ToTensor
-    t_loader = CsCarLoader( split='val', img_transform=Compose([PIL2NP()]))
+    t_loader = CsCarDetection( split='train')
 
     trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
     for idx, data in enumerate(trainloader):

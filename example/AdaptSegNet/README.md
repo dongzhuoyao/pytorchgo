@@ -13,6 +13,8 @@ deeplabv2.synthia2cityscapes.single.8k|--|38.04(1280x720,buggy)|
 deeplabv2.gta2cityscapes.multi|--|40.337(1280x720,buggy)|
 deeplabv2.synthia2cityscapes.multi.8k|--|48k iters= 38.69(1280x720,buggy)|
 |~~fcn8s.synthia2cityscapes.single~~|0.29426|27|
+|deeplabv2.synthia2cityscapes.single.10k.val1024x512|--|35.67|
+|deeplabv2.gta2cityscapes.single.10k.val1024x512|--|36.96|
 
 ## paper result
 
