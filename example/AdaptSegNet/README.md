@@ -5,7 +5,12 @@
 |deeplabv2.synthia2cityscapes.single|0.329757171308|36.74|
 |deeplabv2.synthia2cityscapes.single|0.335974649209|37.56|
 deeplabv2.synthia2cityscapes.single.8k|--|38.04|
+deeplabv2.synthia2cityscapes.single.8k.val1024x512|--|37.5|
+deeplabv2.synthia2cityscapes.multi.10k.val1024x512|--|36.07|
 |deeplabv2.gta2cityscapes.single|--|39.834|
+|deeplabv2.gta2cityscapes.single.val1024x512|--|40.9|
+deeplabv2.gta2cityscapes.multi.val1024x512|--|41.5|
+deeplabv2.gta2cityscapes.multi.10k.val1024x512|--|33.9|
 |~~fcn8s.synthia2cityscapes.single~~|0.29426|27|
 
 ## paper result
