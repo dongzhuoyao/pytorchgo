@@ -24,11 +24,11 @@ import numpy as np
 import pickle
 import cv2
 from pytorchgo.utils import logger
-is_debug = 1
+is_debug = 0
 
-txt_path = "/home/hutao/lab/pytorchgo/dataset_list/cityscapes_car/car_train.txt"
+txt_path = "/home/hutao/lab/pytorchgo/dataset_list/cityscapes_car/car_val.txt"
 sim_path = '/home/hutao/dataset/cityscapes'
-restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.cs_car.512/ssd-30000.pth'
+restore_from = '/home/hutao/lab/pytorchgo/example/ssd512/train_log/train.cs_car.512/ssd_39999.pth'
 dataset_mean = (104, 117, 123)
 
 
@@ -53,7 +53,7 @@ per_class_result_path = os.path.join(logger.get_logger_dir(),"{}_det_result.txt"
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2'
 
 
 if args.cuda and torch.cuda.is_available():
@@ -381,12 +381,12 @@ if __name__ == '__main__':
     num_classes = 2
     image_size = 512
     net = build_ssd('test', image_size, num_classes) # initialize SSD
-    net.load_state_dict(torch.load(args.trained_model))
+    net.load_state_dict(torch.load(args.trained_model,map_location={'cuda:2':'cuda:1'}))
     net.eval()
     log.l.info('Finished loading model!')
     # load data
     from pytorchgo.dataloader.cs_car_loader import CsCarDetection
-    dataset = CsCarDetection(transform=BaseTransform(image_size, dataset_mean))
+    dataset = CsCarDetection(split="val", transform=BaseTransform(image_size, dataset_mean))
     if args.cuda:
         net = net.cuda()
         cudnn.benchmark = True

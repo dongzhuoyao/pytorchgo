@@ -9,6 +9,7 @@ Request: Python3.5, Pytorch 0.3.x
 |ssd512|71.6|
 |ssd300,wrong setting, 2 class,epoch40000|28.4|
 |ssd512|46.8|
+|train.cs_car.512|train=67.3,val=65.1|
 
 
 # pytorch-ssd
