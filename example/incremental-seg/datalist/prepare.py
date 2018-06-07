@@ -1,7 +1,8 @@
 # Author: Tao Hu <taohu620@gmail.com>
-import os,cv2
+import os,cv2, shutil
 import numpy as np
 from tqdm import tqdm
+
 id_to_name = {
     0:"background",
     1:"aeroplane",
@@ -41,10 +42,14 @@ with open(val_path,"r") as f:
 
 
 
-def filter19(filter_func, result_dir = "class19+1/old", label_dir = "/home/hutao/dataset/incremental_seg/class19+1_old"):
+def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old"):
     #old data
-    if not os.path.exists(label_dir):
-        os.mkdir(label_dir)
+
+    if os.path.exists(label_dir):
+        shutil.rmtree(label_dir)
+    os.mkdir(label_dir)
+
+
     with open(os.path.join(result_dir,"train.txt"),"w") as f:
         for image_id in tqdm(train_aug_list):
             label_image = cv2.imread(label_format.format(image_id),cv2.IMREAD_GRAYSCALE)
@@ -97,8 +102,72 @@ def filter19_new(label_img):
     return is_needed, label_img
 
 
+def filter10_old(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(11, 21):#11~20
+        label_img[np.where(label_img_copy==i)] = 0
 
-filter19(filter_func=filter19_new, result_dir = "class19+1/new", label_dir = "/home/hutao/dataset/incremental_seg/class19+1_new")
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]):
+        print("empty label, skip")
+        is_needed = False
+
+    return is_needed, label_img
+
+def filter10_new(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,11):#from 1 to 10
+        label_img[np.where(label_img_copy==i)] = 0
+
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]):
+        print("empty label, skip")
+        is_needed = False
+        return is_needed, label_img
+
+    for i in range(1,11):
+        label_img[np.where(label_img_copy == i+10)] = i
+    return is_needed, label_img
 
 
+def filter15_old(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(16, 21):#16~20
+        label_img[np.where(label_img_copy==i)] = 0
 
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]):
+        print("empty label, skip")
+        is_needed = False
+
+    return is_needed, label_img
+
+def filter15_new(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]):
+        print("empty label, skip")
+        is_needed = False
+        return is_needed, label_img
+
+    for i in range(1,6):
+        label_img[np.where(label_img_copy == i+15)] = i
+    return is_needed, label_img
+
+
+#conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
+#conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
+
+#conduct_filter(filter_func=filter15_old, result_dir ="class15+5/old", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_old")
+#conduct_filter(filter_func=filter15_new, result_dir ="class15+5/new", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_new")
+
+
+#conduct_filter(filter_func=filter19_old, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old")
+conduct_filter(filter_func=filter19_new, result_dir ="class19+1/new", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_new")
