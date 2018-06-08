@@ -15,7 +15,6 @@ import os.path as osp
 from model import Res_Deeplab
 from loss import CrossEntropy2d
 from datasets_incremental import VOCDataSet
-import matplotlib.pyplot as plt
 import random
 import timeit
 from tqdm import tqdm
@@ -23,7 +22,7 @@ start = timeit.default_timer()
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 10
+BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'datalist/class15+5/new/train.txt'
 NUM_CLASSES = 16

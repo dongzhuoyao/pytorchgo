@@ -15,17 +15,15 @@ import os.path as osp
 from model import Res_Deeplab
 from loss import CrossEntropy2d
 from datasets import VOCDataSet
-import matplotlib.pyplot as plt
 import random
 import timeit
 from tqdm import tqdm
 start = timeit.default_timer()
 
-IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 10
+BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'train_aug.txt'
+DATA_LIST_PATH = 'datalist/train_aug.txt'
 IGNORE_LABEL = 255
 INPUT_SIZE = (473,473)
 LEARNING_RATE = 2.5e-4
@@ -51,9 +49,9 @@ def get_arguments():
     parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
                         help="Number of images sent to the network in one step.")
-    parser.add_argument("--data-dir", type=str, default=DATA_DIRECTORY,
+    parser.add_argument("--data_dir", type=str, default=DATA_DIRECTORY,
                         help="Path to the directory containing the PASCAL VOC dataset.")
-    parser.add_argument("--data-list", type=str, default=DATA_LIST_PATH,
+    parser.add_argument("--data_list", type=str, default=DATA_LIST_PATH,
                         help="Path to the file listing the images in the dataset.")
     parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
@@ -67,7 +65,7 @@ def get_arguments():
                         help="Momentum component of the optimiser.")
     parser.add_argument("--not-restore-last", action="store_true",
                         help="Whether to not restore last (FC) layers.")
-    parser.add_argument("--num-classes", type=int, default=NUM_CLASSES,
+    parser.add_argument("--num_classes", type=int, default=NUM_CLASSES,
                         help="Number of classes to predict (including background).")
     parser.add_argument("--num-steps", type=int, default=NUM_STEPS,
                         help="Number of training steps.")
@@ -87,7 +85,7 @@ def get_arguments():
                         help="Save summaries and checkpoint every often.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
-    parser.add_argument("--gpu", type=int, default=5,
+    parser.add_argument("--gpu", type=int, default=2,
                         help="choose gpu device.")
     return parser.parse_args()
 
@@ -233,6 +231,9 @@ def main():
 
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
+
+        if i_iter > 10:break
+
         images, labels, _, _ = batch
         images = Variable(images).cuda()
 
@@ -255,8 +256,13 @@ def main():
             logger.info('taking snapshot ...')
             torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(i_iter)+'.pth'))
 
-    end = timeit.default_timer()
+    logger.info("training done, start evaluation")
+    from evaluate import do_eval
+    model.eval()
+    do_eval(model=model, data_dir= args.data_dir, data_list= args.data_list, num_classes=args.num_classes)
     logger.info("Congrats~")
+
+
 
 if __name__ == '__main__':
     main()

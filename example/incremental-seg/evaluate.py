@@ -14,16 +14,18 @@ from model import Res_Deeplab
 from datasets import VOCDataSet
 from collections import OrderedDict
 import os
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import torch.nn as nn
+from pytorchgo.utils import  logger
 
 DATA_DIRECTORY = '/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'val.txt'
+DATA_LIST_PATH = 'datalist/val.txt'
 NUM_CLASSES = 21
 NUM_STEPS = 1449 # Number of images in the validation set.
 input_size = (513, 513)
-RESTORE_FROM = 'train_log/train.473/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
+RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
 
 #python evaluate.py --num_classes 20 --restore_from train_log/train.473.class19meaning/VOC12_scenes_20000.pth
 def get_arguments():
@@ -41,12 +43,13 @@ def get_arguments():
                         help="Number of classes to predict (including background).")
     parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
-    parser.add_argument("--gpu", type=int, default=0,
+    parser.add_argument("--gpu", type=int, default=2,
                         help="choose gpu device.")
     return parser.parse_args()
 
+args = get_arguments()
 
-def get_iou(data_list, class_num, save_path=None):
+def get_iou(data_list, class_num, ):
     from multiprocessing import Pool 
     from metric import ConfusionMatrix
 
@@ -61,12 +64,12 @@ def get_iou(data_list, class_num, save_path=None):
         ConfM.addM(m)
 
     aveJ, j_list, M = ConfM.jaccard()
-    print('meanIOU: ' + str(aveJ) + '\n')
-    if save_path:
-        with open(save_path, 'w') as f:
-            f.write('meanIOU: ' + str(aveJ) + '\n')
-            f.write(str(j_list)+'\n')
-            f.write(str(M)+'\n')
+    logger.info('meanIOU-w bg: {}'.format(str(aveJ)))
+    logger.info('meanIOU-w/o bg: {}'.format(np.mean(j_list[1:])))
+    logger.info("IOU: {}".format(str(j_list)))
+    logger.info("confusion matrix: {}".format(M))
+
+
 
 def show_all(gt, pred):
     import matplotlib.pyplot as plt
@@ -98,44 +101,37 @@ def show_all(gt, pred):
 
     plt.show()
 
-def main():
-    """Create the model and start the evaluation process."""
-    args = get_arguments()
 
-    gpu0 = args.gpu
-    from pytorchgo.utils.pytorch_utils import set_gpu
-    set_gpu(gpu0)
 
-    model = Res_Deeplab(num_classes=args.num_classes)
-    
-    saved_state_dict = torch.load(args.restore_from)
-    model.load_state_dict(saved_state_dict)
+def do_eval(model, restore_from=args.restore_from, data_dir=args.data_dir, data_list = args.data_list, num_classes = args.num_classes):
+
+    if restore_from is not None:
+        saved_state_dict = torch.load(restore_from)
+        model.load_state_dict(saved_state_dict)
 
     model.eval()
-    model.cuda()
 
+    model.cuda()
 
     from pytorchgo.augmentation.segmentation import SubtractMeans
     from PIL import Image
 
-    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, PascalPadding
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
+        PascalPadding
     from torchvision.transforms import Compose, Normalize, ToTensor
-
-
 
     img_transform = Compose([  # notice the order!!!
         SubtractMeans(),
-        #RandomScale()
+        # RandomScale()
     ])
 
     label_transform = Compose([
-        #PIL_Scale(train_img_shape, Image.NEAREST),
+        # PIL_Scale(train_img_shape, Image.NEAREST),
         PIL2NP(),
         Value255to0(),
         ToLabel()
 
     ])
-
 
     augmentation = Compose(
         [
@@ -143,31 +139,45 @@ def main():
         ]
     )
 
-    testloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
-                                    batch_size=1, shuffle=False, pin_memory=True)
+    testloader = data.DataLoader(
+        VOCDataSet(data_dir, data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
+        batch_size=1, shuffle=False, pin_memory=True)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
     interp = nn.Upsample(size=input_size, mode='bilinear')
     data_list = []
 
-    for index, batch in enumerate(testloader):
-        if index % 100 == 0:
-            print('%d processd'%(index))
+    for index, batch in tqdm(enumerate(testloader)):
+        if index > 10: break
         image, label, size, name = batch
         size = size[0].numpy()
-        output = model(Variable(image, volatile=True).cuda(gpu0))
+        output = model(Variable(image, volatile=True).cuda())
         output = interp(output).cpu().data[0].numpy()
 
-        output = output[:,:size[0],:size[1]]
-        gt = np.asarray(label[0].numpy()[:size[0],:size[1]], dtype=np.int)
-        
-        output = output.transpose(1,2,0)
+        output = output[:, :size[0], :size[1]]
+        gt = np.asarray(label[0].numpy()[:size[0], :size[1]], dtype=np.int)
+
+        output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
 
         # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
-    get_iou(data_list, args.num_classes)
+    get_iou(data_list, num_classes)
+
+
+def main():
+    """Create the model and start the evaluation process."""
+    gpu0 = args.gpu
+    from pytorchgo.utils.pytorch_utils import set_gpu
+    #set_gpu(gpu0)
+    #torch.cuda.set_device(int(gpu0))
+    os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3,4,5'
+
+    model = Res_Deeplab(num_classes=args.num_classes)
+    
+    do_eval(model)
+
 
 
 if __name__ == '__main__':

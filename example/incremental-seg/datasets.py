@@ -2,7 +2,6 @@ import os
 import os.path as osp
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import collections
 import torch
 import torchvision
@@ -72,5 +71,3 @@ if __name__ == '__main__':
             img = torchvision.utils.make_grid(imgs).numpy()
             img = np.transpose(img, (1, 2, 0))
             img = img[:, :, ::-1]
-            plt.imshow(img)
-            plt.show()

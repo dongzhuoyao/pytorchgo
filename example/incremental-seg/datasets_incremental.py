@@ -2,7 +2,6 @@ import os
 import os.path as osp
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import collections
 import torch
 import torchvision
@@ -69,7 +68,7 @@ class VOCDataSet(data.Dataset):
 
 
 if __name__ == '__main__':
-    dst = VOCDataSet("/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", list_path="datalist/class10+10/old/train.txt")
+    dst = VOCDataSet("/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", list_path="datalist/class19+1/new/train.txt")
     trainloader = data.DataLoader(dst, batch_size=1)
     for i, data in enumerate(trainloader):
         imgs, labels,_,_ = data
@@ -77,5 +76,4 @@ if __name__ == '__main__':
             img = torchvision.utils.make_grid(imgs).numpy()
             img = np.transpose(img, (1, 2, 0))
             img = img[:, :, ::-1]
-            plt.imshow(img)
-            plt.show()
+
