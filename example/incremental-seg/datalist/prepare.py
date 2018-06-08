@@ -49,9 +49,15 @@ def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/h
         shutil.rmtree(label_dir)
     os.mkdir(label_dir)
 
+    if os.path.exists(result_dir):
+        shutil.rmtree(result_dir)
+    os.mkdir(result_dir)
 
+
+
+    train_num = 0;val_num=0
     with open(os.path.join(result_dir,"train.txt"),"w") as f:
-        for image_id in tqdm(train_aug_list):
+        for image_id in tqdm(train_aug_list, desc="train images for {}".format(result_dir)):
             label_image = cv2.imread(label_format.format(image_id),cv2.IMREAD_GRAYSCALE)
             is_needed, label_image = filter_func(label_image)
             if not is_needed:
@@ -60,9 +66,10 @@ def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/h
             cur_label_path = "{}.png".format(os.path.join(label_dir, image_id))
             cv2.imwrite(cur_label_path,label_image)
             f.write("{}.jpg {}\n".format(image_id, cur_label_path))
+            train_num += 1
 
     with open(os.path.join(result_dir,"val.txt"),"w") as f:
-        for image_id in tqdm(val_list):
+        for image_id in tqdm(val_list, desc="val images for {}".format(result_dir)):
             label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
             is_needed, label_image = filter_func(label_image)
             if not is_needed:
@@ -71,6 +78,10 @@ def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/h
             cur_label_path = "{}.png".format(os.path.join(label_dir, image_id))
             cv2.imwrite(cur_label_path, label_image)
             f.write("{}.jpg {}\n".format(image_id, cur_label_path))
+            val_num += 1
+
+    print "train num={}".format(train_num)
+    print "val num={}".format(val_num)
 
 
 
@@ -80,7 +91,7 @@ def filter19_old(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
 
@@ -93,7 +104,7 @@ def filter19_new(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
         return is_needed, label_img
@@ -109,7 +120,7 @@ def filter10_old(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
 
@@ -122,7 +133,7 @@ def filter10_new(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
         return is_needed, label_img
@@ -139,7 +150,7 @@ def filter15_old(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
 
@@ -152,7 +163,7 @@ def filter15_new(label_img):
 
     ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]):
+    if ids == set([255, 0]) or ids == set([0]):
         print("empty label, skip")
         is_needed = False
         return is_needed, label_img
@@ -162,12 +173,12 @@ def filter15_new(label_img):
     return is_needed, label_img
 
 
-#conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
-#conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
+conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
+conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
 
-#conduct_filter(filter_func=filter15_old, result_dir ="class15+5/old", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_old")
-#conduct_filter(filter_func=filter15_new, result_dir ="class15+5/new", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_new")
+conduct_filter(filter_func=filter15_old, result_dir ="class15+5/old", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_old")
+conduct_filter(filter_func=filter15_new, result_dir ="class15+5/new", label_dir ="/home/hutao/dataset/incremental_seg/class15+5_new")
 
 
-#conduct_filter(filter_func=filter19_old, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old")
+conduct_filter(filter_func=filter19_old, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old")
 conduct_filter(filter_func=filter19_new, result_dir ="class19+1/new", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_new")

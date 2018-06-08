@@ -33,3 +33,28 @@ class CrossEntropy2d(nn.Module):
         predict = predict[target_mask.view(n, h, w, 1).repeat(1, 1, 1, c)].view(-1, c)
         loss = F.cross_entropy(predict, target, weight=weight, size_average=self.size_average)
         return loss
+
+
+class L2_Distill_Loss(nn.Module):
+    def __init__(self):
+        super(L2_Distill_Loss, self).__init__()
+
+
+    def forward(self, inputs1, inputs2):
+        return torch.mean((F.softmax(inputs1) - F.softmax(inputs2))**2)
+
+#https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py#L100
+def loss_fn_kd(outputs, teacher_outputs):
+    """
+    Compute the knowledge-distillation (KD) loss given outputs, labels.
+    "Hyperparameters": temperature and alpha
+    NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+    and student expects the input tensor to be log probabilities! See Issue #2
+    """
+    alpha = 1
+    T = 1
+    KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
+                             F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T)
+
+    return KD_loss
+

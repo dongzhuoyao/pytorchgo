@@ -187,6 +187,8 @@ def main():
         if  i_parts[0]=='layer5' or i_parts[0]=='fc':
             continue
         new_params[i] = saved_state_dict[i]
+        logger.info("recovering weight: {}".format(i))
+
     model.load_state_dict(new_params)
     #model.float()
     #model.eval() # use_global_stats = True
@@ -232,7 +234,7 @@ def main():
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
 
-        if i_iter > 10:break
+        #if i_iter > 10:break
 
         images, labels, _, _ = batch
         images = Variable(images).cuda()

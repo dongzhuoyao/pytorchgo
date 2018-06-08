@@ -302,7 +302,6 @@
 2007_009901.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2007_009901.png
 2007_009947.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2007_009947.png
 2007_009950.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2007_009950.png
-2008_000002.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000002.png
 2008_000003.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000003.png
 2008_000007.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000007.png
 2008_000008.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000008.png
@@ -400,7 +399,6 @@
 2008_000237.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000237.png
 2008_000238.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000238.png
 2008_000243.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000243.png
-2008_000244.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000244.png
 2008_000246.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000246.png
 2008_000251.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000251.png
 2008_000252.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000252.png
@@ -546,7 +544,6 @@
 2008_000562.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000562.png
 2008_000563.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000563.png
 2008_000564.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000564.png
-2008_000566.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000566.png
 2008_000567.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000567.png
 2008_000568.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000568.png
 2008_000569.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_000569.png
@@ -923,7 +920,6 @@
 2008_001419.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001419.png
 2008_001420.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001420.png
 2008_001427.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001427.png
-2008_001428.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001428.png
 2008_001429.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001429.png
 2008_001430.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001430.png
 2008_001431.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001431.png
@@ -1048,7 +1044,6 @@
 2008_001697.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001697.png
 2008_001699.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001699.png
 2008_001702.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001702.png
-2008_001704.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001704.png
 2008_001706.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001706.png
 2008_001708.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001708.png
 2008_001709.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001709.png
@@ -1106,7 +1101,6 @@
 2008_001812.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001812.png
 2008_001813.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001813.png
 2008_001814.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001814.png
-2008_001815.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001815.png
 2008_001816.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001816.png
 2008_001820.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001820.png
 2008_001823.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001823.png
@@ -1138,7 +1132,6 @@
 2008_001871.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001871.png
 2008_001872.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001872.png
 2008_001876.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001876.png
-2008_001880.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001880.png
 2008_001881.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001881.png
 2008_001882.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001882.png
 2008_001888.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001888.png
@@ -1154,7 +1147,6 @@
 2008_001911.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001911.png
 2008_001914.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001914.png
 2008_001919.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001919.png
-2008_001920.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001920.png
 2008_001921.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001921.png
 2008_001926.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001926.png
 2008_001928.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_001928.png
@@ -1437,7 +1429,6 @@
 2008_002541.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002541.png
 2008_002542.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002542.png
 2008_002543.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002543.png
-2008_002547.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002547.png
 2008_002549.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002549.png
 2008_002551.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002551.png
 2008_002555.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002555.png
@@ -1561,7 +1552,6 @@
 2008_002817.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002817.png
 2008_002820.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002820.png
 2008_002823.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002823.png
-2008_002826.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002826.png
 2008_002829.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002829.png
 2008_002830.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002830.png
 2008_002831.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_002831.png
@@ -1796,7 +1786,6 @@
 2008_003343.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003343.png
 2008_003344.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003344.png
 2008_003347.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003347.png
-2008_003348.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003348.png
 2008_003350.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003350.png
 2008_003351.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003351.png
 2008_003359.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003359.png
@@ -1832,7 +1821,6 @@
 2008_003432.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003432.png
 2008_003433.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003433.png
 2008_003434.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003434.png
-2008_003435.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003435.png
 2008_003437.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003437.png
 2008_003439.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003439.png
 2008_003442.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003442.png
@@ -1898,7 +1886,6 @@
 2008_003580.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003580.png
 2008_003582.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003582.png
 2008_003587.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003587.png
-2008_003589.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003589.png
 2008_003590.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003590.png
 2008_003591.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003591.png
 2008_003592.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003592.png
@@ -2064,7 +2051,6 @@
 2008_003944.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003944.png
 2008_003945.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003945.png
 2008_003947.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003947.png
-2008_003948.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003948.png
 2008_003951.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003951.png
 2008_003956.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003956.png
 2008_003958.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003958.png
@@ -2089,7 +2075,6 @@
 2008_003998.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_003998.png
 2008_004002.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004002.png
 2008_004003.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004003.png
-2008_004004.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004004.png
 2008_004006.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004006.png
 2008_004007.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004007.png
 2008_004008.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004008.png
@@ -2132,7 +2117,6 @@
 2008_004088.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004088.png
 2008_004090.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004090.png
 2008_004092.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004092.png
-2008_004093.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004093.png
 2008_004097.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004097.png
 2008_004100.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004100.png
 2008_004102.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004102.png
@@ -2327,7 +2311,6 @@
 2008_004520.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004520.png
 2008_004522.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004522.png
 2008_004525.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004525.png
-2008_004526.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004526.png
 2008_004528.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004528.png
 2008_004532.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004532.png
 2008_004533.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004533.png
@@ -2341,7 +2324,6 @@
 2008_004546.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004546.png
 2008_004547.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004547.png
 2008_004549.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004549.png
-2008_004550.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004550.png
 2008_004551.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004551.png
 2008_004553.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004553.png
 2008_004554.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004554.png
@@ -2417,7 +2399,6 @@
 2008_004711.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004711.png
 2008_004713.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004713.png
 2008_004718.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004718.png
-2008_004719.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004719.png
 2008_004720.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004720.png
 2008_004722.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004722.png
 2008_004725.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004725.png
@@ -2501,7 +2482,6 @@
 2008_004900.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004900.png
 2008_004904.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004904.png
 2008_004907.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004907.png
-2008_004908.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004908.png
 2008_004911.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004911.png
 2008_004914.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004914.png
 2008_004917.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_004917.png
@@ -2547,7 +2527,6 @@
 2008_005000.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005000.png
 2008_005001.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005001.png
 2008_005003.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005003.png
-2008_005008.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005008.png
 2008_005010.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005010.png
 2008_005013.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005013.png
 2008_005015.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005015.png
@@ -2689,7 +2668,6 @@
 2008_005324.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005324.png
 2008_005325.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005325.png
 2008_005327.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005327.png
-2008_005329.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005329.png
 2008_005331.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005331.png
 2008_005333.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005333.png
 2008_005335.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005335.png
@@ -2722,7 +2700,6 @@
 2008_005380.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005380.png
 2008_005382.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005382.png
 2008_005386.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005386.png
-2008_005393.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005393.png
 2008_005395.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005395.png
 2008_005396.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005396.png
 2008_005400.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005400.png
@@ -2841,7 +2818,6 @@
 2008_005653.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005653.png
 2008_005656.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005656.png
 2008_005657.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005657.png
-2008_005660.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005660.png
 2008_005663.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005663.png
 2008_005664.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005664.png
 2008_005668.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005668.png
@@ -2910,7 +2886,6 @@
 2008_005808.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005808.png
 2008_005810.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005810.png
 2008_005816.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005816.png
-2008_005817.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005817.png
 2008_005818.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005818.png
 2008_005821.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005821.png
 2008_005822.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005822.png
@@ -2957,13 +2932,11 @@
 2008_005907.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005907.png
 2008_005914.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005914.png
 2008_005916.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005916.png
-2008_005918.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005918.png
 2008_005921.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005921.png
 2008_005923.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005923.png
 2008_005924.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005924.png
 2008_005926.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005926.png
 2008_005928.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005928.png
-2008_005929.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005929.png
 2008_005933.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005933.png
 2008_005934.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005934.png
 2008_005935.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005935.png
@@ -2979,9 +2952,7 @@
 2008_005957.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005957.png
 2008_005959.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005959.png
 2008_005960.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005960.png
-2008_005962.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005962.png
 2008_005964.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005964.png
-2008_005967.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005967.png
 2008_005968.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005968.png
 2008_005970.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005970.png
 2008_005972.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_005972.png
@@ -3009,7 +2980,6 @@
 2008_006024.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006024.png
 2008_006027.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006027.png
 2008_006028.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006028.png
-2008_006031.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006031.png
 2008_006032.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006032.png
 2008_006037.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006037.png
 2008_006038.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006038.png
@@ -3065,7 +3035,6 @@
 2008_006140.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006140.png
 2008_006144.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006144.png
 2008_006145.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006145.png
-2008_006147.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006147.png
 2008_006148.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006148.png
 2008_006151.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006151.png
 2008_006152.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006152.png
@@ -3104,7 +3073,6 @@
 2008_006225.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006225.png
 2008_006227.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006227.png
 2008_006232.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006232.png
-2008_006233.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006233.png
 2008_006234.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006234.png
 2008_006235.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006235.png
 2008_006239.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006239.png
@@ -3129,7 +3097,6 @@
 2008_006281.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006281.png
 2008_006282.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006282.png
 2008_006285.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006285.png
-2008_006288.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006288.png
 2008_006289.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006289.png
 2008_006290.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006290.png
 2008_006294.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006294.png
@@ -3165,11 +3132,9 @@
 2008_006362.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006362.png
 2008_006364.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006364.png
 2008_006365.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006365.png
-2008_006366.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006366.png
 2008_006368.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006368.png
 2008_006369.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006369.png
 2008_006370.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006370.png
-2008_006373.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006373.png
 2008_006376.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006376.png
 2008_006377.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006377.png
 2008_006382.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006382.png
@@ -3186,7 +3151,6 @@
 2008_006403.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006403.png
 2008_006404.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006404.png
 2008_006407.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006407.png
-2008_006409.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006409.png
 2008_006410.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006410.png
 2008_006416.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006416.png
 2008_006417.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006417.png
@@ -3260,7 +3224,6 @@
 2008_006586.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006586.png
 2008_006587.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006587.png
 2008_006588.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006588.png
-2008_006591.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006591.png
 2008_006598.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006598.png
 2008_006599.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006599.png
 2008_006600.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006600.png
@@ -3274,7 +3237,6 @@
 2008_006613.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006613.png
 2008_006614.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006614.png
 2008_006616.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006616.png
-2008_006617.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006617.png
 2008_006619.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006619.png
 2008_006621.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006621.png
 2008_006623.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006623.png
@@ -3298,11 +3260,9 @@
 2008_006656.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006656.png
 2008_006657.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006657.png
 2008_006660.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006660.png
-2008_006662.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006662.png
 2008_006663.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006663.png
 2008_006665.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006665.png
 2008_006667.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006667.png
-2008_006668.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006668.png
 2008_006671.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006671.png
 2008_006677.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006677.png
 2008_006682.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006682.png
@@ -3426,8 +3386,6 @@
 2008_006939.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006939.png
 2008_006941.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006941.png
 2008_006944.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006944.png
-2008_006946.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006946.png
-2008_006948.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006948.png
 2008_006949.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006949.png
 2008_006950.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006950.png
 2008_006951.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_006951.png
@@ -3457,7 +3415,6 @@
 2008_007004.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007004.png
 2008_007006.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007006.png
 2008_007009.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007009.png
-2008_007010.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007010.png
 2008_007011.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007011.png
 2008_007012.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007012.png
 2008_007014.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007014.png
@@ -3505,7 +3462,6 @@
 2008_007106.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007106.png
 2008_007108.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007108.png
 2008_007112.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007112.png
-2008_007114.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007114.png
 2008_007115.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007115.png
 2008_007118.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007118.png
 2008_007119.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007119.png
@@ -3542,7 +3498,6 @@
 2008_007189.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007189.png
 2008_007190.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007190.png
 2008_007195.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007195.png
-2008_007196.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007196.png
 2008_007197.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007197.png
 2008_007201.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007201.png
 2008_007205.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007205.png
@@ -3551,7 +3506,6 @@
 2008_007211.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007211.png
 2008_007214.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007214.png
 2008_007216.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007216.png
-2008_007217.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007217.png
 2008_007218.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007218.png
 2008_007221.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007221.png
 2008_007222.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007222.png
@@ -3606,7 +3560,6 @@
 2008_007324.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007324.png
 2008_007325.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007325.png
 2008_007327.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007327.png
-2008_007332.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007332.png
 2008_007334.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007334.png
 2008_007335.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007335.png
 2008_007336.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007336.png
@@ -3699,7 +3652,6 @@
 2008_007531.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007531.png
 2008_007533.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007533.png
 2008_007534.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007534.png
-2008_007536.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007536.png
 2008_007537.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007537.png
 2008_007538.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007538.png
 2008_007544.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007544.png
@@ -3875,7 +3827,6 @@
 2008_007913.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007913.png
 2008_007914.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007914.png
 2008_007915.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007915.png
-2008_007916.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007916.png
 2008_007917.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007917.png
 2008_007918.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007918.png
 2008_007922.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007922.png
@@ -3909,7 +3860,6 @@
 2008_007981.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007981.png
 2008_007985.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007985.png
 2008_007986.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007986.png
-2008_007987.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007987.png
 2008_007988.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007988.png
 2008_007989.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007989.png
 2008_007990.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_007990.png
@@ -4031,7 +3981,6 @@
 2008_008262.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008262.png
 2008_008263.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008263.png
 2008_008266.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008266.png
-2008_008269.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008269.png
 2008_008271.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008271.png
 2008_008272.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008272.png
 2008_008274.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008274.png
@@ -4102,7 +4051,6 @@
 2008_008416.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008416.png
 2008_008423.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008423.png
 2008_008428.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008428.png
-2008_008429.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008429.png
 2008_008431.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008431.png
 2008_008432.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008432.png
 2008_008433.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2008_008433.png
@@ -4278,7 +4226,6 @@
 2009_000030.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000030.png
 2009_000035.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000035.png
 2009_000040.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000040.png
-2009_000041.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000041.png
 2009_000042.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000042.png
 2009_000045.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000045.png
 2009_000051.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000051.png
@@ -4357,7 +4304,6 @@
 2009_000209.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000209.png
 2009_000212.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000212.png
 2009_000214.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000214.png
-2009_000216.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000216.png
 2009_000217.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000217.png
 2009_000218.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000218.png
 2009_000223.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000223.png
@@ -4409,7 +4355,6 @@
 2009_000327.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000327.png
 2009_000328.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000328.png
 2009_000330.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000330.png
-2009_000336.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000336.png
 2009_000337.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000337.png
 2009_000339.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000339.png
 2009_000340.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000340.png
@@ -4432,7 +4377,6 @@
 2009_000390.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000390.png
 2009_000393.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000393.png
 2009_000397.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000397.png
-2009_000398.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000398.png
 2009_000399.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000399.png
 2009_000400.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000400.png
 2009_000402.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000402.png
@@ -4500,7 +4444,6 @@
 2009_000545.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000545.png
 2009_000546.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000546.png
 2009_000547.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000547.png
-2009_000549.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000549.png
 2009_000550.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000550.png
 2009_000552.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000552.png
 2009_000553.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000553.png
@@ -4519,7 +4462,6 @@
 2009_000576.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000576.png
 2009_000577.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000577.png
 2009_000579.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000579.png
-2009_000585.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000585.png
 2009_000586.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000586.png
 2009_000590.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000590.png
 2009_000591.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000591.png
@@ -4563,7 +4505,6 @@
 2009_000674.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000674.png
 2009_000676.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000676.png
 2009_000677.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000677.png
-2009_000679.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000679.png
 2009_000681.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000681.png
 2009_000683.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000683.png
 2009_000684.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000684.png
@@ -4613,7 +4554,6 @@
 2009_000783.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000783.png
 2009_000789.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000789.png
 2009_000790.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000790.png
-2009_000791.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000791.png
 2009_000793.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000793.png
 2009_000794.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000794.png
 2009_000796.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000796.png
@@ -4699,7 +4639,6 @@
 2009_000975.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000975.png
 2009_000979.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000979.png
 2009_000980.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000980.png
-2009_000981.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000981.png
 2009_000985.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000985.png
 2009_000987.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000987.png
 2009_000990.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_000990.png
@@ -4735,7 +4674,6 @@
 2009_001057.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001057.png
 2009_001059.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001059.png
 2009_001061.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001061.png
-2009_001069.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001069.png
 2009_001070.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001070.png
 2009_001075.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001075.png
 2009_001078.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001078.png
@@ -4794,7 +4732,6 @@
 2009_001180.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001180.png
 2009_001181.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001181.png
 2009_001184.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001184.png
-2009_001188.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001188.png
 2009_001190.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001190.png
 2009_001192.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001192.png
 2009_001195.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001195.png
@@ -4895,7 +4832,6 @@
 2009_001388.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001388.png
 2009_001389.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001389.png
 2009_001390.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001390.png
-2009_001393.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001393.png
 2009_001395.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001395.png
 2009_001397.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001397.png
 2009_001398.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001398.png
@@ -4924,7 +4860,6 @@
 2009_001448.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001448.png
 2009_001449.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001449.png
 2009_001450.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001450.png
-2009_001452.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001452.png
 2009_001453.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001453.png
 2009_001456.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001456.png
 2009_001457.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001457.png
@@ -4958,7 +4893,6 @@
 2009_001519.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001519.png
 2009_001521.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001521.png
 2009_001522.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001522.png
-2009_001526.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001526.png
 2009_001534.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001534.png
 2009_001537.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001537.png
 2009_001538.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001538.png
@@ -4971,7 +4905,6 @@
 2009_001550.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001550.png
 2009_001553.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001553.png
 2009_001554.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001554.png
-2009_001555.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001555.png
 2009_001558.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001558.png
 2009_001562.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001562.png
 2009_001566.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001566.png
@@ -5029,7 +4962,6 @@
 2009_001676.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001676.png
 2009_001677.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001677.png
 2009_001678.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001678.png
-2009_001682.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001682.png
 2009_001689.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001689.png
 2009_001690.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001690.png
 2009_001693.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001693.png
@@ -5071,7 +5003,6 @@
 2009_001770.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001770.png
 2009_001774.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001774.png
 2009_001778.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001778.png
-2009_001779.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001779.png
 2009_001780.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001780.png
 2009_001781.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001781.png
 2009_001782.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001782.png
@@ -5090,7 +5021,6 @@
 2009_001809.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001809.png
 2009_001810.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001810.png
 2009_001811.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001811.png
-2009_001812.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001812.png
 2009_001817.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001817.png
 2009_001820.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001820.png
 2009_001822.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001822.png
@@ -5104,7 +5034,6 @@
 2009_001833.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001833.png
 2009_001835.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001835.png
 2009_001837.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001837.png
-2009_001839.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001839.png
 2009_001840.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001840.png
 2009_001846.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001846.png
 2009_001847.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_001847.png
@@ -5277,7 +5206,6 @@
 2009_002229.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002229.png
 2009_002230.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002230.png
 2009_002231.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002231.png
-2009_002232.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002232.png
 2009_002235.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002235.png
 2009_002236.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002236.png
 2009_002240.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002240.png
@@ -5497,7 +5425,6 @@
 2009_002719.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002719.png
 2009_002725.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002725.png
 2009_002728.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002728.png
-2009_002733.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002733.png
 2009_002734.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002734.png
 2009_002739.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002739.png
 2009_002741.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002741.png
@@ -5508,7 +5435,6 @@
 2009_002752.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002752.png
 2009_002754.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002754.png
 2009_002755.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002755.png
-2009_002758.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002758.png
 2009_002759.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002759.png
 2009_002762.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002762.png
 2009_002763.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002763.png
@@ -5601,8 +5527,6 @@
 2009_002960.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002960.png
 2009_002961.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002961.png
 2009_002962.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002962.png
-2009_002967.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002967.png
-2009_002970.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002970.png
 2009_002971.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002971.png
 2009_002972.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002972.png
 2009_002976.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_002976.png
@@ -5660,7 +5584,6 @@
 2009_003089.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003089.png
 2009_003090.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003090.png
 2009_003091.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003091.png
-2009_003093.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003093.png
 2009_003095.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003095.png
 2009_003097.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003097.png
 2009_003098.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003098.png
@@ -5712,7 +5635,6 @@
 2009_003199.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003199.png
 2009_003200.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003200.png
 2009_003201.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003201.png
-2009_003204.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003204.png
 2009_003208.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003208.png
 2009_003209.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003209.png
 2009_003212.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003212.png
@@ -5759,7 +5681,6 @@
 2009_003310.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003310.png
 2009_003312.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003312.png
 2009_003315.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003315.png
-2009_003316.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003316.png
 2009_003317.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003317.png
 2009_003320.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003320.png
 2009_003326.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003326.png
@@ -5779,7 +5700,6 @@
 2009_003361.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003361.png
 2009_003363.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003363.png
 2009_003365.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003365.png
-2009_003367.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003367.png
 2009_003369.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003369.png
 2009_003372.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003372.png
 2009_003373.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003373.png
@@ -5856,7 +5776,6 @@
 2009_003531.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003531.png
 2009_003533.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003533.png
 2009_003534.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003534.png
-2009_003537.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003537.png
 2009_003538.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003538.png
 2009_003539.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003539.png
 2009_003540.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003540.png
@@ -5998,7 +5917,6 @@
 2009_003846.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003846.png
 2009_003847.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003847.png
 2009_003848.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003848.png
-2009_003852.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003852.png
 2009_003855.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003855.png
 2009_003860.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003860.png
 2009_003863.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_003863.png
@@ -6082,7 +6000,6 @@
 2009_004052.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004052.png
 2009_004055.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004055.png
 2009_004058.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004058.png
-2009_004062.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004062.png
 2009_004069.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004069.png
 2009_004073.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004073.png
 2009_004074.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004074.png
@@ -6119,7 +6036,6 @@
 2009_004131.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004131.png
 2009_004133.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004133.png
 2009_004134.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004134.png
-2009_004138.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004138.png
 2009_004139.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004139.png
 2009_004141.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004141.png
 2009_004142.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004142.png
@@ -6221,12 +6137,10 @@
 2009_004336.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004336.png
 2009_004338.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004338.png
 2009_004340.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004340.png
-2009_004341.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004341.png
 2009_004346.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004346.png
 2009_004347.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004347.png
 2009_004350.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004350.png
 2009_004351.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004351.png
-2009_004357.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004357.png
 2009_004358.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004358.png
 2009_004359.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004359.png
 2009_004361.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004361.png
@@ -6283,7 +6197,6 @@
 2009_004471.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004471.png
 2009_004475.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004475.png
 2009_004477.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004477.png
-2009_004478.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004478.png
 2009_004479.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004479.png
 2009_004483.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004483.png
 2009_004486.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004486.png
@@ -6384,7 +6297,6 @@
 2009_004713.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004713.png
 2009_004716.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004716.png
 2009_004718.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004718.png
-2009_004719.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004719.png
 2009_004720.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004720.png
 2009_004723.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004723.png
 2009_004728.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004728.png
@@ -6465,7 +6377,6 @@
 2009_004898.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004898.png
 2009_004899.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004899.png
 2009_004901.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004901.png
-2009_004902.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004902.png
 2009_004903.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004903.png
 2009_004904.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004904.png
 2009_004905.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004905.png
@@ -6494,7 +6405,6 @@
 2009_004959.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004959.png
 2009_004961.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004961.png
 2009_004962.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004962.png
-2009_004965.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004965.png
 2009_004971.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004971.png
 2009_004974.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004974.png
 2009_004975.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_004975.png
@@ -6608,7 +6518,6 @@
 2009_005215.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005215.png
 2009_005216.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005216.png
 2009_005218.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005218.png
-2009_005221.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005221.png
 2009_005222.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005222.png
 2009_005225.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005225.png
 2009_005229.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005229.png
@@ -6621,7 +6530,6 @@
 2009_005246.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005246.png
 2009_005247.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005247.png
 2009_005251.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005251.png
-2009_005256.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005256.png
 2009_005257.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005257.png
 2009_005263.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005263.png
 2009_005265.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2009_005265.png
@@ -6665,7 +6573,6 @@
 2010_000048.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000048.png
 2010_000050.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000050.png
 2010_000052.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000052.png
-2010_000053.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000053.png
 2010_000054.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000054.png
 2010_000055.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000055.png
 2010_000056.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000056.png
@@ -6709,7 +6616,6 @@
 2010_000138.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000138.png
 2010_000139.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000139.png
 2010_000140.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000140.png
-2010_000141.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000141.png
 2010_000145.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000145.png
 2010_000148.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000148.png
 2010_000151.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000151.png
@@ -6806,7 +6712,6 @@
 2010_000375.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000375.png
 2010_000376.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000376.png
 2010_000377.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000377.png
-2010_000379.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000379.png
 2010_000381.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000381.png
 2010_000382.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000382.png
 2010_000384.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000384.png
@@ -7003,7 +6908,6 @@
 2010_000803.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000803.png
 2010_000805.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000805.png
 2010_000806.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000806.png
-2010_000807.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000807.png
 2010_000808.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000808.png
 2010_000810.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000810.png
 2010_000811.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000811.png
@@ -7052,7 +6956,6 @@
 2010_000926.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000926.png
 2010_000927.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000927.png
 2010_000928.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000928.png
-2010_000931.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000931.png
 2010_000938.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000938.png
 2010_000942.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000942.png
 2010_000944.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_000944.png
@@ -7191,7 +7094,6 @@
 2010_001257.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001257.png
 2010_001261.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001261.png
 2010_001263.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001263.png
-2010_001270.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001270.png
 2010_001271.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001271.png
 2010_001272.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001272.png
 2010_001273.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001273.png
@@ -7232,7 +7134,6 @@
 2010_001357.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001357.png
 2010_001360.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001360.png
 2010_001361.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001361.png
-2010_001363.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001363.png
 2010_001364.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001364.png
 2010_001366.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001366.png
 2010_001370.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001370.png
@@ -7377,7 +7278,6 @@
 2010_001685.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001685.png
 2010_001687.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001687.png
 2010_001689.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001689.png
-2010_001690.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001690.png
 2010_001694.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001694.png
 2010_001697.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001697.png
 2010_001698.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001698.png
@@ -7415,7 +7315,6 @@
 2010_001771.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001771.png
 2010_001776.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001776.png
 2010_001777.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001777.png
-2010_001780.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001780.png
 2010_001783.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001783.png
 2010_001784.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001784.png
 2010_001785.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001785.png
@@ -7471,7 +7370,6 @@
 2010_001907.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001907.png
 2010_001911.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001911.png
 2010_001916.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001916.png
-2010_001918.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001918.png
 2010_001919.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001919.png
 2010_001921.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001921.png
 2010_001922.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_001922.png
@@ -7574,7 +7472,6 @@
 2010_002139.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002139.png
 2010_002143.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002143.png
 2010_002149.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002149.png
-2010_002152.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002152.png
 2010_002154.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002154.png
 2010_002166.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002166.png
 2010_002167.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002167.png
@@ -7649,7 +7546,6 @@
 2010_002320.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002320.png
 2010_002321.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002321.png
 2010_002326.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002326.png
-2010_002327.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002327.png
 2010_002332.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002332.png
 2010_002333.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002333.png
 2010_002337.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002337.png
@@ -7694,7 +7590,6 @@
 2010_002420.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002420.png
 2010_002424.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002424.png
 2010_002425.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002425.png
-2010_002427.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002427.png
 2010_002429.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002429.png
 2010_002431.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002431.png
 2010_002435.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002435.png
@@ -7734,7 +7629,6 @@
 2010_002507.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002507.png
 2010_002509.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002509.png
 2010_002510.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002510.png
-2010_002513.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002513.png
 2010_002516.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002516.png
 2010_002518.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002518.png
 2010_002520.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002520.png
@@ -7756,7 +7650,6 @@
 2010_002561.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002561.png
 2010_002562.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002562.png
 2010_002565.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002565.png
-2010_002567.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002567.png
 2010_002569.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002569.png
 2010_002570.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002570.png
 2010_002573.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002573.png
@@ -7865,7 +7758,6 @@
 2010_002786.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002786.png
 2010_002789.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002789.png
 2010_002790.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002790.png
-2010_002791.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002791.png
 2010_002793.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002793.png
 2010_002794.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002794.png
 2010_002797.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_002797.png
@@ -8022,7 +7914,6 @@
 2010_003129.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003129.png
 2010_003133.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003133.png
 2010_003135.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003135.png
-2010_003137.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003137.png
 2010_003138.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003138.png
 2010_003139.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003139.png
 2010_003143.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003143.png
@@ -8067,7 +7958,6 @@
 2010_003230.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003230.png
 2010_003232.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003232.png
 2010_003233.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003233.png
-2010_003236.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003236.png
 2010_003238.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003238.png
 2010_003240.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003240.png
 2010_003241.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003241.png
@@ -8146,7 +8036,6 @@
 2010_003398.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003398.png
 2010_003400.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003400.png
 2010_003401.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003401.png
-2010_003405.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003405.png
 2010_003406.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003406.png
 2010_003411.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003411.png
 2010_003415.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003415.png
@@ -8263,7 +8152,6 @@
 2010_003680.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003680.png
 2010_003686.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003686.png
 2010_003687.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003687.png
-2010_003688.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003688.png
 2010_003689.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003689.png
 2010_003690.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003690.png
 2010_003695.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003695.png
@@ -8297,7 +8185,6 @@
 2010_003757.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003757.png
 2010_003761.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003761.png
 2010_003762.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003762.png
-2010_003770.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003770.png
 2010_003773.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003773.png
 2010_003774.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003774.png
 2010_003779.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003779.png
@@ -8332,7 +8219,6 @@
 2010_003852.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003852.png
 2010_003855.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003855.png
 2010_003856.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003856.png
-2010_003857.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003857.png
 2010_003859.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003859.png
 2010_003860.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003860.png
 2010_003861.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003861.png
@@ -8340,7 +8226,6 @@
 2010_003864.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003864.png
 2010_003865.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003865.png
 2010_003871.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003871.png
-2010_003874.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003874.png
 2010_003875.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003875.png
 2010_003877.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003877.png
 2010_003878.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003878.png
@@ -8371,7 +8256,6 @@
 2010_003937.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003937.png
 2010_003938.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003938.png
 2010_003939.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003939.png
-2010_003942.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003942.png
 2010_003943.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003943.png
 2010_003944.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003944.png
 2010_003945.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_003945.png
@@ -8401,7 +8285,6 @@
 2010_004006.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004006.png
 2010_004007.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004007.png
 2010_004008.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004008.png
-2010_004009.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004009.png
 2010_004014.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004014.png
 2010_004017.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004017.png
 2010_004021.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004021.png
@@ -8461,7 +8344,6 @@
 2010_004129.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004129.png
 2010_004130.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004130.png
 2010_004133.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004133.png
-2010_004137.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004137.png
 2010_004138.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004138.png
 2010_004139.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004139.png
 2010_004140.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004140.png
@@ -8538,7 +8420,6 @@
 2010_004289.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004289.png
 2010_004290.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004290.png
 2010_004291.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004291.png
-2010_004295.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004295.png
 2010_004296.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004296.png
 2010_004297.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004297.png
 2010_004301.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004301.png
@@ -8627,7 +8508,6 @@
 2010_004493.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004493.png
 2010_004499.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004499.png
 2010_004501.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004501.png
-2010_004503.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004503.png
 2010_004505.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004505.png
 2010_004506.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004506.png
 2010_004509.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004509.png
@@ -8663,7 +8543,6 @@
 2010_004585.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004585.png
 2010_004586.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004586.png
 2010_004588.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004588.png
-2010_004591.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004591.png
 2010_004592.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004592.png
 2010_004594.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004594.png
 2010_004596.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004596.png
@@ -8770,7 +8649,6 @@
 2010_004829.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004829.png
 2010_004830.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004830.png
 2010_004832.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004832.png
-2010_004836.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004836.png
 2010_004838.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004838.png
 2010_004841.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004841.png
 2010_004844.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_004844.png
@@ -8929,7 +8807,6 @@
 2010_005184.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005184.png
 2010_005185.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005185.png
 2010_005188.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005188.png
-2010_005190.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005190.png
 2010_005192.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005192.png
 2010_005193.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005193.png
 2010_005198.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005198.png
@@ -8996,7 +8873,6 @@
 2010_005332.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005332.png
 2010_005338.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005338.png
 2010_005340.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005340.png
-2010_005345.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005345.png
 2010_005346.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005346.png
 2010_005349.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005349.png
 2010_005350.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005350.png
@@ -9152,7 +9028,6 @@
 2010_005670.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005670.png
 2010_005671.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005671.png
 2010_005672.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005672.png
-2010_005676.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005676.png
 2010_005681.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005681.png
 2010_005683.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005683.png
 2010_005684.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005684.png
@@ -9215,7 +9090,6 @@
 2010_005824.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005824.png
 2010_005825.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005825.png
 2010_005826.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005826.png
-2010_005827.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005827.png
 2010_005830.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005830.png
 2010_005833.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005833.png
 2010_005835.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005835.png
@@ -9223,7 +9097,6 @@
 2010_005837.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005837.png
 2010_005838.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005838.png
 2010_005840.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005840.png
-2010_005841.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005841.png
 2010_005843.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005843.png
 2010_005845.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005845.png
 2010_005847.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2010_005847.png
@@ -9361,14 +9234,12 @@
 2011_000057.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000057.png
 2011_000058.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000058.png
 2011_000060.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000060.png
-2011_000061.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000061.png
 2011_000065.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000065.png
 2011_000068.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000068.png
 2011_000069.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000069.png
 2011_000071.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000071.png
 2011_000072.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000072.png
 2011_000076.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000076.png
-2011_000077.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000077.png
 2011_000082.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000082.png
 2011_000083.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000083.png
 2011_000084.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000084.png
@@ -9504,7 +9375,6 @@
 2011_000432.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000432.png
 2011_000434.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000434.png
 2011_000442.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000442.png
-2011_000444.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000444.png
 2011_000445.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000445.png
 2011_000449.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000449.png
 2011_000450.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000450.png
@@ -9590,7 +9460,6 @@
 2011_000682.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000682.png
 2011_000683.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000683.png
 2011_000684.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000684.png
-2011_000685.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000685.png
 2011_000688.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000688.png
 2011_000689.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000689.png
 2011_000690.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_000690.png
@@ -9822,7 +9691,6 @@
 2011_001288.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001288.png
 2011_001290.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001290.png
 2011_001295.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001295.png
-2011_001302.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001302.png
 2011_001304.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001304.png
 2011_001305.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001305.png
 2011_001310.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001310.png
@@ -9842,7 +9710,6 @@
 2011_001337.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001337.png
 2011_001354.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001354.png
 2011_001355.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001355.png
-2011_001357.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001357.png
 2011_001360.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001360.png
 2011_001366.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001366.png
 2011_001369.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001369.png
@@ -9856,7 +9723,6 @@
 2011_001388.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001388.png
 2011_001389.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001389.png
 2011_001390.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001390.png
-2011_001394.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001394.png
 2011_001399.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001399.png
 2011_001400.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001400.png
 2011_001402.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001402.png
@@ -9887,7 +9753,6 @@
 2011_001501.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001501.png
 2011_001503.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001503.png
 2011_001505.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001505.png
-2011_001507.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001507.png
 2011_001508.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001508.png
 2011_001510.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001510.png
 2011_001514.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001514.png
@@ -9961,7 +9826,6 @@
 2011_001698.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001698.png
 2011_001699.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001699.png
 2011_001700.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001700.png
-2011_001705.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001705.png
 2011_001707.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001707.png
 2011_001710.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001710.png
 2011_001712.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001712.png
@@ -10048,7 +9912,6 @@
 2011_001920.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001920.png
 2011_001922.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001922.png
 2011_001924.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001924.png
-2011_001926.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001926.png
 2011_001927.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001927.png
 2011_001928.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001928.png
 2011_001929.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_001929.png
@@ -10144,7 +10007,6 @@
 2011_002147.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002147.png
 2011_002148.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002148.png
 2011_002149.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002149.png
-2011_002154.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002154.png
 2011_002158.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002158.png
 2011_002159.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002159.png
 2011_002160.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002160.png
@@ -10163,7 +10025,6 @@
 2011_002193.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002193.png
 2011_002211.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002211.png
 2011_002215.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002215.png
-2011_002218.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002218.png
 2011_002221.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002221.png
 2011_002222.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002222.png
 2011_002224.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002224.png
@@ -10194,7 +10055,6 @@
 2011_002281.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002281.png
 2011_002284.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002284.png
 2011_002291.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002291.png
-2011_002292.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002292.png
 2011_002294.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002294.png
 2011_002300.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002300.png
 2011_002301.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002301.png
@@ -10272,7 +10132,6 @@
 2011_002505.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002505.png
 2011_002507.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002507.png
 2011_002511.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002511.png
-2011_002514.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002514.png
 2011_002516.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002516.png
 2011_002519.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002519.png
 2011_002520.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002520.png
@@ -10428,7 +10287,6 @@
 2011_002935.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002935.png
 2011_002937.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002937.png
 2011_002940.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002940.png
-2011_002942.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002942.png
 2011_002943.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002943.png
 2011_002944.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002944.png
 2011_002947.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002947.png
@@ -10441,7 +10299,6 @@
 2011_002966.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002966.png
 2011_002967.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002967.png
 2011_002969.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002969.png
-2011_002970.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002970.png
 2011_002971.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002971.png
 2011_002974.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002974.png
 2011_002978.jpg /home/hutao/dataset/incremental_seg/class19+1_old/2011_002978.png

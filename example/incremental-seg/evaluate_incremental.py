@@ -11,7 +11,7 @@ import torchvision.models as models
 import torch.nn.functional as F
 from torch.utils import data
 from model import Res_Deeplab
-from datasets import VOCDataSet
+from datasets_incremental import VOCDataSet
 from collections import OrderedDict
 import os
 from tqdm import tqdm
