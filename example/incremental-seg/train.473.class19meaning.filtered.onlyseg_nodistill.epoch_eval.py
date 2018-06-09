@@ -25,6 +25,7 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'datalist/class19+1/new/train.txt'
+VAL_DATA_LIST_PATH = 'datalist/val.txt'
 NUM_CLASSES = 20+1
 
 
@@ -37,7 +38,7 @@ POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473.class19meaning/VOC12_scenes_20000.pth'#'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_NUM_IMAGES = 2
-SAVE_PRED_EVERY = 1000
+SAVE_PRED_EVERY = 100#1000
 WEIGHT_DECAY = 0.0005
 
 
@@ -181,7 +182,7 @@ def main():
     cudnn.enabled = True
 
     # Create network.
-    model = Res_Deeplab(num_classes=args.num_classes)
+    model = Res_Deeplab(num_classes=21)
     # For a small batch size, it is better to keep 
     # the statistics of the BN layers (running means and variances)
     # frozen, and to not update the values provided by the pre-trained model. 
@@ -244,7 +245,7 @@ def main():
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
-
+    best_miou = 0
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
@@ -261,34 +262,52 @@ def main():
 
 
         if i_iter%50==0:
-            logger.info('loss = {}'.format(loss.data.cpu().numpy()))
+            logger.info('loss = {}, best_miou'.format(loss.data.cpu().numpy(), best_miou))
 
         if i_iter >= args.num_steps-1:
-            logger.info( 'save model ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(args.num_steps)+'.pth'))
+            logger.info('validation...')
+            from evaluate import do_eval
+            model.eval()
+            ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+            cur_miou = ious[-1]
+            model.train()
+
+            is_best = True if cur_miou > best_miou else False
+            if is_best:
+                logger.info('taking snapshot...')
+                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+            else:
+                logger.info("current snapshot is not good enough, skip~~")
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
-            logger.info('taking snapshot ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(i_iter)+'.pth'))
+            logger.info('validation...')
+            from evaluate import do_eval
+            model.eval()
+            ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+            cur_miou = ious[-1]
+            model.train()
 
-    from evaluate_incremental import do_eval
-    model.eval()
-    do_eval(model=model, data_dir= args.data_dir, data_list='datalist/val.txt', num_classes=args.num_classes)
+            is_best = True if cur_miou > best_miou else False
+            if is_best:
+                logger.info('taking snapshot...')
+                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+            else:
+                logger.info("current snapshot is not good enough, skip~~")
+
     logger.info("Congrats~")
 
 if __name__ == '__main__':
-    args.test = True
     if args.test:
         args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
         from evaluate import do_eval
 
-        student_model = Res_Deeplab(num_classes=args.num_classes)
+        student_model = Res_Deeplab(num_classes=NUM_CLASSES)
         #saved_state_dict = torch.load(args.test_restore_from)
         #student_model.load_state_dict(saved_state_dict)
 
         student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list='datalist/class19+1/new/val.txt', num_classes=args.num_classes)
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
     else:
         logger.auto_set_dir()
         main()

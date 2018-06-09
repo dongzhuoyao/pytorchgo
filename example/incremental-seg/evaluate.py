@@ -64,10 +64,12 @@ def get_iou(data_list, class_num, ):
         ConfM.addM(m)
 
     aveJ, j_list, M = ConfM.jaccard()
-    logger.info('meanIOU-w bg: {}'.format(str(aveJ)))
-    logger.info('meanIOU-w/o bg: {}'.format(np.mean(j_list[1:])))
+    logger.info('meanIOU-with bg: {}'.format(str(aveJ)))
+    logger.info('meanIOU-without bg: {}'.format(np.mean(j_list[1:])))
     logger.info("IOU: {}".format(str(j_list)))
     logger.info("confusion matrix: {}".format(M))
+
+    return j_list
 
 
 
@@ -103,7 +105,7 @@ def show_all(gt, pred):
 
 
 
-def do_eval(model, restore_from, data_dir, data_list, num_classes):
+def do_eval(model, data_dir, data_list, num_classes, restore_from = None):
 
     if restore_from is not None:
         saved_state_dict = torch.load(restore_from)
