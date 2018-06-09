@@ -47,7 +47,7 @@ def get_arguments():
                         help="choose gpu device.")
     return parser.parse_args()
 
-args = get_arguments()
+
 
 def get_iou(data_list, class_num, ):
     from multiprocessing import Pool 
@@ -103,7 +103,7 @@ def show_all(gt, pred):
 
 
 
-def do_eval(model, restore_from=args.restore_from, data_dir=args.data_dir, data_list = args.data_list, num_classes = args.num_classes):
+def do_eval(model, restore_from, data_dir, data_list, num_classes):
 
     if restore_from is not None:
         saved_state_dict = torch.load(restore_from)
@@ -147,6 +147,7 @@ def do_eval(model, restore_from=args.restore_from, data_dir=args.data_dir, data_
     data_list = []
 
     for index, batch in tqdm(enumerate(testloader)):
+        #if index > 10: break
         image, label, size, name = batch
         size = size[0].numpy()
         output = model(Variable(image, volatile=True).cuda())
@@ -165,7 +166,7 @@ def do_eval(model, restore_from=args.restore_from, data_dir=args.data_dir, data_
 
 
 def main():
-    """Create the model and start the evaluation process."""
+    args = get_arguments()
     gpu0 = args.gpu
     from pytorchgo.utils.pytorch_utils import set_gpu
     #set_gpu(gpu0)
@@ -174,7 +175,7 @@ def main():
 
     model = Res_Deeplab(num_classes=args.num_classes)
     
-    do_eval(model)
+    do_eval(model, restore_from=args.restore_from, data_dir=args.data_dir, data_list = args.data_list, num_classes = args.num_classes)
 
 
 

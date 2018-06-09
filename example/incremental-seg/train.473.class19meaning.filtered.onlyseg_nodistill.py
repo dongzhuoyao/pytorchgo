@@ -95,13 +95,18 @@ def get_arguments():
                         help="Save summaries and checkpoint every often.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
+
+
+
+    parser.add_argument("--test", action="store_true",help="test")
+    parser.add_argument("--test_restore_from",  help="test")
+
     parser.add_argument("--gpu", type=int, default=3,
                         help="choose gpu device.")
     return parser.parse_args()
 
 args = get_arguments()
 
-logger.auto_set_dir()
 
 random.seed(args.random_seed)
 
@@ -273,4 +278,16 @@ def main():
     logger.info("Congrats~")
 
 if __name__ == '__main__':
-    main()
+    if args.test:
+        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
+        from evaluate import do_eval
+
+        student_model = Res_Deeplab(num_classes=21)
+        #saved_state_dict = torch.load(args.test_restore_from)
+        #student_model.load_state_dict(saved_state_dict)
+
+        student_model.eval()
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list='datalist/val.txt', num_classes=21)
+    else:
+        logger.auto_set_dir()
+        main()

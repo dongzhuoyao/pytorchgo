@@ -14,7 +14,8 @@ import os
 import os.path as osp
 from model import Res_Deeplab
 from loss import CrossEntropy2d
-from datasets_incremental import VOCDataSet
+from datasets import VOCDataSet,CSDataSet
+import matplotlib.pyplot as plt
 import random
 import timeit
 from tqdm import tqdm
@@ -22,32 +23,23 @@ start = timeit.default_timer()
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 9
-DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class15+5/new/train.txt'
-NUM_CLASSES = 5+1
-
-
+BATCH_SIZE = 2
+DATA_DIRECTORY = 'xxx'
+DATA_LIST_PATH = 'xxx'
 IGNORE_LABEL = 255
-INPUT_SIZE = (473,473)
+INPUT_SIZE = '769,769'
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
-NUM_STEPS = 20000
+NUM_CLASSES = 20
+NUM_STEPS = 40000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = '/home/hutao/data/models/pytorch/MS_DeepLab_resnet_pretrained_COCO_init.pth'
 SAVE_NUM_IMAGES = 2
-SAVE_PRED_EVERY = 1000
+SAVE_PRED_EVERY = 5#5000
 WEIGHT_DECAY = 0.0005
 
-
-
-
-
 from pytorchgo.utils import logger
-
-
-
 
 
 def get_arguments():
@@ -59,17 +51,17 @@ def get_arguments():
     parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
                         help="Number of images sent to the network in one step.")
-    parser.add_argument("--data-dir", type=str, default=DATA_DIRECTORY,
+    parser.add_argument("--data_dir", type=str, default=DATA_DIRECTORY,
                         help="Path to the directory containing the PASCAL VOC dataset.")
     parser.add_argument("--data-list", type=str, default=DATA_LIST_PATH,
                         help="Path to the file listing the images in the dataset.")
     parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
-    parser.add_argument("--input_size",  default=INPUT_SIZE,
+    parser.add_argument("--input-size", type=str, default=INPUT_SIZE,
                         help="Comma-separated string with height and width of images.")
     parser.add_argument("--is-training", action="store_true",
                         help="Whether to updates the running means and variances during the training.")
-    parser.add_argument("--learning-rate", type=float, default=LEARNING_RATE,
+    parser.add_argument("--learning_rate", type=float, default=LEARNING_RATE,
                         help="Base learning rate for training with polynomial decay.")
     parser.add_argument("--momentum", type=float, default=MOMENTUM,
                         help="Momentum component of the optimiser.")
@@ -95,16 +87,13 @@ def get_arguments():
                         help="Save summaries and checkpoint every often.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
-
-    parser.add_argument("--test", action="store_true",help="test")
-    parser.add_argument("--test_restore_from",  help="test")
-
-    parser.add_argument("--gpu", type=int, default=4,
+    parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
     return parser.parse_args()
 
 args = get_arguments()
 
+logger.auto_set_dir()
 
 random.seed(args.random_seed)
 
@@ -173,8 +162,8 @@ def main():
     """Create the model and start the training."""
     
     os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
-
-    input_size = INPUT_SIZE
+    h, w = map(int, args.input_size.split(','))
+    input_size = (h, w)
 
     cudnn.enabled = True
 
@@ -187,20 +176,15 @@ def main():
     # Note that is_training=False still updates BN parameters gamma (scale) and beta (offset)
     # if they are presented in var_list of the optimiser definition.
 
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
-
-    model_summary(model)
     saved_state_dict = torch.load(args.restore_from)
-    print(saved_state_dict.keys())
-    new_params = model.state_dict().copy()
+    new_params = {}#model.state_dict().copy()
     for i in saved_state_dict:
         #Scale.layer5.conv2d_list.3.weight
         i_parts = i.split('.')
         # print i_parts
-        if  i_parts[0]=='layer5' or i_parts[0]=='fc':
-            continue
-        new_params[i] = saved_state_dict[i]
-    model.load_state_dict(new_params)
+        if not args.num_classes == 21 or not i_parts[1]=='layer5':
+            new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
+    model.load_state_dict(new_params,strict=False)
     #model.float()
     #model.eval() # use_global_stats = True
     model.train()
@@ -228,8 +212,7 @@ def main():
         ]
     )
 
-
-    trainloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, max_iters=args.num_steps*args.batch_size,
+    trainloader = data.DataLoader(CSDataSet(max_iters=args.num_steps*args.batch_size,
                      mirror=args.random_mirror, img_transform=img_transform, label_transform=label_transform, augmentation=augmentation),
                     batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
 
@@ -237,8 +220,6 @@ def main():
                 {'params': get_10x_lr_params(model), 'lr': 10*args.learning_rate}], 
                 lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
     optimizer.zero_grad()
-
-    optimizer_summary(optimizer)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
@@ -254,34 +235,22 @@ def main():
         loss.backward()
         optimizer.step()
 
-        
-        logger.info('loss = {}'.format(loss.data.cpu().numpy()))
+        if i_iter%100 == 0:
+            logger.info('loss = {}'.format(loss.data.cpu().numpy()))
 
         if i_iter >= args.num_steps-1:
             logger.info( 'save model ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(args.num_steps)+'.pth'))
+            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), str(args.num_steps)+'.pth'))
             break
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('taking snapshot ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), 'VOC12_scenes_'+str(i_iter)+'.pth'))
+            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), str(i_iter)+'.pth'))
 
-    do_eval(model=student_model, data_dir=args.data_dir,
-            data_list='datalist/class15+5/new/val.txt', num_classes=NUM_CLASSES)
+    from evaluate_module import do_eval
+    model.eval()
+    do_eval(model=model, num_classes=args.num_classes)
     logger.info("Congrats~")
 
 if __name__ == '__main__':
-    #args.test = True
-    if args.test:
-        args.test_restore_from = "train_log/train.473.class15meaning.filtered.new/VOC12_scenes_20000.pth"
-        from evaluate_incremental import do_eval
-
-        student_model = Res_Deeplab(num_classes=NUM_CLASSES)
-        #saved_state_dict = torch.load(args.test_restore_from)
-        #student_model.load_state_dict(saved_state_dict)
-
-        student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list='datalist/class15+5/new/val.txt', num_classes=NUM_CLASSES)
-    else:
-        logger.auto_set_dir()
-        main()
+    main()

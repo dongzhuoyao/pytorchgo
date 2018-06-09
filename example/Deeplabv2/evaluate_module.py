@@ -11,19 +11,20 @@ import torchvision.models as models
 import torch.nn.functional as F
 from torch.utils import data
 from model import Res_Deeplab
-from datasets_incremental import VOCDataSet
+from datasets import CSDataSet
 from collections import OrderedDict
 import os
 from tqdm import tqdm
 
+import matplotlib.pyplot as plt
 import torch.nn as nn
 from pytorchgo.utils import  logger
 
 DATA_DIRECTORY = '/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'datalist/val.txt'
-NUM_CLASSES = 21
-NUM_STEPS = 1449 # Number of images in the validation set.
-input_size = (513, 513)
+NUM_CLASSES = 20
+NUM_STEPS = 500 # Number of images in the validation set.
+input_size = (1024, 1024)
 RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
 
 #python evaluate.py --num_classes 20 --restore_from train_log/train.473.class19meaning/VOC12_scenes_20000.pth
@@ -46,7 +47,7 @@ def get_arguments():
                         help="choose gpu device.")
     return parser.parse_args()
 
-
+args = get_arguments()
 
 def get_iou(data_list, class_num, ):
     from multiprocessing import Pool 
@@ -102,7 +103,7 @@ def show_all(gt, pred):
 
 
 
-def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
+def do_eval(model, restore_from=args.restore_from, num_classes = args.num_classes):
 
     if restore_from is not None:
         saved_state_dict = torch.load(restore_from)
@@ -178,5 +179,4 @@ def main():
 
 
 if __name__ == '__main__':
-    args = get_arguments()
     main()
