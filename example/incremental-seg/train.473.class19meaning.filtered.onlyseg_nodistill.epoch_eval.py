@@ -261,7 +261,7 @@ def main():
         
 
 
-        if i_iter%50==0:
+        if i_iter%50 == 0:
             logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
 
         if i_iter >= args.num_steps-1:
@@ -290,6 +290,7 @@ def main():
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
+                best_miou = cur_miou
                 logger.info('taking snapshot...')
                 torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
             else:

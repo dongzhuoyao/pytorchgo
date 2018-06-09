@@ -25,10 +25,11 @@ IOU:
 
 |arch|old(19 classes)|new(1 classes)|all(20 classes)
 |---|---|---|---|
+|training 20 classes together|67.56|**64.22**|67.39|
 train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
-train.473.class19meaning.filtered.onlyseg_nodistill|0.3|40.15|2.3|
-
+~~train.473.class19meaning.filtered.onlyseg_nodistill~~(last epoch already overfitting!!)|0.3|40.15|2.3|
+train.473.class19meaning.filtered.onlyseg_nodistill.epoch_eval|--|43.8||
 
 ### class 15+5 ablation study
 

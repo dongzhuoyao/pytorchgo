@@ -271,7 +271,7 @@ def main():
     logger.info("Congrats~")
 
 if __name__ == '__main__':
-    #args.test = True
+    args.test = True
     if args.test:
         args.test_restore_from = "train_log/train.473.class15meaning.filtered.new/VOC12_scenes_20000.pth"
         from evaluate_incremental import do_eval

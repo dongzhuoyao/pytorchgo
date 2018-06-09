@@ -16,7 +16,6 @@ from collections import OrderedDict
 import os
 from tqdm import tqdm
 
-import matplotlib.pyplot as plt
 import torch.nn as nn
 from pytorchgo.utils import  logger
 
