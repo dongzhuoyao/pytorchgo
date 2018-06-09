@@ -164,7 +164,7 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from = None):
         # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
-    get_iou(data_list, num_classes)
+    return get_iou(data_list, num_classes)
 
 
 def main():

@@ -38,7 +38,7 @@ POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473.class19meaning/VOC12_scenes_20000.pth'#'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_NUM_IMAGES = 2
-SAVE_PRED_EVERY = 100#1000
+SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
 
 
@@ -262,7 +262,7 @@ def main():
 
 
         if i_iter%50==0:
-            logger.info('loss = {}, best_miou'.format(loss.data.cpu().numpy(), best_miou))
+            logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
