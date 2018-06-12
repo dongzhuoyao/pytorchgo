@@ -33,7 +33,7 @@ train.473.class19meaning.filtered.onlyseg_nodistill.epoch_eval|--|43.8||
 
 ### class 15+5 ablation study
 
-|arch|old(15 classes)|new(5 classes)|all(21 classes)
+|arch|old(15 classes)|new(5 classes)|all(20 classes)
 |---|---|---|---|
 |train seperately|train.473.class15meaning.filtered.new:69.46|?|?
-|train 20 class together|68.9|62.86|68.59|
+|train 20 class together|68.9|62.86|66.39|
