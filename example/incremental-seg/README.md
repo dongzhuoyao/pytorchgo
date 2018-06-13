@@ -25,7 +25,7 @@ IOU:
 
 |arch|old(19 classes)|new(1 classes)|all(20 classes)
 |---|---|---|---|
-|training 20 classes together|67.56|**64.22**|67.39|
+|**training 20 classes together**|67.56|**64.22**|67.39|
 train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
 ~~train.473.class19meaning.filtered.onlyseg_nodistill~~(last epoch already overfitting!!)|0.3|40.15|2.3|
@@ -35,5 +35,6 @@ train.473.class19meaning.filtered.onlyseg_nodistill.epoch_eval|--|43.8||
 
 |arch|old(15 classes)|new(5 classes)|all(20 classes)
 |---|---|---|---|
+|**train 20 class together**|68.9|62.86|67.39|
 |train seperately|train.473.class15meaning.filtered.new:69.46|?|?
-|train 20 class together|68.9|62.86|67.39|
+

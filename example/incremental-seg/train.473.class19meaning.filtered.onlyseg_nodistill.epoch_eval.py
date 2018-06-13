@@ -25,8 +25,8 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'datalist/class19+1/new/train.txt'
-VAL_DATA_LIST_PATH = 'datalist/val.txt'
-NUM_CLASSES = 20+1
+VAL_DATA_LIST_PATH = 'datalist/class19+1/new/val_1449.txt'
+NUM_CLASSES = 1+1
 
 
 IGNORE_LABEL = 255
@@ -182,7 +182,7 @@ def main():
     cudnn.enabled = True
 
     # Create network.
-    model = Res_Deeplab(num_classes=21)
+    model = Res_Deeplab(num_classes=NUM_CLASSES)
     # For a small batch size, it is better to keep 
     # the statistics of the BN layers (running means and variances)
     # frozen, and to not update the values provided by the pre-trained model. 
@@ -253,8 +253,8 @@ def main():
         optimizer.zero_grad()
         adjust_learning_rate(optimizer, i_iter)
         pred = interp(model(images))
-        class2_pred = torch.cat((pred[:,0:1,:,:],pred[:,-1:,:,:]),1)
-        loss = loss_calc(class2_pred, labels)
+        #class2_pred = torch.cat((pred[:,0:1,:,:],pred[:,-1:,:,:]),1)
+        loss = loss_calc(pred, labels)
         loss.backward()
         optimizer.step()
 

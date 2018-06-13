@@ -68,12 +68,12 @@ def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/h
             f.write("{}.jpg {}\n".format(image_id, cur_label_path))
             train_num += 1
 
-    with open(os.path.join(result_dir,"val.txt"),"w") as f:
+    with open(os.path.join(result_dir,"val_1449.txt"),"w") as f:
         for image_id in tqdm(val_list, desc="val images for {}".format(result_dir)):
             label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
             is_needed, label_image = filter_func(label_image)
-            if not is_needed:
-                continue
+            #if not is_needed:
+            #    continue
 
             cur_label_path = "{}.png".format(os.path.join(label_dir, image_id))
             cv2.imwrite(cur_label_path, label_image)
