@@ -274,14 +274,14 @@ if __name__ == '__main__':
     args.test = True
     if args.test:
         args.test_restore_from = "train_log/train.473.class15meaning.filtered.new/VOC12_scenes_20000.pth"
-        from evaluate_incremental import do_eval
+        from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=NUM_CLASSES)
         #saved_state_dict = torch.load(args.test_restore_from)
         #student_model.load_state_dict(saved_state_dict)
 
         student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list='datalist/class15+5/new/val.txt', num_classes=NUM_CLASSES)
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list='datalist/val.txt', num_classes=21)
     else:
         logger.auto_set_dir()
         main()
