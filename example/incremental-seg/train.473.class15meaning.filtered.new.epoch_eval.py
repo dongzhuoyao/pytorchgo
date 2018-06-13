@@ -24,8 +24,8 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class15+5/old/train.txt'
-VAL_DATA_LIST_PATH = 'datalist/class15+5/old/val_1449.txt'
+DATA_LIST_PATH = 'datalist/class15+5/new/train.txt'
+VAL_DATA_LIST_PATH = 'datalist/class15+5/new/val_1449.txt'
 NUM_CLASSES = 5+1
 
 
