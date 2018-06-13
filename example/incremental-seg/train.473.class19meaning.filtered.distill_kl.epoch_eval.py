@@ -87,7 +87,7 @@ def get_arguments():
                         help="Whether to randomly scale the inputs during the training.")
     parser.add_argument("--random-seed", type=int, default=RANDOM_SEED,
                         help="Random seed to have reproducible results.")
-    parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
+    parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
@@ -298,7 +298,7 @@ def main():
 if __name__ == '__main__':
     if args.test:
         args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
-        from evaluate_incremental import do_eval
+        from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=NUM_CLASSES)
         #saved_state_dict = torch.load(args.test_restore_from)

@@ -67,6 +67,7 @@ def get_iou(data_list, class_num, ):
     logger.info('meanIOU-w/o bg: {}'.format(np.mean(j_list[1:])))
     logger.info("IOU: {}".format(str(j_list)))
     logger.info("confusion matrix: {}".format(M))
+    return j_list
 
 
 
@@ -160,7 +161,7 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
         # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
-    get_iou(data_list, num_classes)
+    return get_iou(data_list, num_classes)
 
 
 def main():

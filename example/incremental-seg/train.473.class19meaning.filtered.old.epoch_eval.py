@@ -24,9 +24,9 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class19+1/new/train.txt'
-VAL_DATA_LIST_PATH = 'datalist/class19+1/new/val_1449.txt'
-NUM_CLASSES = 1+1
+DATA_LIST_PATH = 'datalist/class19+1/old/train.txt'
+VAL_DATA_LIST_PATH = 'datalist/class19+1/old/val_1449.txt'
+NUM_CLASSES = 19+1
 
 
 IGNORE_LABEL = 255
@@ -36,7 +36,7 @@ MOMENTUM = 0.9
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473.class19meaning/VOC12_scenes_20000.pth'#'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
 
@@ -87,7 +87,7 @@ def get_arguments():
                         help="Whether to randomly scale the inputs during the training.")
     parser.add_argument("--random-seed", type=int, default=RANDOM_SEED,
                         help="Random seed to have reproducible results.")
-    parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
+    parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
@@ -298,7 +298,7 @@ def main():
 if __name__ == '__main__':
     if args.test:
         args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
-        from evaluate_incremental import do_eval
+        from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=NUM_CLASSES)
         #saved_state_dict = torch.load(args.test_restore_from)
