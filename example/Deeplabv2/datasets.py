@@ -2,7 +2,6 @@ import os
 import os.path as osp
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import collections
 import torch
 import torchvision
@@ -65,13 +64,17 @@ class VOCDataSet(data.Dataset):
 
 class CSDataSet(data.Dataset):
     def __init__(self, root='/home/hutao/dataset/cityscapes', list_path="datalist/cityscapes", name="train", img_transform = None, label_transform = None, augmentation = None,
-                 max_iters=None,  mirror=True, ):
+                 max_iters=None,  mirror=False, ):
         self.root = root
         self.list_path = list_path
         self.is_mirror = mirror
         self.name = name
         if "train" in self.name:
             self.data_pairs = [(data_pair[0].strip(), data_pair[1].strip()) for data_pair in zip(open(os.path.join(list_path, "cityscapes_imagelist_train.txt")), open(os.path.join(list_path, "cityscapes_labellist_train.txt")))]
+        elif "val" in self.name:
+            self.data_pairs = [(data_pair[0].strip(), data_pair[1].strip()) for data_pair in zip(open(os.path.join(list_path, "cityscapes_imagelist_val.txt")), open(os.path.join(list_path, "cityscapes_labellist_val.txt")))]
+
+
         if not max_iters==None:
 	        self.data_pairs = self.data_pairs * int(np.ceil(float(max_iters) / len(self.data_pairs)))
 
@@ -117,7 +120,7 @@ class CSDataSet(data.Dataset):
             image, label = self.augmentation((image, label))
 
         #image = image[:, :, ::-1]  # change to BGR
-        image = image.transpose((2, 0, 1))
+        image = image.transpose((2, 0, 1)) #C,H,W
         if self.is_mirror:
             flip = np.random.choice(2) * 2 - 1
             image = image[:, :, ::flip]

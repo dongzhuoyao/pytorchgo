@@ -4,7 +4,9 @@ from PIL import Image
 import collections
 import torch
 import cv2,random
+import numbers
 
+from PIL import Image, ImageOps
 
 class RandomScale():
     def __init__(self):
@@ -49,12 +51,53 @@ class PascalPadding():
 
         return (image, label)
 
+
+class PIL2NP_BOTH(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, data):
+        image, mask  = data
+        return (np.asarray(image), np.asarray(mask))
+
+
+
+
+class RandomCrop(object):
+    def __init__(self, size):
+        if isinstance(size, int):
+            self.size = (size, size)
+        else:
+            self.size = size
+
+    def __call__(self, data):
+        img, mask = data
+
+
+        assert img.shape[:2] == mask.shape
+
+        h, w = mask.shape
+        th, tw = self.size
+        if w == tw and h == th:
+            return img, mask
+        assert w >= tw and h >= th
+
+        x1 = random.randint(0, h - th)
+        y1 = random.randint(0, w - tw)
+        return (img[x1:x1+tw,y1:y1+th], mask[x1:x1+tw,y1:y1+th])
+
+
+############################## single image ###########################################
+
 class PIL2NP(object):
     def __init__(self):
         pass
 
     def __call__(self, image):
         return np.asarray(image)
+
+
+
 
 class RGB2BGR(object):
     def __init__(self):

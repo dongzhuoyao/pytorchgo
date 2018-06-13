@@ -15,7 +15,6 @@ import os.path as osp
 from model import Res_Deeplab
 from loss import CrossEntropy2d
 from datasets import VOCDataSet,CSDataSet
-import matplotlib.pyplot as plt
 import random
 import timeit
 from tqdm import tqdm
@@ -24,20 +23,23 @@ start = timeit.default_timer()
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 2
-DATA_DIRECTORY = 'xxx'
-DATA_LIST_PATH = 'xxx'
+
 IGNORE_LABEL = 255
 INPUT_SIZE = '769,769'
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_CLASSES = 20
-NUM_STEPS = 40000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = '/home/hutao/data/models/pytorch/MS_DeepLab_resnet_pretrained_COCO_init.pth'
-SAVE_NUM_IMAGES = 2
-SAVE_PRED_EVERY = 5#5000
+RESTORE_FROM = 'resnet101-5d3b4d8f.pth' #'http://download.pytorch.org/models/resnet101-5d3b4d8f.pth'
+NUM_STEPS = 40000
+SAVE_PRED_EVERY = 5000
 WEIGHT_DECAY = 0.0005
+
+is_debug = 1
+if is_debug == 0:
+    SAVE_PRED_EVERY = 5
+    NUM_STEPS = 6
 
 from pytorchgo.utils import logger
 
@@ -51,13 +53,9 @@ def get_arguments():
     parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE,
                         help="Number of images sent to the network in one step.")
-    parser.add_argument("--data_dir", type=str, default=DATA_DIRECTORY,
-                        help="Path to the directory containing the PASCAL VOC dataset.")
-    parser.add_argument("--data-list", type=str, default=DATA_LIST_PATH,
-                        help="Path to the file listing the images in the dataset.")
     parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
-    parser.add_argument("--input-size", type=str, default=INPUT_SIZE,
+    parser.add_argument("--input_size", type=str, default=INPUT_SIZE,
                         help="Comma-separated string with height and width of images.")
     parser.add_argument("--is-training", action="store_true",
                         help="Whether to updates the running means and variances during the training.")
@@ -67,7 +65,7 @@ def get_arguments():
                         help="Momentum component of the optimiser.")
     parser.add_argument("--not-restore-last", action="store_true",
                         help="Whether to not restore last (FC) layers.")
-    parser.add_argument("--num-classes", type=int, default=NUM_CLASSES,
+    parser.add_argument("--num_classes", type=int, default=NUM_CLASSES,
                         help="Number of classes to predict (including background).")
     parser.add_argument("--num-steps", type=int, default=NUM_STEPS,
                         help="Number of training steps.")
@@ -81,8 +79,6 @@ def get_arguments():
                         help="Random seed to have reproducible results.")
     parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
-    parser.add_argument("--save-num-images", type=int, default=SAVE_NUM_IMAGES,
-                        help="How many images to save.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
@@ -184,6 +180,7 @@ def main():
         # print i_parts
         if not args.num_classes == 21 or not i_parts[1]=='layer5':
             new_params['.'.join(i_parts[1:])] = saved_state_dict[i]
+            logger.info("recovering weight: {}".format(i))
     model.load_state_dict(new_params,strict=False)
     #model.float()
     #model.eval() # use_global_stats = True
@@ -195,7 +192,7 @@ def main():
 
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
-        PascalPadding
+        PascalPadding,RandomCrop
     from torchvision.transforms import Compose, Normalize, ToTensor
 
     img_transform = Compose([  # notice the order!!!
@@ -208,7 +205,8 @@ def main():
 
     augmentation = Compose(
         [
-            PascalPadding(input_size)
+            RandomCrop(input_size)
+            #PascalPadding(input_size), cityscapes image is very large!
         ]
     )
 
@@ -221,8 +219,36 @@ def main():
                 lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
-    interp = nn.Upsample(size=input_size, mode='bilinear')
 
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, RandomCrop, \
+        PascalPadding
+    from torchvision.transforms import Compose, Normalize, ToTensor
+
+    val_img_transform = Compose([  # notice the order!!!
+        SubtractMeans(),
+        # RandomScale()
+    ])
+
+    val_label_transform = Compose([
+        # PIL_Scale(train_img_shape, Image.NEAREST),
+        PIL2NP(),
+        Value255to0(),
+        ToLabel()
+
+    ])
+
+    val_augmentation = Compose(
+        [
+        #PascalPadding((1024,2048))
+        ]
+    )
+
+    testloader = data.DataLoader(dataset=CSDataSet(name="val", img_transform=val_img_transform, label_transform=val_label_transform, augmentation=val_augmentation), batch_size=1, shuffle=False,pin_memory=True)
+
+    interp = nn.Upsample(size=input_size, mode='bilinear')
+    data_list = []
+
+    best_miou = 0
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
@@ -235,22 +261,36 @@ def main():
         loss.backward()
         optimizer.step()
 
-        if i_iter%100 == 0:
-            logger.info('loss = {}'.format(loss.data.cpu().numpy()))
+        if i_iter % 50 == 0:
+            logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
 
-        if i_iter >= args.num_steps-1:
-            logger.info( 'save model ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), str(args.num_steps)+'.pth'))
-            break
 
-        if i_iter % args.save_pred_every == 0 and i_iter!=0:
-            logger.info('taking snapshot ...')
-            torch.save(model.state_dict(),osp.join(logger.get_logger_dir(), str(i_iter)+'.pth'))
+        if i_iter % args.save_pred_every == 0 and i_iter != 0:
+            logger.info('validation...')
+            from evaluate import do_eval_dataset
+            model.eval()
+            ious = do_eval_dataset(model=model, testloader=testloader, num_classes=NUM_CLASSES, output_size=input_size, quick_eval=50)
+            cur_miou = ious[-1]
+            model.train()
 
-    from evaluate_module import do_eval
+            is_best = True if cur_miou > best_miou else False
+            if is_best:
+                best_miou = cur_miou
+                logger.info('taking snapshot...')
+                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+            else:
+                logger.info("current snapshot is not good enough, skip~~")
+            if is_debug==1:
+                logger.info("debug mode, break...")
+                break
+
+
+    logger.info('final validation...')
+    from evaluate import do_eval_dataset
     model.eval()
-    do_eval(model=model, num_classes=args.num_classes)
+    do_eval_dataset(model=model, testloader=testloader, num_classes=NUM_CLASSES, output_size=input_size, restore_from=osp.join(logger.get_logger_dir(), 'love.pth'))
     logger.info("Congrats~")
+
 
 if __name__ == '__main__':
     main()
