@@ -33,11 +33,13 @@ POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = 'resnet101-5d3b4d8f.pth' #'http://download.pytorch.org/models/resnet101-5d3b4d8f.pth'
 NUM_STEPS = 40000
-SAVE_PRED_EVERY = 5000
+SAVE_PRED_EVERY = 3000
 WEIGHT_DECAY = 0.0005
 
-is_debug = 1
-if is_debug == 0:
+is_debug = 0
+
+
+if is_debug == 1:
     SAVE_PRED_EVERY = 5
     NUM_STEPS = 6
 
@@ -269,15 +271,20 @@ def main():
             logger.info('validation...')
             from evaluate import do_eval_dataset
             model.eval()
-            ious = do_eval_dataset(model=model, testloader=testloader, num_classes=NUM_CLASSES, output_size=input_size, quick_eval=50)
-            cur_miou = ious[-1]
+            ious = do_eval_dataset(model=model, testloader=testloader, num_classes=NUM_CLASSES, output_size=input_size, quick_eval=100)
+            cur_miou = np.mean(ious[1:])
             model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 best_miou = cur_miou
                 logger.info('taking snapshot...')
-                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+                torch.save({
+                    'iteration': i_iter,
+                    'optim_state_dict': optimizer.state_dict(),
+                    'model_state_dict': model.state_dict(),
+                    'best_mean_iu': best_miou,
+                }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
             if is_debug==1:

@@ -266,13 +266,18 @@ def main():
             from evaluate import do_eval
             model.eval()
             ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
-            cur_miou = ious[-1]
+            cur_miou = np.mean(ious[1:])
             model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 logger.info('taking snapshot...')
-                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+                torch.save({
+                    'iteration': i_iter,
+                    'optim_state_dict': optimizer.state_dict(),
+                    'model_state_dict': model.state_dict(),
+                    'best_mean_iu': best_miou,
+                }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
             break
@@ -282,14 +287,19 @@ def main():
             from evaluate_incremental import do_eval
             model.eval()
             ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
-            cur_miou = ious[-1]
+            cur_miou = np.mean(ious[1:])
             model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 best_miou = cur_miou
                 logger.info('taking snapshot...')
-                torch.save(model.state_dict(), osp.join(logger.get_logger_dir(), 'love.pth'))
+                torch.save({
+                    'iteration': i_iter,
+                    'optim_state_dict': optimizer.state_dict(),
+                    'model_state_dict': model.state_dict(),
+                    'best_mean_iu': best_miou,
+                }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
 
