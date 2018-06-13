@@ -173,6 +173,7 @@ def filter15_new(label_img):
     return is_needed, label_img
 
 
+"""
 conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
 conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
 
@@ -182,3 +183,4 @@ conduct_filter(filter_func=filter15_new, result_dir ="class15+5/new", label_dir 
 
 conduct_filter(filter_func=filter19_old, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old")
 conduct_filter(filter_func=filter19_new, result_dir ="class19+1/new", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_new")
+"""

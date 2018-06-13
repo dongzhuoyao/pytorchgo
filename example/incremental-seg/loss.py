@@ -41,10 +41,10 @@ class L2_Distill_Loss(nn.Module):
 
 
     def forward(self, inputs1, inputs2):
-        return torch.mean((F.softmax(inputs1) - F.softmax(inputs2))**2)
+        return torch.mean((F.softmax(inputs1, dim=1) - F.softmax(inputs2, dim=1))**2)
 
 #https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py#L100
-def loss_fn_kd(outputs, teacher_outputs):
+def loss_fn_kd(outputs, teacher_outputs,  T = 1):
     """
     Compute the knowledge-distillation (KD) loss given outputs, labels.
     "Hyperparameters": temperature and alpha
@@ -52,7 +52,6 @@ def loss_fn_kd(outputs, teacher_outputs):
     and student expects the input tensor to be log probabilities! See Issue #2
     """
     alpha = 1
-    T = 1
     KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
                              F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T)
 

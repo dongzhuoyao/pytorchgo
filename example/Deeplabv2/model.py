@@ -204,7 +204,7 @@ class ResNet_Refine(nn.Module):
         return x     
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, num_classes):
+    def __init__(self, block, layers, num_classes, aspp = False):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
@@ -218,7 +218,10 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=1, dilation=4)
-        self.layer5 = self._make_pred_layer(Classifier_Module, [6,12,18,24],[6,12,18,24],num_classes)
+        if aspp:
+            self.layer5 = self._make_pred_layer(Classifier_Module, [6,12,18,24],[6,12,18,24],num_classes)
+        else:
+            self.layer5 = self._make_pred_layer(Classifier_Module, [6], [6], num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -289,10 +292,10 @@ def Res_Ms_Deeplab(num_classes=21):
     model = MS_Deeplab(Bottleneck, num_classes)
     return model
 
-def Res_Deeplab(num_classes=21, is_refine=False):
+def Res_Deeplab(num_classes=21, is_refine=False, aspp=True):
     if is_refine:
         model = ResNet_Refine(Bottleneck,[3, 4, 23, 3], num_classes)
     else:
-        model = ResNet(Bottleneck,[3, 4, 23, 3], num_classes)
+        model = ResNet(Bottleneck,[3, 4, 23, 3], num_classes, aspp)
     return model
 

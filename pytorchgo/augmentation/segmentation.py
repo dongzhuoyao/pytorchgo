@@ -84,7 +84,7 @@ class RandomCrop(object):
 
         x1 = random.randint(0, h - th)
         y1 = random.randint(0, w - tw)
-        return (img[x1:x1+tw,y1:y1+th], mask[x1:x1+tw,y1:y1+th])
+        return (img[x1:x1+th,y1:y1+tw], mask[x1:x1+th,y1:y1+tw])
 
 
 ############################## single image ###########################################

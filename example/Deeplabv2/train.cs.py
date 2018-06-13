@@ -22,10 +22,10 @@ start = timeit.default_timer()
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 2
+BATCH_SIZE = 3
 
 IGNORE_LABEL = 255
-INPUT_SIZE = '769,769'
+INPUT_SIZE = '672,672'
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_CLASSES = 20
@@ -79,7 +79,7 @@ def get_arguments():
                         help="Whether to randomly scale the inputs during the training.")
     parser.add_argument("--random-seed", type=int, default=RANDOM_SEED,
                         help="Random seed to have reproducible results.")
-    parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
+    parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
@@ -154,6 +154,7 @@ def adjust_learning_rate(optimizer, i_iter):
     lr = lr_poly(args.learning_rate, i_iter, args.num_steps, args.power)
     optimizer.param_groups[0]['lr'] = lr
     optimizer.param_groups[1]['lr'] = lr * 10
+    return lr
 
 
 def main():
@@ -166,7 +167,7 @@ def main():
     cudnn.enabled = True
 
     # Create network.
-    model = Res_Deeplab(num_classes=args.num_classes)
+    model = Res_Deeplab(num_classes=args.num_classes,aspp=False)
     # For a small batch size, it is better to keep 
     # the statistics of the BN layers (running means and variances)
     # frozen, and to not update the values provided by the pre-trained model. 
@@ -250,6 +251,11 @@ def main():
     interp = nn.Upsample(size=input_size, mode='bilinear')
     data_list = []
 
+    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+
+    model_summary(model)
+    optimizer_summary(optimizer)
+
     best_miou = 0
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
@@ -257,14 +263,14 @@ def main():
         images = Variable(images).cuda()
 
         optimizer.zero_grad()
-        adjust_learning_rate(optimizer, i_iter)
+        lr = adjust_learning_rate(optimizer, i_iter)
         pred = interp(model(images))
         loss = loss_calc(pred, labels)
         loss.backward()
         optimizer.step()
 
         if i_iter % 50 == 0:
-            logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
+            logger.info('loss = {}, lr={}, best_miou={}'.format(loss.data.cpu().numpy(), lr, best_miou))
 
 
         if i_iter % args.save_pred_every == 0 and i_iter != 0:
