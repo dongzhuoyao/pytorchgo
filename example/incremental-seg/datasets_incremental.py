@@ -68,7 +68,7 @@ class VOCDataSet(data.Dataset):
 
 
 if __name__ == '__main__':
-    dst = VOCDataSet("/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", list_path="datalist/class19+1/new/train.txt")
+    dst = VOCDataSet("/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", list_path="datalist/class19+1/new/val_1449.txt")
     trainloader = data.DataLoader(dst, batch_size=1)
     for i, data in enumerate(trainloader):
         imgs, labels,_,_ = data

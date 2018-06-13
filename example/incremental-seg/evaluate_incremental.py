@@ -112,8 +112,6 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
     model.eval()
     model.cuda()
 
-    from pytorchgo.augmentation.segmentation import SubtractMeans
-    from PIL import Image
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
         PascalPadding
