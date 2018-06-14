@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 import sys
 import os
 import os.path as osp
-from model import Res_Deeplab
+from model_son.model import Res_Deeplab
 from loss import CrossEntropy2d
 from datasets_incremental import VOCDataSet
 import random
@@ -24,12 +24,12 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class15+5/new/train_10582.txt'
+DATA_LIST_PATH = 'datalist/class19+1/new/train_10582.txt'
 VAL_DATA_LIST_PATH = 'datalist/val_1449.txt'
 
 
-teacher_class_num = 15+1
-student_class_num = 20+1
+teacher_class_num = 20
+student_class_num = 21
 
 
 IGNORE_LABEL = 255
@@ -39,7 +39,7 @@ MOMENTUM = 0.9
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/train.473.class15meaning.filtered.old.epoch_eval.backup/love.68_24.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'train_log/train.473.class19meaning.filtered.old.epoch_eval.backup/love.67_84.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
 
@@ -203,14 +203,12 @@ def main():
     cudnn.enabled = True
 
     # Create network.
-    teacher_model = Res_Deeplab(num_classes=teacher_class_num)
+    teacher_model = Res_Deeplab(num_classes=teacher_class_num, is_student=False)
 
-    student_model = Res_Deeplab(num_classes=student_class_num)
+    student_model = Res_Deeplab(num_classes=student_class_num, is_student=False)
 
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    model_summary(student_model)
-    saved_state_dict = torch.load('resnet50-19c8e357.pth')
+    saved_state_dict = torch.load(args.restore_from)
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
@@ -220,11 +218,16 @@ def main():
         if i_parts[0] == 'layer5' or i_parts[0] == 'fc':
             continue
         new_params[i] = saved_state_dict[i]
-        logger.info("recovering weight: {}".format(i))
+        logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
     student_model.load_state_dict(new_params, strict=False)
+
+
+
 
     fix_state_dict = torch.load(args.restore_from)
     teacher_model.load_state_dict(fix_state_dict, strict=True)
+
+
 
     #model.float()
     #model.eval() # use_global_stats = True
@@ -266,13 +269,20 @@ def main():
                 lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
+    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+
+
+    for param in teacher_model.parameters():
+        param.requires_grad = False
+
+    model_summary([teacher_model, student_model])
+
     optimizer_summary(optimizer)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
     best_miou = 0
-    for param in teacher_model.parameters():
-        param.requires_grad = False
+
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
@@ -280,14 +290,15 @@ def main():
 
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
-        teacher_output = interp(teacher_model(images))  # [4,20,473,473]
+        teacher_output = teacher_model(images)
+        teacher_output = interp(teacher_output)# [4,20,473,473]
 
-        pred_old_no_bg = teacher_output[:, 1:, :, :]#15 CLASSES
+        pred_old_no_bg = teacher_output[:, :, :, :]
 
         student_output = interp(student_model(images))  # [4,21,473,473]
 
-        to_be_distill = student_output[:, 1:16, :, :]
-        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, 16:, :, :]),
+        to_be_distill = student_output[:, 0:-1, :, :]
+        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, -1:, :, :]),
                                    1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)

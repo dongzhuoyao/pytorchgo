@@ -11,6 +11,8 @@
 
 
 
+
+
 ```
 resnet50 baseline IoU
 IOU: 
@@ -21,6 +23,11 @@ IOU:
 0.5320947991001349, 0.7682378772352991, 0.42950204140011755, 0.7708922871993165, 0.6422490407911726]
 ```
 
+### Check list
+
+* best miou calculation pattern
+* train_dir, val_dir 
+
 ### class 19+1 ablation study
 
 |arch|old(19 classes)|new(1 classes)|all(20 classes)
@@ -30,12 +37,21 @@ train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
 train.473.class19meaning.filtered.old.epoch_eval.backup|67.84|--|--|
 train.473.class19meaning.filtered.new.epoch_eval|--|64.52|--|
-train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.fine_tune.fix_branch|--|--|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_disw10.fine_tune|39.89|46.70|40.23|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4.fine_tune|11.49|48.49|13.34|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.fine_tune|25.52|**57.3**|27.11|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.fine_tune.fix_branch|32.02|47.27|32.78|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl|4.46|46.5|6.56|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_disw10|12.38|32.29|13.38|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2|14.93|54.68|16.91|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4|0.14|29.36|1.61|
-
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res12|25.28|46.67|26.35|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res1|**39.22**|40.48|**39.29**|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res123.bs12|7.84|43.76|9.64|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune|--|:question:|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.fix_branch|--|:question:|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res1|--|--|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12|--|--|--|
 ### class 15+5 ablation study
 
 |arch|old(15 classes)|new(5 classes)|all(20 classes)
@@ -43,8 +59,8 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4|0.14|29.36|1.61|
 |**train 20 class together**|68.9|62.86|67.39|
 train.473.class15meaning.filtered.old.epoch_eval.backup|68.24|--|--|
 train.473.class15meaning.filtered.new.epoch_eval|--|56.18|--|
-train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2|--|--|--|
-
+train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2|--|64.76|14.63|
+train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2.share_res12|--|--|--|
 
 ### class 10+10 ablation study
 
