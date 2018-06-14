@@ -30,6 +30,7 @@ train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
 train.473.class19meaning.filtered.old.epoch_eval.backup|67.84|--|--|
 train.473.class19meaning.filtered.new.epoch_eval|--|64.52|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.fine_tune.fix_branch|--|--|--|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl|4.46|46.5|6.56|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_disw10|12.38|32.29|13.38|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2|14.93|54.68|16.91|
@@ -48,3 +49,5 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4|0.14|29.36|1.61|
 |arch|old(10 classes)|new(10 classes)|all(20 classes)
 |---|---|---|---|
 |**train 20 class together**|68.29|66.48|67.39|
+train.473.class10meaning.filtered.old.epoch_eval|66.7|--|--|
+train.473.class10meaning.filtered.new.epoch_eval|--|64.8|--|
