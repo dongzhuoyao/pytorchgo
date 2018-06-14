@@ -30,13 +30,16 @@ train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
 train.473.class19meaning.filtered.onlyseg_nodistill.epoch_eval|--|43.8||
 train.473.class19meaning.filtered.old.epoch_eval.backup|67.84|--|--|
-
+train.473.class19meaning.filtered.new.epoch_eval|64.52|--|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl|--|46.5|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2|--|54.68|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4|--|29.36|--|
 ### class 15+5 ablation study
 
 |arch|old(15 classes)|new(5 classes)|all(20 classes)
 |---|---|---|---|
 |**train 20 class together**|68.9|62.86|67.39|
-|train seperately|train.473.class15meaning.filtered.old.epoch_eval.backup:68.24|?|?
+|train seperately|train.473.class15meaning.filtered.old.epoch_eval.backup:68.24|train.473.class15meaning.filtered.new.epoch_eval:56.18|65.22
 
 
 ### class 10+10 ablation study
