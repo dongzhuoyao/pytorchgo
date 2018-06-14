@@ -28,7 +28,6 @@ IOU:
 |**training 20 classes together**|67.56|**64.22**|67.39|
 train.473.class19meaning.filtered.distill|24.61|27.66|24.77
 train.473.class19meaning.filtered.distill_kl|19.81|36.48|20.65|
-train.473.class19meaning.filtered.onlyseg_nodistill.epoch_eval|--|43.8||
 train.473.class19meaning.filtered.old.epoch_eval.backup|67.84|--|--|
 train.473.class19meaning.filtered.new.epoch_eval|--|64.52|--|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl|4.46|46.5|6.56|
