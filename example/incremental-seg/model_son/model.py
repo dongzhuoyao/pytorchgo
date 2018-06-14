@@ -266,7 +266,7 @@ class ResNet(nn.Module):
         x = self.layer5(x)
         context_list.append(x)
 
-        return context_list
+        return x
 
 
 class ResNet_student(nn.Module):

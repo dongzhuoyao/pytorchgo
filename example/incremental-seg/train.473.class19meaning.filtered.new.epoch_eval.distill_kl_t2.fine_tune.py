@@ -18,36 +18,44 @@ from datasets_incremental import VOCDataSet
 import random
 import timeit
 from tqdm import tqdm
-
 start = timeit.default_timer()
 
-IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
+IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
 DATA_LIST_PATH = 'datalist/class19+1/new/train_10582.txt'
 VAL_DATA_LIST_PATH = 'datalist/val_1449.txt'
 
+
 teacher_class_num = 20
 student_class_num = 21
 
+
 IGNORE_LABEL = 255
-INPUT_SIZE = (473, 473)
+INPUT_SIZE = (473,473)
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/train.473.class19meaning.filtered.old.epoch_eval.backup/love.67_84.pth'  # 'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'train_log/train.473.class19meaning.filtered.old.epoch_eval.backup/love.67_84.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
+
+
+
+
 
 from pytorchgo.utils import logger
 
 
+
+
+
 def get_arguments():
     """Parse all the arguments provided from the CLI.
-
+    
     Returns:
       A list of parsed arguments.
     """
@@ -60,7 +68,7 @@ def get_arguments():
                         help="Path to the file listing the images in the dataset.")
     parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
-    parser.add_argument("--input_size", default=INPUT_SIZE,
+    parser.add_argument("--input_size",  default=INPUT_SIZE,
                         help="Comma-separated string with height and width of images.")
     parser.add_argument("--is-training", action="store_true",
                         help="Whether to updates the running means and variances during the training.")
@@ -89,18 +97,17 @@ def get_arguments():
 
     parser.add_argument("--distill_loss", type=str, default="l2", choices=['l2', 'kl'])
 
-    parser.add_argument("--test", action="store_true", help="test")
-    parser.add_argument("--test_restore_from", help="test")
+    parser.add_argument("--test", action="store_true",help="test")
+    parser.add_argument("--test_restore_from",  help="test")
 
     parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
     return parser.parse_args()
 
-
 args = get_arguments()
 
-random.seed(args.random_seed)
 
+random.seed(args.random_seed)
 
 def loss_calc(pred, label):
     """
@@ -110,19 +117,19 @@ def loss_calc(pred, label):
     # label shape h x w x 1 x batch_size  -> batch_size x 1 x h x w
     label = Variable(label.long()).cuda()
     criterion = torch.nn.CrossEntropyLoss(ignore_index=IGNORE_LABEL).cuda()
-
+    
     return criterion(pred, label)
 
 
 def lr_poly(base_lr, iter, max_iter, power):
-    return base_lr * ((1 - float(iter) / max_iter) ** (power))
+    return base_lr*((1-float(iter)/max_iter)**(power))
 
 
 def get_1x_lr_params_NOscale(model):
     """
-    This generator returns all the parameters of the net except for
-    the last classification layer. Note that for each batchnorm layer,
-    requires_grad is set to False in deeplab_resnet.py, therefore this function does not return
+    This generator returns all the parameters of the net except for 
+    the last classification layer. Note that for each batchnorm layer, 
+    requires_grad is set to False in deeplab_resnet.py, therefore this function does not return 
     any batchnorm parameter
     """
     b = []
@@ -134,14 +141,14 @@ def get_1x_lr_params_NOscale(model):
     b.append(model.layer3)
     b.append(model.layer4)
 
+    
     for i in range(len(b)):
         for j in b[i].modules():
             jj = 0
             for k in j.parameters():
-                jj += 1
+                jj+=1
                 if k.requires_grad:
                     yield k
-
 
 def get_10x_lr_params(model):
     """
@@ -154,8 +161,8 @@ def get_10x_lr_params(model):
     for j in range(len(b)):
         for i in b[j]:
             yield i
-
-
+            
+            
 def adjust_learning_rate(optimizer, i_iter):
     """Sets the learning rate to the initial LR divided by 5 at 60th, 120th and 160th epochs"""
     lr = lr_poly(args.learning_rate, i_iter, args.num_steps, args.power)
@@ -166,8 +173,8 @@ def adjust_learning_rate(optimizer, i_iter):
 
 def main():
     """Create the model and start the training."""
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+    
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
     os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
     if args.distill_loss == "kl":
@@ -200,6 +207,7 @@ def main():
 
     student_model = Res_Deeplab(num_classes=student_class_num, is_student=False)
 
+
     saved_state_dict = torch.load(args.restore_from)
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
@@ -213,18 +221,25 @@ def main():
         logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
     student_model.load_state_dict(new_params, strict=False)
 
+
+
+
     fix_state_dict = torch.load(args.restore_from)
     teacher_model.load_state_dict(fix_state_dict, strict=True)
 
-    # model.float()
-    # model.eval() # use_global_stats = True
+
+
+    #model.float()
+    #model.eval() # use_global_stats = True
     teacher_model.train()
     teacher_model.cuda()
 
     student_model.train()
     student_model.cuda()
-
+    
     cudnn.benchmark = True
+
+
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
         PascalPadding
@@ -244,25 +259,18 @@ def main():
         ]
     )
 
-    trainloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.batch_size,
-                                             mirror=args.random_mirror, img_transform=img_transform,
-                                             label_transform=label_transform, augmentation=augmentation),
-                                  batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
 
-    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(student_model), 'lr': args.learning_rate},
-                           {'params': get_10x_lr_params(student_model), 'lr': 10 * args.learning_rate}],
-                          lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
+    trainloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, max_iters=args.num_steps*args.batch_size,
+                     mirror=args.random_mirror, img_transform=img_transform, label_transform=label_transform, augmentation=augmentation),
+                    batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
+
+    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(student_model), 'lr': args.learning_rate },
+                {'params': get_10x_lr_params(student_model), 'lr': 10*args.learning_rate}],
+                lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
     from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    for param in student_model.conv1.parameters():
-        param.requires_grad = False
-
-    for param in student_model.layer1.parameters():
-        param.requires_grad = False
-    for param in student_model.layer2.parameters():
-        param.requires_grad = False
 
     for param in teacher_model.parameters():
         param.requires_grad = False
@@ -275,6 +283,7 @@ def main():
 
     best_miou = 0
 
+
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
@@ -282,7 +291,7 @@ def main():
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
         teacher_output = teacher_model(images)
-        teacher_output = interp(teacher_output)  # [4,20,473,473]
+        teacher_output = interp(teacher_output)# [4,20,473,473]
 
         pred_old_no_bg = teacher_output[:, 1:, :, :]
 
@@ -298,19 +307,19 @@ def main():
         loss.backward()
         optimizer.step()
 
-        if i_iter % 50 == 0:
-            logger.info('loss = {}, seg_loss={}, distill_loss={}, lr={}, best_miou={}'.format(loss.data.cpu().numpy(),
-                                                                                              seg_loss.data.cpu().numpy(),
-                                                                                              distill_loss.data.cpu().numpy(),
-                                                                                              lr, best_miou))
+        
 
-        if i_iter >= args.num_steps - 1:
+
+        if i_iter%50 == 0:
+            logger.info('loss = {}, seg_loss={}, distill_loss={}, lr={}, best_miou={}'.format(loss.data.cpu().numpy(),
+             seg_loss.data.cpu().numpy(), distill_loss.data.cpu().numpy(), lr, best_miou))
+
+        if i_iter >= args.num_steps-1:
             logger.info('validation...')
             from evaluate_incremental import do_eval
             student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH,
-                           num_classes=student_class_num)
-            cur_miou = ious[-1]  # np.mean(ious[1:])
+            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
+            cur_miou = ious[-1]#np.mean(ious[1:])
             student_model.train()
 
             is_best = True if cur_miou > best_miou else False
@@ -326,13 +335,12 @@ def main():
                 logger.info("current snapshot is not good enough, skip~~")
             break
 
-        if i_iter % args.save_pred_every == 0 and i_iter != 0:
+        if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
             from evaluate_incremental import do_eval
             student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH,
-                           num_classes=student_class_num)
-            cur_miou = ious[-1]  # np.mean(ious[1:])
+            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
+            cur_miou = ious[-1]#np.mean(ious[1:])
             student_model.train()
 
             is_best = True if cur_miou > best_miou else False
@@ -350,19 +358,17 @@ def main():
 
     logger.info("Congrats~")
 
-
 if __name__ == '__main__':
     if args.test:
         args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
         from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=student_class_num)
-        # saved_state_dict = torch.load(args.test_restore_from)
-        # student_model.load_state_dict(saved_state_dict)
+        #saved_state_dict = torch.load(args.test_restore_from)
+        #student_model.load_state_dict(saved_state_dict)
 
         student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir,
-                data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
     else:
         logger.auto_set_dir()
         main()

@@ -205,12 +205,10 @@ def main():
     # Create network.
     teacher_model = Res_Deeplab(num_classes=teacher_class_num, is_student=False)
 
-    student_model = Res_Deeplab(num_classes=student_class_num, is_student=True)
+    student_model = Res_Deeplab(num_classes=student_class_num, is_student=False)
 
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    model_summary(student_model)
-    saved_state_dict = torch.load('resnet50-19c8e357.pth')
+    saved_state_dict = torch.load(args.restore_from)
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
@@ -220,11 +218,16 @@ def main():
         if i_parts[0] == 'layer5' or i_parts[0] == 'fc':
             continue
         new_params[i] = saved_state_dict[i]
-        logger.info("recovering weight: {}".format(i))
+        logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
     student_model.load_state_dict(new_params, strict=False)
+
+
+
 
     fix_state_dict = torch.load(args.restore_from)
     teacher_model.load_state_dict(fix_state_dict, strict=True)
+
+
 
     #model.float()
     #model.eval() # use_global_stats = True
@@ -266,13 +269,25 @@ def main():
                 lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
+    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+
+    for param in student_model.conv1.parameters():
+        param.requires_grad = False
+
+    for param in student_model.layer1.parameters():
+        param.requires_grad = False
+
+    for param in teacher_model.parameters():
+        param.requires_grad = False
+
+    model_summary([teacher_model, student_model])
+
     optimizer_summary(optimizer)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
     best_miou = 0
-    for param in teacher_model.parameters():
-        param.requires_grad = False
+
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
@@ -280,13 +295,12 @@ def main():
 
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
-        teacher_context = teacher_model(images)
-        teacher_output = teacher_context[-1]
+        teacher_output = teacher_model(images)
         teacher_output = interp(teacher_output)# [4,20,473,473]
 
         pred_old_no_bg = teacher_output[:, 1:, :, :]
 
-        student_output = interp(student_model(teacher_context[0]))  # [4,21,473,473]
+        student_output = interp(student_model(images))  # [4,21,473,473]
 
         to_be_distill = student_output[:, 1:-1, :, :]
         new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, -1:, :, :]),
