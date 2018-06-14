@@ -263,7 +263,7 @@ def main():
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
-            from evaluate import do_eval
+            from evaluate_incremental import do_eval
             model.eval()
             ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
             cur_miou = np.mean(ious[1:])
