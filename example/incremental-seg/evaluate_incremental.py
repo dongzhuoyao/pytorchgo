@@ -141,10 +141,70 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
         batch_size=1, shuffle=False, pin_memory=True)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
+    data_list = []
+
+    for index, batch in tqdm(enumerate(testloader)):
+        image, label, size, name = batch
+        size = size[0].numpy()
+        output = model(Variable(image, volatile=True).cuda())
+        output = interp(output).cpu().data[0].numpy()
+
+        output = output[:, :size[0], :size[1]]
+        gt = np.asarray(label[0].numpy()[:size[0], :size[1]], dtype=np.int)
+
+        output = output.transpose(1, 2, 0)
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
+
+        # show_all(gt, output)
+        data_list.append([gt.flatten(), output.flatten()])
+
+    return get_iou(data_list, num_classes)
+
+
+def do_eval_coco(model, data_list, num_classes, restore_from=None, quick_eval=1e10):
+
+    if restore_from is not None:
+        saved_state_dict = torch.load(restore_from)
+        model.load_state_dict(saved_state_dict['model_state_dict'])
+
+    model.eval()
+    model.cuda()
+
+
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
+        PascalPadding
+    from torchvision.transforms import Compose, Normalize, ToTensor
+
+    img_transform = Compose([  # notice the order!!!
+        SubtractMeans(),
+        # RandomScale()
+    ])
+
+    label_transform = Compose([
+        # PIL_Scale(train_img_shape, Image.NEAREST),
+        PIL2NP(),
+        Value255to0(),
+        ToLabel()
+
+    ])
+
+    augmentation = Compose(
+        [
+            PascalPadding(input_size)
+        ]
+    )
+
+    from datasets_incremental import CoCoDataSet
+    testloader = data.DataLoader(
+        CoCoDataSet(data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
+        batch_size=1, shuffle=False, pin_memory=True)
+
     interp = nn.Upsample(size=input_size, mode='bilinear')
     data_list = []
 
     for index, batch in tqdm(enumerate(testloader)):
+        if index > quick_eval:break
+
         image, label, size, name = batch
         size = size[0].numpy()
         output = model(Variable(image, volatile=True).cuda())

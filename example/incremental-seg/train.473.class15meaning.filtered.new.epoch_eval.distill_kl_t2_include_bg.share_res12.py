@@ -272,6 +272,7 @@ def main():
     for param in student_model.layer2.parameters():
         param.requires_grad = False
 
+
     for param in teacher_model.parameters():
         param.requires_grad = False
 
