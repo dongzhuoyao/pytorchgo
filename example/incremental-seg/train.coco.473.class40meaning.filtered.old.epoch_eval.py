@@ -37,7 +37,7 @@ NUM_STEPS = 100000
 POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = 'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
-SAVE_PRED_EVERY = 5000
+SAVE_PRED_EVERY = 2000
 WEIGHT_DECAY = 0.0005
 
 
