@@ -28,6 +28,12 @@ IOU:
 * best miou calculation pattern
 * train_dir, val_dir 
 
+### Principle
+
+*  Learning without Forgetting
+*  Convenient for multiple-incremence(network structure unchanged)
+*  what should we remember?
+
 ### class 19+1 ablation study
 
 |arch|old(19 classes)|new(1 classes)|all(20 classes)
@@ -45,8 +51,8 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl|4.46|46.5|6.56|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_disw10|12.38|32.29|13.38|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2|14.93|54.68|16.91|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4|0.14|29.36|1.61|
-train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res12|25.28|46.67|26.35|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res1|39.22|40.48|39.29|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res12|25.28|46.67|26.35|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2.share_res123.bs12|7.84|43.76|9.64|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune|34.58|64.8|36.10|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.fix_branch|43.4|60.08|44.25|
@@ -54,6 +60,7 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_t
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12|**53.57**|64.89|**54.14**|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res123|--|--|--|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune|41.37|65.56|42.58|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune.share_res12|21.06|63.68|23.19|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t8_include_bg.fine_tune|39.29|66.13|40.62|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t16_include_bg.fine_tune|--|--|--|
 ### class 15+5 ablation study

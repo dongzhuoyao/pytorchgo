@@ -310,9 +310,15 @@ def filter40_new(label_img):
         label_img[np.where(label_img_copy == i+40)] = i
     return is_needed, label_img
 
+def filter80(label_img):
+    return True,label_img
 
-conduct_filter(filter_func=filter40_old, result_dir ="class40+40/old", label_dir ="/home/hutao/dataset/incremental_coco/class40+40_old")
-conduct_filter(filter_func=filter40_new, result_dir ="class40+40/new", label_dir ="/home/hutao/dataset/incremental_coco/class40+40_new")
+
+conduct_filter(filter_func=filter80, result_dir ="class80", label_dir ="/home/hutao/dataset/incremental_coco/class80")
+
+
+#conduct_filter(filter_func=filter40_old, result_dir ="class40+40/old", label_dir ="/home/hutao/dataset/incremental_coco/class40+40_old")
+#conduct_filter(filter_func=filter40_new, result_dir ="class40+40/new", label_dir ="/home/hutao/dataset/incremental_coco/class40+40_new")
 
 
 
