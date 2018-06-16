@@ -59,8 +59,9 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_t
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.fix_branch|43.4|60.08|44.25|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res1|43.72|**66.82**|44.88|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12|**53.57**|64.89|**54.14**|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw01|0.07|55.65|2.85|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw10|66.74|64.96|66.65|
-train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw100|--|--|--|
+train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw100|68.19|63.93|67.98|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res123|45.59|60.92|46.36|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune|41.37|65.56|42.58|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune.share_res12|21.06|63.68|23.19|
@@ -77,6 +78,7 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2|--|64.76|14.63|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg|25.59|57.4|33.54|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res1|31.02|59.74|38.20|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12|32.72|60.19|39.59|
+train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10|67.05|60.81|65.49|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res123|35.78|57.84|41.3|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_branch|22.43|54.13|30.36|
 ### class 10+10 ablation study
@@ -86,3 +88,5 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_br
 |**train 20 class together**|68.29|66.48|67.39|
 train.473.class10meaning.filtered.old.epoch_eval|66.7|--|--|
 train.473.class10meaning.filtered.new.epoch_eval|--|64.8|--|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10|20.63|65.49|43.06|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|--|--|--|
