@@ -35,8 +35,13 @@ IOU:
 *  Convenient for multiple-incremence(network structure unchanged)
 *  what should we remember?
 
+
+
+
 ### class 19+1 ablation study
 
+**Notice:** all 'distill_kl_t2_include_bg'  acturally used 'l2' loss function.
+ 
 |arch|old(19 classes)|new(1 classes)|all(20 classes)
 |---|---|---|---|
 |**training 20 classes together**|67.56|**64.22**|67.39|
@@ -92,3 +97,10 @@ train.473.class10meaning.filtered.new.epoch_eval|--|64.8|--|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10|20.63|65.49|43.06|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|57.42|63.72|60.57|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw1000|44.68|24.24|34.46|
+
+### Coco
+
+|arch|old(40 classes)|new(40 classses)|all(80 classes)|
+|--|--|--|--|
+|train.coco.473.class40meaning.filtered.old.epoch_eval|56.08/55.40|--|--|
+|train.coco.473.class40meaning.filtered.new.epoch_eval|--|38.61/39.83|--|

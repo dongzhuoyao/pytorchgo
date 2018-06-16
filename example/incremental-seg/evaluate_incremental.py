@@ -197,7 +197,7 @@ def do_eval_coco(model, data_list, num_classes, restore_from=None, quick_eval=1e
     from datasets_incremental import CoCoDataSet
     testloader = data.DataLoader(
         CoCoDataSet(data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
-        batch_size=1, shuffle=False, pin_memory=True)
+        batch_size=5, shuffle=False, pin_memory=True)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
     data_list = []

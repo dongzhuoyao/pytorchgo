@@ -24,9 +24,17 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 8
 
-DATA_LIST_PATH = 'datalist/coco/class40+40/old/train.txt'
-VAL_DATA_LIST_PATH = 'datalist/coco/class40+40/old/val.txt'
-NUM_CLASSES = 40+1
+DATA_LIST_PATH = 'datalist/coco/class40+40/new/train.txt'
+VAL_DATA_LIST_PATH = 'datalist/coco/class80/val.txt'
+
+
+teacher_class_num = 40+1
+student_class_num = 80+1
+
+
+
+def cal_iou(ious):
+    return np.mean(ious[-40:])
 
 
 IGNORE_LABEL = 255
@@ -36,13 +44,11 @@ MOMENTUM = 0.9
 NUM_STEPS = 100000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM =  "train_log/train.coco.473.class40meaning.filtered.old.epoch_eval/love.pth"  #'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 2000
 WEIGHT_DECAY = 0.0005
+quick_eval = 1000
 
-
-def cal_iou(ious):
-    return np.mean(ious[-40:])
 
 
 from pytorchgo.utils import logger
@@ -74,8 +80,6 @@ def get_arguments():
                         help="Momentum component of the optimiser.")
     parser.add_argument("--not-restore-last", action="store_true",
                         help="Whether to not restore last (FC) layers.")
-    parser.add_argument("--num_classes", type=int, default=NUM_CLASSES,
-                        help="Number of classes to predict (including background).")
     parser.add_argument("--num-steps", type=int, default=NUM_STEPS,
                         help="Number of training steps.")
     parser.add_argument("--power", type=float, default=POWER,
@@ -93,10 +97,10 @@ def get_arguments():
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
 
+    parser.add_argument("--distill_loss", type=str, default="l2", choices=['l2', 'kl'])
 
-
-    parser.add_argument("--test", action="store_true",help="test")
-    parser.add_argument("--test_restore_from",  help="test")
+    parser.add_argument("--test", action="store_true", help="test")
+    parser.add_argument("--test_restore_from", help="test")
 
     parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
@@ -170,42 +174,64 @@ def adjust_learning_rate(optimizer, i_iter):
 
 def main():
     """Create the model and start the training."""
+    
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
 
+    if args.distill_loss == "kl":
+        import torch.nn.functional as F
+        def distill_loss_fn(outputs, teacher_outputs, T=2):
+            """
+            Compute the knowledge-distillation (KD) loss given outputs, labels.
+            "Hyperparameters": temperature and alpha
+            NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+            and student expects the input tensor to be log probabilities! See Issue #2
+            """
+            alpha = 1
+            KD_loss = nn.KLDivLoss()(F.log_softmax(outputs / T, dim=1),
+                                     F.softmax(teacher_outputs / T, dim=1)) * (alpha * T * T)
+
+            return KD_loss
+
+    elif args.distill_loss == "l2":
+        from loss import L2_Distill_Loss
+        distill_loss_fn = L2_Distill_Loss()
+    else:
+        raise ValueError
 
     input_size = INPUT_SIZE
 
     cudnn.enabled = True
 
     # Create network.
-    model = Res_Deeplab(num_classes=NUM_CLASSES)
-    # For a small batch size, it is better to keep 
-    # the statistics of the BN layers (running means and variances)
-    # frozen, and to not update the values provided by the pre-trained model. 
-    # If is_training=True, the statistics will be updated during the training.
-    # Note that is_training=False still updates BN parameters gamma (scale) and beta (offset)
-    # if they are presented in var_list of the optimiser definition.
+    teacher_model = Res_Deeplab(num_classes=teacher_class_num)
 
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+    student_model = Res_Deeplab(num_classes=student_class_num)
 
-    model_summary(model)
-    saved_state_dict = torch.load(args.restore_from)
+    saved_state_dict = torch.load(args.restore_from)['model_state_dict']
     print(saved_state_dict.keys())
-    new_params = model.state_dict().copy()
+    new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
-        #Scale.layer5.conv2d_list.3.weight
+        # Scale.layer5.conv2d_list.3.weight
         i_parts = i.split('.')
         # print i_parts
-        if  i_parts[0]=='layer5' or i_parts[0]=='fc':
+        if i_parts[0] == 'layer5' or i_parts[0] == 'fc':
             continue
         new_params[i] = saved_state_dict[i]
-    model.load_state_dict(new_params)
-    #model.float()
-    #model.eval() # use_global_stats = True
-    model.train()
-    model.cuda()
-    
-    cudnn.benchmark = True
+        logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
+    student_model.load_state_dict(new_params, strict=False)
 
+    fix_state_dict = torch.load(args.restore_from)['model_state_dict']
+    teacher_model.load_state_dict(fix_state_dict, strict=True)
+
+    # model.float()
+    # model.eval() # use_global_stats = True
+    teacher_model.train()
+    teacher_model.cuda()
+
+    student_model.train()
+    student_model.cuda()
+
+    cudnn.benchmark = True
 
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
@@ -231,10 +257,25 @@ def main():
                      mirror=args.random_mirror, img_transform=img_transform, label_transform=label_transform, augmentation=augmentation),
                     batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
 
-    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(model), 'lr': args.learning_rate }, 
-                {'params': get_10x_lr_params(model), 'lr': 10*args.learning_rate}], 
-                lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
+    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(student_model), 'lr': args.learning_rate},
+                           {'params': get_10x_lr_params(student_model), 'lr': 10 * args.learning_rate}],
+                          lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     optimizer.zero_grad()
+
+    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+
+    for param in student_model.conv1.parameters():
+        param.requires_grad = False
+
+    for param in student_model.layer1.parameters():
+        param.requires_grad = False
+    for param in student_model.layer2.parameters():
+        param.requires_grad = False
+
+    for param in teacher_model.parameters():
+        param.requires_grad = False
+
+    model_summary([teacher_model, student_model])
 
     optimizer_summary(optimizer)
 
@@ -246,26 +287,36 @@ def main():
         images = Variable(images).cuda()
 
         optimizer.zero_grad()
-        adjust_learning_rate(optimizer, i_iter)
-        pred = interp(model(images))
-        #class2_pred = torch.cat((pred[:,0:1,:,:],pred[:,-1:,:,:]),1)
-        loss = loss_calc(pred, labels)
+        lr = adjust_learning_rate(optimizer, i_iter)
+        teacher_output = interp(teacher_model(images))  # [4,11,473,473]
+
+        pred_old_no_bg = teacher_output[:, :, :, :]  # 11 CLASSES
+
+        student_output = interp(student_model(images))  # [4,16,473,473]
+
+        to_be_distill = student_output[:, :teacher_class_num, :, :]
+        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, teacher_class_num:, :, :]),
+                                   1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
+        seg_loss = loss_calc(new_class_part, labels)
+        distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
+        loss = seg_loss + 100 * distill_loss
+
         loss.backward()
         optimizer.step()
 
         
 
 
-        if i_iter%50 == 0:
+        if i_iter%100 == 0:
             logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
             from evaluate_incremental import do_eval_coco
-            model.eval()
-            ious = do_eval_coco(model=model, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES, quick_eval = 1000)
+            student_model.eval()
+            ious = do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, quick_eval = quick_eval)
             cur_miou = cal_iou(ious)
-            model.train()
+            student_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
@@ -273,7 +324,7 @@ def main():
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': student_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
@@ -283,10 +334,10 @@ def main():
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
             from evaluate_incremental import do_eval_coco
-            model.eval()
-            ious = do_eval_coco(model=model, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES, quick_eval = 1000)
+            student_model.eval()
+            ious = do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, quick_eval = quick_eval)
             cur_miou = cal_iou(ious)
-            model.train()
+            student_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
@@ -295,7 +346,7 @@ def main():
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': student_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
@@ -303,21 +354,19 @@ def main():
 
     logger.info('final validation...')
     from evaluate_incremental import do_eval_coco
-    model.eval()
-    do_eval_coco(model=model, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES, restore_from=osp.join(logger.get_logger_dir(), 'love.pth'))
+    student_model.eval()
+    do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, restore_from=osp.join(logger.get_logger_dir(), 'love.pth'))
     logger.info("Congrats~")
     logger.info("Congrats~")
 
 if __name__ == '__main__':
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
     if args.test:
-        args.test_restore_from = "train_log/train.coco.473.class40meaning.filtered.old.epoch_eval/love.pth"
+        args.test_restore_from = "train_log/train.coco.473.class40meaning.filtered.new.epoch_eval/love.pth"
         from evaluate_incremental import do_eval_coco
 
-        student_model = Res_Deeplab(num_classes=NUM_CLASSES)
+        student_model = Res_Deeplab(num_classes=student_class_num)
         student_model.eval()
-        do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES,
-                     restore_from=args.test_restore_from)
+        do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, restore_from=args.test_restore_from)
     else:
         logger.auto_set_dir()
         main()
