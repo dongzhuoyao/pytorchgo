@@ -79,6 +79,7 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg|25.59|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res1|31.02|59.74|38.20|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12|32.72|60.19|39.59|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10|67.05|60.81|65.49|
+train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|69.37|59.50|66.90|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res123|35.78|57.84|41.3|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_branch|22.43|54.13|30.36|
 ### class 10+10 ablation study
@@ -89,4 +90,5 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_br
 train.473.class10meaning.filtered.old.epoch_eval|66.7|--|--|
 train.473.class10meaning.filtered.new.epoch_eval|--|64.8|--|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10|20.63|65.49|43.06|
-train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|--|--|--|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|57.42|63.72|60.57|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw1000|44.68|24.24|34.46|
