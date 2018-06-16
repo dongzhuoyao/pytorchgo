@@ -47,11 +47,11 @@ def conduct_filter(filter_func, result_dir ="class19+1/old", label_dir ="/home/h
 
     if os.path.exists(label_dir):
         shutil.rmtree(label_dir)
-    os.mkdir(label_dir)
+    os.makedirs(label_dir)
 
     if os.path.exists(result_dir):
         shutil.rmtree(result_dir)
-    os.mkdir(result_dir)
+    os.makedirs(result_dir)
 
 
 
@@ -173,6 +173,107 @@ def filter15_new(label_img):
     return is_needed, label_img
 
 
+def filter15_gradual_new16(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 1
+    label_img[np.where(label_img_copy == 17)] = 0
+    label_img[np.where(label_img_copy == 18)] = 0
+    label_img[np.where(label_img_copy == 19)] = 0
+    label_img[np.where(label_img_copy == 20)] = 0
+    return True, label_img
+
+def filter15_gradual_new17(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 0
+    label_img[np.where(label_img_copy == 17)] = 1
+    label_img[np.where(label_img_copy == 18)] = 0
+    label_img[np.where(label_img_copy == 19)] = 0
+    label_img[np.where(label_img_copy == 20)] = 0
+    return True, label_img
+
+def filter15_gradual_new18(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 0
+    label_img[np.where(label_img_copy == 17)] = 0
+    label_img[np.where(label_img_copy == 18)] = 1
+    label_img[np.where(label_img_copy == 19)] = 0
+    label_img[np.where(label_img_copy == 20)] = 0
+    return True, label_img
+
+def filter15_gradual_new19(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 0
+    label_img[np.where(label_img_copy == 17)] = 0
+    label_img[np.where(label_img_copy == 18)] = 0
+    label_img[np.where(label_img_copy == 19)] = 1
+    label_img[np.where(label_img_copy == 20)] = 0
+    return True, label_img
+
+def filter15_gradual_new20(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,16):#from 1 to 15
+        label_img[np.where(label_img_copy==i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 0
+    label_img[np.where(label_img_copy == 17)] = 0
+    label_img[np.where(label_img_copy == 18)] = 0
+    label_img[np.where(label_img_copy == 19)] = 0
+    label_img[np.where(label_img_copy == 20)] = 1
+    return True, label_img
+
+
+def filter10_gradual_new15(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1,11):#from 1 to 10
+        label_img[np.where(label_img_copy==i)] = 0
+
+
+
+    label_img[np.where(label_img_copy == 11)] = 1
+    label_img[np.where(label_img_copy == 12)] = 2
+    label_img[np.where(label_img_copy == 13)] = 3
+    label_img[np.where(label_img_copy == 14)] = 4
+    label_img[np.where(label_img_copy == 15)] = 5
+
+    label_img[np.where(label_img_copy == 16)] = 0
+    label_img[np.where(label_img_copy == 17)] = 0
+    label_img[np.where(label_img_copy == 18)] = 0
+    label_img[np.where(label_img_copy == 19)] = 0
+    label_img[np.where(label_img_copy == 20)] = 0
+    return True, label_img
+
+
+def filter10_gradual_new20(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 11):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 11)] = 0
+    label_img[np.where(label_img_copy == 12)] = 0
+    label_img[np.where(label_img_copy == 13)] = 0
+    label_img[np.where(label_img_copy == 14)] = 0
+    label_img[np.where(label_img_copy == 15)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 1
+    label_img[np.where(label_img_copy == 17)] = 2
+    label_img[np.where(label_img_copy == 18)] = 3
+    label_img[np.where(label_img_copy == 19)] = 4
+    label_img[np.where(label_img_copy == 20)] = 5
+    return True, label_img
+
+
 """
 conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
 conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
@@ -183,4 +284,17 @@ conduct_filter(filter_func=filter15_new, result_dir ="class15+5/new", label_dir 
 
 conduct_filter(filter_func=filter19_old, result_dir ="class19+1/old", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_old")
 conduct_filter(filter_func=filter19_new, result_dir ="class19+1/new", label_dir ="/home/hutao/dataset/incremental_seg/class19+1_new")
+
+
+
+conduct_filter(filter_func=filter15_gradual_new16, result_dir ="class15_gradual/new16", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new16")
+conduct_filter(filter_func=filter15_gradual_new17, result_dir ="class15_gradual/new17", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new17")
+conduct_filter(filter_func=filter15_gradual_new18, result_dir ="class15_gradual/new18", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new18")
+conduct_filter(filter_func=filter15_gradual_new19, result_dir ="class15_gradual/new19", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new19")
+conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
+
 """
+
+conduct_filter(filter_func=filter10_gradual_new15, result_dir ="class10_gradual/new15", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new15")
+conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
+

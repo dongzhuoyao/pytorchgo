@@ -311,15 +311,13 @@ def main():
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
-        from evaluate import do_eval
+        args.test_restore_from = "train_log/train.coco.473.class40meaning.filtered.old.epoch_eval/love.pth"
+        from evaluate_incremental import do_eval_coco
 
         student_model = Res_Deeplab(num_classes=NUM_CLASSES)
-        #saved_state_dict = torch.load(args.test_restore_from)
-        #student_model.load_state_dict(saved_state_dict)
-
         student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+        do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES,
+                     restore_from=args.test_restore_from)
     else:
         logger.auto_set_dir()
         main()
