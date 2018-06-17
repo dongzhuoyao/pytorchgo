@@ -45,9 +45,9 @@ NUM_STEPS = 100000
 POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM =  "train_log/train.coco.473.class40meaning.filtered.old.epoch_eval/love.pth"  #'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
-SAVE_PRED_EVERY = 2000
+SAVE_PRED_EVERY = 5#2000
 WEIGHT_DECAY = 0.0005
-quick_eval = 1000
+quick_eval = 4000
 
 
 
@@ -358,16 +358,15 @@ def main():
     student_model.eval()
     do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, restore_from=osp.join(logger.get_logger_dir(), 'love.pth'))
     logger.info("Congrats~")
-    logger.info("Congrats~")
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/train.coco.473.class40meaning.filtered.new.epoch_eval/love.pth"
+        args.test_restore_from = "train_log/train.coco.473.class40meaning.filtered.new.epoch_eval.real_distill_kl_t4_include_bg.fine_tune/love.pth"
         from evaluate_incremental import do_eval_coco
 
         student_model = Res_Deeplab(num_classes=student_class_num)
         student_model.eval()
-        do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, restore_from=args.test_restore_from)
+        do_eval_coco(model=student_model, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, restore_from=args.test_restore_from, quick_eval=2000)
     else:
         logger.auto_set_dir()
         main()
