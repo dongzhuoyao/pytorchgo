@@ -28,7 +28,6 @@ DATA_LIST_PATH = 'datalist/class15_gradual/new16/train_10582.txt'
 VAL_DATA_LIST_PATH = 'datalist/val_1449.txt'
 
 """
-python  train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual16.py --gpu 2 &&
 python  train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual17.py --gpu 2 &&
 python  train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual18.py --gpu 2 &&
 python  train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual19.py --gpu 2 &&

@@ -72,6 +72,11 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_t
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune.share_res12|21.06|63.68|23.19|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t8_include_bg.fine_tune|39.29|66.13|40.62|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t16_include_bg.fine_tune|35.04|66.87|36.63|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t1_include_bg.fine_tune|63.15|65.47|63.27|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t2_include_bg.fine_tune|64.23|65.41|64.29|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune|65.86|65.14|65.82|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.fine_tune|64.94|65.23|64.96|
+
 ### class 15+5 ablation study
 
 |arch|old(15 classes)|new(5 classes)|all(20 classes)
@@ -87,6 +92,14 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|69.37|59.50|66.90|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res123|35.78|57.84|41.3|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_branch|22.43|54.13|30.36|
+
+
+### class 15+5  gradual ablation study
+
+|arch|old(15 classes)|new(5 classes)|all(20 classes)
+|---|---|---|---|
+train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual16|69.11|52.21|68.05|
+
 ### class 10+10 ablation study
 
 |arch|old(10 classes)|new(10 classes)|all(20 classes)

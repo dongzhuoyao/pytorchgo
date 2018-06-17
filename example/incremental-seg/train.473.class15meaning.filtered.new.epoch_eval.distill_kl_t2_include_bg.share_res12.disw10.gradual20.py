@@ -210,7 +210,7 @@ def main():
 
     student_model = Res_Deeplab(num_classes=student_class_num)
 
-    saved_state_dict = torch.load(args.restore_from)
+    saved_state_dict = torch.load(args.restore_from)['model_state_dict']
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
@@ -223,7 +223,7 @@ def main():
         logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
     student_model.load_state_dict(new_params, strict=False)
 
-    fix_state_dict = torch.load(args.restore_from)
+    fix_state_dict = torch.load(args.restore_from)['model_state_dict']
     teacher_model.load_state_dict(fix_state_dict, strict=True)
 
     # model.float()
