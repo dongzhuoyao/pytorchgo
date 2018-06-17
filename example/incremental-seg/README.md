@@ -111,6 +111,13 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|57.42|63.72|60.57|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw1000|44.68|24.24|34.46|
 
+### class 10+10 gradual ablation study
+
+|arch|old(10 classes)|new(10 classes)|all(20 classes)
+|---|---|---|---|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual15|66.97|68.26|67.4|
+train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual20|66.2|64.6|65.8|
+
 ### Coco
 
 |arch|old(40 classes)|new(40 classses)|all(80 classes)|
