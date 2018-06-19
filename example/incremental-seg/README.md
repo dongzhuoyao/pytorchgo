@@ -131,3 +131,4 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 |train.coco.473.class40meaning.filtered.old.epoch_eval|56.08/55.40|--|--|
 |train.coco.473.class40meaning.filtered.new.epoch_eval|--|38.61/39.83|--|
 train.coco.473.class40meaning.filtered.new.epoch_eval.real_distill_kl_t4_include_bg.fine_tune|??/--|?/--|39.08/--|
+train.coco.473.class40meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw100|??/--|?/--|39.71/--|
