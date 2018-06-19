@@ -82,6 +82,10 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.f
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res123|65.55|59.86|65.27|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res1234|65.51|58.83|65.17|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw100|49.64|16.8|48.0|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw001|0.15|65.21|3.4|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw01|35.05|65.80|36.59|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw10|67.52|60.9|67.19|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw100|49.20|21.95|48.03|
 
 ### class 15+5 ablation study
 

@@ -96,7 +96,7 @@ def get_arguments():
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
 
-    parser.add_argument("--distill_loss", type=str, default="l2", choices=['l2', 'kl'])
+    parser.add_argument("--distill_loss", type=str, default="kl", choices=['l2', 'kl'])
 
     parser.add_argument("--test", action="store_true",help="test")
     parser.add_argument("--test_restore_from",  help="test")
@@ -180,7 +180,7 @@ def main():
 
     if args.distill_loss == "kl":
         import torch.nn.functional as F
-        def distill_loss_fn(outputs, teacher_outputs, T=2):
+        def distill_loss_fn(outputs, teacher_outputs, T=4):
             """
             Compute the knowledge-distillation (KD) loss given outputs, labels.
             "Hyperparameters": temperature and alpha
@@ -264,13 +264,6 @@ def main():
 
     from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    for param in student_model.conv1.parameters():
-        param.requires_grad = False
-
-    for param in student_model.layer1.parameters():
-        param.requires_grad = False
-    for param in student_model.layer2.parameters():
-        param.requires_grad = False
 
 
     for param in teacher_model.parameters():
@@ -305,7 +298,7 @@ def main():
                                    1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
-        loss = seg_loss + 10*distill_loss
+        loss = seg_loss + distill_loss
 
         loss.backward()
         optimizer.step()
