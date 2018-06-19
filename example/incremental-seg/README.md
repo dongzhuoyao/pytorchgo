@@ -72,10 +72,16 @@ train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_t
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t4_include_bg.fine_tune.share_res12|21.06|63.68|23.19|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t8_include_bg.fine_tune|39.29|66.13|40.62|
 train.473.class19meaning.filtered.new.epoch_eval.distill_kl_t16_include_bg.fine_tune|35.04|66.87|36.63|
+|---|---|---|---|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t1_include_bg.fine_tune|63.15|65.47|63.27|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t2_include_bg.fine_tune|64.23|65.41|64.29|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune|65.86|65.14|65.82|
 train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.fine_tune|64.94|65.23|64.96|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res1|66.03|64.28|65.94|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12|66.31|63.84|66.19|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res123|65.55|59.86|65.27|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res1234|65.51|58.83|65.17|
+train.473.class19meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg.fine_tune.share_res12.disw100|49.64|16.8|48.0|
 
 ### class 15+5 ablation study
 
@@ -92,7 +98,6 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|69.37|59.50|66.90|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res123|35.78|57.84|41.3|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_branch|22.43|54.13|30.36|
-
 
 ### class 15+5  gradual ablation study
 
@@ -120,7 +125,9 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 
 ### Coco
 
+
 |arch|old(40 classes)|new(40 classses)|all(80 classes)|
 |--|--|--|--|
 |train.coco.473.class40meaning.filtered.old.epoch_eval|56.08/55.40|--|--|
 |train.coco.473.class40meaning.filtered.new.epoch_eval|--|38.61/39.83|--|
+train.coco.473.class40meaning.filtered.new.epoch_eval.real_distill_kl_t4_include_bg.fine_tune|??/--|?/--|39.08/--|

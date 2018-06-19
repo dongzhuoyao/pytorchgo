@@ -47,7 +47,7 @@ RANDOM_SEED = 1234
 RESTORE_FROM =  "train_log/train.coco.473.class40meaning.filtered.old.epoch_eval/love.pth"  #'resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 2000
 WEIGHT_DECAY = 0.0005
-quick_eval = 1000
+quick_eval = 2000
 
 
 
