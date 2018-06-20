@@ -125,7 +125,12 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t1_include_bg|6
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t2_include_bg|63.74|65.52|64.63|
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t4_include_bg|64.96|65.10|65.03|
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg|64.98|65.32|65.15|
-
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res1|63.9|64.7|64.3|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12|64.99|64.99|64.99|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res123|63.84|62.51|63.18|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res1234|61.05|58.55|59.8|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10|67.59|63.37|65.48|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw100|17.68|7.2|12.44|
 
 
 ### class 10+10 gradual ablation study
@@ -142,5 +147,5 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 |--|--|--|--|
 |train.coco.473.class40meaning.filtered.old.epoch_eval|56.08/55.40|--|--|
 |train.coco.473.class40meaning.filtered.new.epoch_eval|--|38.61/39.83|--|
-train.coco.473.class40meaning.filtered.new.epoch_eval.real_distill_kl_t4_include_bg.fine_tune|??/--|?/--|39.08/--|
-train.coco.473.class40meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw100|??/--|?/--|39.71/--|
+train.coco.473.class40meaning.filtered.new.epoch_eval.real_distill_kl_t4_include_bg.fine_tune|38.17/--|39.99/--|39.08/--|
+train.coco.473.class40meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fine_tune.share_res12.disw100|5.85/--|39.71/--|22.78/--|
