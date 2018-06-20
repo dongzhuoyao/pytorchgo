@@ -20,19 +20,15 @@ import timeit
 from tqdm import tqdm
 start = timeit.default_timer()
 
-'''
-python train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual15.py --gpu 3 &&
-python train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual20.py --gpu 3
-'''
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class10_gradual/new20/train_10582.txt'
+DATA_LIST_PATH = 'datalist/class10+10/new/train_10582.txt'
 VAL_DATA_LIST_PATH = 'datalist/val_1449.txt'
 
 
-teacher_class_num = 15+1
+teacher_class_num = 10+1
 student_class_num = 20+1
 
 
@@ -43,7 +39,7 @@ MOMENTUM = 0.9
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual15/love.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'train_log/train.473.class10meaning.filtered.old.epoch_eval/love.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
 
@@ -100,7 +96,7 @@ def get_arguments():
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
 
-    parser.add_argument("--distill_loss", type=str, default="l2", choices=['l2', 'kl'])
+    parser.add_argument("--distill_loss", type=str, default="kl", choices=['l2', 'kl'])
 
     parser.add_argument("--test", action="store_true",help="test")
     parser.add_argument("--test_restore_from",  help="test")
@@ -184,7 +180,7 @@ def main():
 
     if args.distill_loss == "kl":
         import torch.nn.functional as F
-        def distill_loss_fn(outputs, teacher_outputs, T=2):
+        def distill_loss_fn(outputs, teacher_outputs, T=8):
             """
             Compute the knowledge-distillation (KD) loss given outputs, labels.
             "Hyperparameters": temperature and alpha
@@ -268,14 +264,15 @@ def main():
 
     from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
+
     for param in student_model.conv1.parameters():
         param.requires_grad = False
 
     for param in student_model.layer1.parameters():
         param.requires_grad = False
+
     for param in student_model.layer2.parameters():
         param.requires_grad = False
-
 
     for param in teacher_model.parameters():
         param.requires_grad = False
@@ -298,18 +295,18 @@ def main():
 
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
-        teacher_output = interp(teacher_model(images))  # [4,11,473,473]
+        teacher_output = interp(teacher_model(images))  # [4,20,473,473]
 
-        pred_old_no_bg = teacher_output[:, :, :, :]  # 11 CLASSES
+        pred_old_no_bg = teacher_output[:, :, :, :]  # 15 CLASSES
 
-        student_output = interp(student_model(images))  # [4,16,473,473]
+        student_output = interp(student_model(images))  # [4,21,473,473]
 
-        to_be_distill = student_output[:, :teacher_class_num, :, :]
-        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, teacher_class_num:, :, :]),
+        to_be_distill = student_output[:, :11, :, :]
+        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, 11:, :, :]),
                                    1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
-        loss = seg_loss + 100*distill_loss
+        loss = seg_loss + 10*distill_loss
 
         loss.backward()
         optimizer.step()

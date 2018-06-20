@@ -24,12 +24,12 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class15+5/new/train_10582.txt'
+DATA_LIST_PATH = 'datalist/class10_gradual/new15/train_10582.txt'
 VAL_DATA_LIST_PATH = 'datalist/val_1449.txt'
 
 
-teacher_class_num = 15+1
-student_class_num = 20+1
+teacher_class_num = 10+1
+student_class_num = 15+1
 
 
 IGNORE_LABEL = 255
@@ -39,7 +39,7 @@ MOMENTUM = 0.9
 NUM_STEPS = 20000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/train.473.class15meaning.filtered.old.epoch_eval.backup/love.68_24.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'train_log/train.473.class10meaning.filtered.old.epoch_eval/love.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 SAVE_PRED_EVERY = 1000
 WEIGHT_DECAY = 0.0005
 
@@ -208,7 +208,7 @@ def main():
 
     student_model = Res_Deeplab(num_classes=student_class_num)
 
-    saved_state_dict = torch.load(args.restore_from)
+    saved_state_dict = torch.load(args.restore_from)['model_state_dict']
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
@@ -221,7 +221,7 @@ def main():
         logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
     student_model.load_state_dict(new_params, strict=False)
 
-    fix_state_dict = torch.load(args.restore_from)
+    fix_state_dict = torch.load(args.restore_from)['model_state_dict']
     teacher_model.load_state_dict(fix_state_dict, strict=True)
 
     # model.float()
@@ -294,14 +294,14 @@ def main():
 
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
-        teacher_output = interp(teacher_model(images))  # [4,20,473,473]
+        teacher_output = interp(teacher_model(images))  # [4,11,473,473]
 
-        pred_old_no_bg = teacher_output[:, :, :, :]  # 15 CLASSES
+        pred_old_no_bg = teacher_output[:, :, :, :]  # 11 CLASSES
 
-        student_output = interp(student_model(images))  # [4,21,473,473]
+        student_output = interp(student_model(images))  # [4,16,473,473]
 
-        to_be_distill = student_output[:, :16, :, :]
-        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, 16:, :, :]),
+        to_be_distill = student_output[:, :teacher_class_num, :, :]
+        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, teacher_class_num:, :, :]),
                                    1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)

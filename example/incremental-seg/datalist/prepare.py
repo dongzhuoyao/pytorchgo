@@ -298,3 +298,6 @@ conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/
 conduct_filter(filter_func=filter10_gradual_new15, result_dir ="class10_gradual/new15", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new15")
 conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
 """
+
+conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
+
