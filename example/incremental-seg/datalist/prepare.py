@@ -274,6 +274,66 @@ def filter10_gradual_new20(label_img):
     return True, label_img
 
 
+def single16(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 16):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 16)] = 1
+
+    for i in range(17, 21):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    return True, label_img
+
+
+
+def single17(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 17):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 17)] = 1
+
+    for i in range(18, 21):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    return True, label_img
+
+def single18(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 18):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 18)] = 1
+
+    for i in range(19, 21):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    return True, label_img
+
+def single19(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 19):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 19)] = 1
+
+    for i in range(20, 21):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    return True, label_img
+
+def single20(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(1, 20):  # from 1 to 10
+        label_img[np.where(label_img_copy == i)] = 0
+
+    label_img[np.where(label_img_copy == 20)] = 1
+
+
+    return True, label_img
+
 """
 conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
 conduct_filter(filter_func=filter10_new, result_dir ="class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_new")
@@ -299,5 +359,8 @@ conduct_filter(filter_func=filter10_gradual_new15, result_dir ="class10_gradual/
 conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
 """
 
-conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
-
+conduct_filter(filter_func=single16, result_dir ="single16", label_dir ="/home/hutao/dataset/incremental_seg/single16")
+conduct_filter(filter_func=single17, result_dir ="single17", label_dir ="/home/hutao/dataset/incremental_seg/single17")
+conduct_filter(filter_func=single18, result_dir ="single18", label_dir ="/home/hutao/dataset/incremental_seg/single18")
+conduct_filter(filter_func=single19, result_dir ="single19", label_dir ="/home/hutao/dataset/incremental_seg/single19")
+conduct_filter(filter_func=single20, result_dir ="single20", label_dir ="/home/hutao/dataset/incremental_seg/single20")
