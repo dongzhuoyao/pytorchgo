@@ -103,10 +103,10 @@ def show_all(gt, pred):
 
 
 
-def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
+def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save = False):
 
     if restore_from is not None:
-        saved_state_dict = torch.load(restore_from)
+        saved_state_dict = torch.load(restore_from)['model_state_dict']
         model.load_state_dict(saved_state_dict)
 
     model.eval()
@@ -143,8 +143,15 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
     interp = nn.Upsample(size=input_size, mode='bilinear')
     data_list = []
 
+    from tensorpack.utils.segmentation.segmentation import visualize_label
+    result_dir = "vis-voc"
+    if os.path.isdir(result_dir):
+        import shutil
+        shutil.rmtree(result_dir)
+    if is_save:os.makedirs(result_dir)
+
     for index, batch in tqdm(enumerate(testloader)):
-        image, label, size, name = batch
+        origin_image, image, label, size, name = batch
         size = size[0].numpy()
         output = model(Variable(image, volatile=True).cuda())
         output = interp(output).cpu().data[0].numpy()
@@ -155,6 +162,10 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None):
         output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
 
+        if is_save:
+            origin_image = np.squeeze(origin_image)
+
+            cv2.imwrite(os.path.join(result_dir,"{}.jpg".format(index)),np.concatenate((origin_image.numpy(),visualize_label(output)),axis=1))
         # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
@@ -228,7 +239,7 @@ def main():
     from pytorchgo.utils.pytorch_utils import set_gpu
     #set_gpu(gpu0)
     #torch.cuda.set_device(int(gpu0))
-    os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3,4,5'
+    os.environ["CUDA_VISIBLE_DEVICES"] = '1,2,3,4,5'
 
     model = Res_Deeplab(num_classes=args.num_classes)
     

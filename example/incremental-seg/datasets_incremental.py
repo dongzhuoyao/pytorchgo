@@ -45,6 +45,7 @@ class VOCDataSet(data.Dataset):
         name = datafiles["name"]
         image = np.asarray(image, np.float32)
 
+        origin_image = np.copy(image)
         if False:
             from tensorpack.utils.segmentation.segmentation import visualize_label
             cv2.imwrite("img.jpg", np.concatenate((image, visualize_label(label)), axis=1))
@@ -62,8 +63,10 @@ class VOCDataSet(data.Dataset):
             flip = np.random.choice(2) * 2 - 1
             image = image[:, :, ::flip]
             label = label[:, ::flip]
-
-        return image.copy(), label.copy(), np.array(size), name
+        if "train" in self.list_path:
+            return image.copy(), label.copy(), np.array(size), name
+        else:
+            return origin_image.copy(), image.copy(), label.copy(), np.array(size), name
 
 
 class CoCoDataSet(data.Dataset):

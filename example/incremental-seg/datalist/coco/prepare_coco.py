@@ -314,7 +314,7 @@ def filter80(label_img):
     return True,label_img
 
 
-conduct_filter(filter_func=filter80, result_dir ="class80", label_dir ="/home/hutao/dataset/incremental_coco/class80")
+#conduct_filter(filter_func=filter80, result_dir ="class80", label_dir ="/home/hutao/dataset/incremental_coco/class80")
 
 
 #conduct_filter(filter_func=filter40_old, result_dir ="class40+40/old", label_dir ="/home/hutao/dataset/incremental_coco/class40+40_old")

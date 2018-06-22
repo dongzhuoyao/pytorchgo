@@ -102,15 +102,16 @@ train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100|69.37|59.50|66.90|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res123|35.78|57.84|41.3|
 train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.fix_branch|22.43|54.13|30.36|
-train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.full_eva|68.69|59.88|66.49|
-
-
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.full_eva|68.88|58.30|66.24|
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.full_eva|67.55|59.82|65.62|
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t1_include_bg.full_eva|63.17|60.13|62.41|
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.full_eva|67.33|59.85|65.46|
 ### class 15+5  gradual ablation study
 
 |arch|old(15 classes)|new(5 classes)|all(20 classes)
 |---|---|---|---|
-train.473.class15meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw10.gradual16|69.11|52.21|68.05|
-
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.gradual16|69.55|50.41|68.35|
+train.473.class15meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.gradual17||||
 
 ### class 10+10 ablation study
 
@@ -136,12 +137,29 @@ train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.s
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw100|17.68|7.2|12.44|
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw01|42.58|64.48|53.53|
 train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw001|0.07|64.49|32.28|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.gradual15|66.97|68.75|67.56|
+
+
+
+### single 
+
+|arch|result|
+|---|----|
+train.473.single16.epoch_eval|45.56|
+train.473.single17.epoch_eval|48.46|
+train.473.single18.epoch_eval|35.21|
+train.473.single19.epoch_eval|68.30|
+|train.473.single20.epoch_eval|64.46|
+
 ### class 10+10 gradual ablation study
 
 |arch|old(10 classes)|new(10 classes)|all(20 classes)
 |---|---|---|---|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual15|66.97|68.26|67.4|
 train.473.class10meaning.filtered.new.epoch_eval.distill_kl_t2_include_bg.share_res12.disw100.gradual20|66.2|64.6|65.8|
+|---|---|---|---|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.gradual15|66.97|68.75|67.56|
+train.473.class10meaning.filtered.new.epoch_eval.distill_real_kl_t8_include_bg.share_res12.disw10.gradual20|67.65|59.08|65.51|
 
 ### Coco
 

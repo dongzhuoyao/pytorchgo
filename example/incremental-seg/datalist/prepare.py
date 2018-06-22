@@ -357,10 +357,14 @@ conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/
 
 conduct_filter(filter_func=filter10_gradual_new15, result_dir ="class10_gradual/new15", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new15")
 conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
-"""
+
 
 conduct_filter(filter_func=single16, result_dir ="single16", label_dir ="/home/hutao/dataset/incremental_seg/single16")
 conduct_filter(filter_func=single17, result_dir ="single17", label_dir ="/home/hutao/dataset/incremental_seg/single17")
 conduct_filter(filter_func=single18, result_dir ="single18", label_dir ="/home/hutao/dataset/incremental_seg/single18")
 conduct_filter(filter_func=single19, result_dir ="single19", label_dir ="/home/hutao/dataset/incremental_seg/single19")
 conduct_filter(filter_func=single20, result_dir ="single20", label_dir ="/home/hutao/dataset/incremental_seg/single20")
+"""
+
+conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
+

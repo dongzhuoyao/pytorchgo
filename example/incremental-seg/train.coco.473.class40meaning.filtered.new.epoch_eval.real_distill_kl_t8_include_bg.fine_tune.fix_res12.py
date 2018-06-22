@@ -298,7 +298,7 @@ def main():
                                    1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
-        loss = seg_loss +  10*distill_loss
+        loss = seg_loss +  distill_loss
 
         loss.backward()
         optimizer.step()
