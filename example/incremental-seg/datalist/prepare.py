@@ -364,7 +364,7 @@ def total19(label_img):
     return True, label_img
 
 
-def coco2voc
+
 
 """
 conduct_filter(filter_func=filter10_old, result_dir ="class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/class10+10_old")
@@ -401,11 +401,12 @@ conduct_filter(filter_func=total16, result_dir ="total16", label_dir ="/home/hut
 conduct_filter(filter_func=total17, result_dir ="total17", label_dir ="/home/hutao/dataset/incremental_seg/total17")
 conduct_filter(filter_func=total18, result_dir ="total18", label_dir ="/home/hutao/dataset/incremental_seg/total18")
 conduct_filter(filter_func=total19, result_dir ="total19", label_dir ="/home/hutao/dataset/incremental_seg/total19")
+
+
 """
 
 
 
-conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
 
 
 

@@ -25,6 +25,8 @@ if os.path.isdir(image_dir):
     shutil.rmtree(image_dir)
 if os.path.isdir(label_dir):
     shutil.rmtree(label_dir)
+
+
 os.makedirs(image_dir)
 os.makedirs(label_dir)
 
@@ -39,7 +41,7 @@ for voc_id, coco_id in enumerate(voc_ids_list):
 
 
 
-def proceed(detection_json, txt_name="coco2voc_train.txt"):
+def proceed(detection_json, coco_img_dir, txt_name="coco2voc_train.txt"):
     f = open(txt_name, "w")
     _coco = COCO(detection_json)
     result = _coco.getCatIds()
@@ -52,7 +54,7 @@ def proceed(detection_json, txt_name="coco2voc_train.txt"):
 
     for img_id in tqdm(img_ids_list[1:]):
         img = _coco.loadImgs(img_id)[0]
-        origin_img = cv2.imread(os.path.join(val_dir, img['file_name']))
+        origin_img = cv2.imread(os.path.join(coco_img_dir, img['file_name']))
         annIds = _coco.getAnnIds(imgIds=img_id)
         img_mask = np.zeros((img['height'], img['width'],1),dtype=np.uint8)
 
@@ -63,14 +65,16 @@ def proceed(detection_json, txt_name="coco2voc_train.txt"):
                 if type(ann['segmentation']) == list:
                     for _instance in ann['segmentation']:
                             rle = mask.frPyObjects([_instance], img['height'], img['width'])
+                            m = mask.decode(rle)
+                            img_mask[np.where(m == 1)] = coco_to_voc_dict[ann['category_id']]
                 # mask
                 else:# mostly is aeroplane
                     if type(ann['segmentation']['counts']) == list:
                         rle = mask.frPyObjects([ann['segmentation']], img['height'], img['width'])
                     else:
                         rle = [ann['segmentation']]
-                m = mask.decode(rle)
-                img_mask[np.where(m == 1)] = coco_to_voc_dict[ann['category_id']]
+                    m = mask.decode(rle)
+                    img_mask[np.where(m == 1)] = coco_to_voc_dict[ann['category_id']]
 
         f.write("{} {}\n".format(os.path.join("image",img['file_name']),os.path.join(label_dir,img['file_name'].replace("jpg","png"))))
 
@@ -86,11 +90,13 @@ def proceed(detection_json, txt_name="coco2voc_train.txt"):
             cv2.waitKey(0)
     f.close()
 
-print("proceed val")
-proceed(detection_json_val,"coco2voc_val.txt")
-
 print("proceed train")
-proceed(detection_json_train,"coco2voc_train.txt")
+proceed(detection_json_train, train_dir, "coco2voc_train.txt")
+
+print("proceed val")
+proceed(detection_json_val, val_dir, "coco2voc_val.txt")
+
+
 
 
 

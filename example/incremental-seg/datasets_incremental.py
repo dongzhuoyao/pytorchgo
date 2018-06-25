@@ -11,7 +11,7 @@ from torch.utils import data
 
 class VOCDataSet(data.Dataset):
     def __init__(self, root, list_path, img_transform = None, label_transform = None, augmentation = None,
-                 max_iters=None,  mirror=True, ):
+                 max_iters=None,  mirror=True, img_prefix = 'JPEGImages' ):
         self.root = root
         self.list_path = list_path
         self.is_mirror = mirror
@@ -25,7 +25,7 @@ class VOCDataSet(data.Dataset):
 
         self.files = []
         for image_id, val_img_path in self.img_ids:
-            img_file = osp.join(self.root, "JPEGImages/%s" % image_id)
+            img_file = osp.join(self.root, img_prefix, "%s" % image_id)
             label_file = val_img_path
             self.files.append({
                 "img": img_file,
@@ -39,6 +39,7 @@ class VOCDataSet(data.Dataset):
 
     def __getitem__(self, index):
         datafiles = self.files[index]
+        datafiles["img"] = datafiles["img"].replace("png","jpg")
         image = cv2.imread(datafiles["img"], cv2.IMREAD_COLOR)
         label = cv2.imread(datafiles["label"], cv2.IMREAD_GRAYSCALE)
         size = image.shape
@@ -66,7 +67,7 @@ class VOCDataSet(data.Dataset):
         if "train" in self.list_path:
             return image.copy(), label.copy(), np.array(size), name
         else:
-            return origin_image.copy(), image.copy(), label.copy(), np.array(size), name
+            return image.copy(), image.copy(), label.copy(), np.array(size), name
 
 
 class CoCoDataSet(data.Dataset):
@@ -130,10 +131,11 @@ class CoCoDataSet(data.Dataset):
 
 if __name__ == '__main__':
     #dst = VOCDataSet("/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", list_path="datalist/class19+1/new/val_1449.txt")
-    dst = CoCoDataSet(list_path="datalist/coco/class40+40/new/val.txt")
+    #dst = CoCoDataSet(list_path="datalist/coco/class40+40/new/val.txt")
+    dst = VOCDataSet("/home/hutao/dataset/incremental_seg/coco2voc", list_path="datalist/coco2voc_val.txt",img_prefix="")
     trainloader = data.DataLoader(dst, batch_size=1)
     for i, data in enumerate(trainloader):
-        imgs, labels,_,_ = data
+        imgs, labels,_,_,_ = data
         if i == -1:
             img = torchvision.utils.make_grid(imgs).numpy()
             img = np.transpose(img, (1, 2, 0))
