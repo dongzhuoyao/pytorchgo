@@ -405,10 +405,16 @@ conduct_filter(filter_func=total16, result_dir ="total16", label_dir ="/home/hut
 conduct_filter(filter_func=total17, result_dir ="total17", label_dir ="/home/hutao/dataset/incremental_seg/total17")
 conduct_filter(filter_func=total18, result_dir ="total18", label_dir ="/home/hutao/dataset/incremental_seg/total18")
 conduct_filter(filter_func=total19, result_dir ="total19", label_dir ="/home/hutao/dataset/incremental_seg/total19")
-"""
+
 
 conduct_filter(filter_func=filter10_old, result_dir ="coco2voc_split_class10+10/old", label_dir ="/home/hutao/dataset/incremental_seg/coco2voc_split_class10+10_old")
 conduct_filter(filter_func=filter10_new, result_dir ="coco2voc_split_class10+10/new", label_dir ="/home/hutao/dataset/incremental_seg/coco2voc_split_class10+10_new")
+"""
+
+conduct_filter(filter_func=filter15_old, result_dir ="coco2voc_split_class15+5/old", label_dir ="/home/hutao/dataset/incremental_seg/coco2voc_split_class15+5_old")
+conduct_filter(filter_func=filter15_new, result_dir ="coco2voc_split_class15+5/new", label_dir ="/home/hutao/dataset/incremental_seg/coco2voc_split_class15+5_new")
+
+
 
 
 

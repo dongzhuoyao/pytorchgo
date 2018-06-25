@@ -410,5 +410,3 @@ conduct_filter(filter_func=total19, result_dir ="total19", label_dir ="/home/hut
 
 
 
-
-
