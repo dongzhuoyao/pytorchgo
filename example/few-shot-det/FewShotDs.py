@@ -22,11 +22,11 @@ class FewShotDs(RNGDataFlow):
         profile_copy = profile.copy()
         profile_copy['first_shape'] = image_size
         profile_copy['second_shape'] = image_size
-        dbi = ss_datalayer.DBInterface(profile)
-        self.data_size = len(dbi.db_items)
+        self.dbi = ss_datalayer.DBInterface(profile)
+        self.data_size = len(self.dbi.db_items)
         if "test" in self.name:
             self.data_size = 1000
-        self.PLP = ss_datalayer.PairLoaderProcess(dbi, profile_copy)
+
 
     def size(self):
         return self.data_size
@@ -37,15 +37,15 @@ class FewShotDs(RNGDataFlow):
 
     def get_data(self): # only for one-shot learning
         for i in range(self.data_size):
-            first_image_list,first_label_list,second_image, second_label, metadata = self.PLP.load_next_frame()
+            first_image_list,first_label_list,second_image, second_label, metadata = self.dbi.next_pair()
             yield [first_image_list,first_label_list,second_image, second_label, metadata]
 
 
 
 if __name__ == '__main__':
-    ds = FewShotDs("fold0_5shot_test")
+    ds = FewShotDs("fold0_5shot_train")
     from tensorpack.utils.segmentation.segmentation import apply_mask, visualize_binary_mask
-    cur_dir = "fold0_5shot_test_support_masked_images"
+    cur_dir = "fold0_5shot_train_support_masked_images"
     #os.mkdir(cur_dir)
     support_image_size = (320, 320)
     for idx,data in enumerate(ds.get_data()):

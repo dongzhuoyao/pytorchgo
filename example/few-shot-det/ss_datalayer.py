@@ -98,32 +98,31 @@ class PASCAL:
             return ids
 
     def create_anns(self, read_mode):
-        list_dir = 'metadata/pascalvoc12/train_aug_id.txt'
-        if self.dataType == "val":
-            list_dir = 'metadata/pascalvoc12/val_id.txt'
-        with open(list_dir, 'r') as f:
-            lines = f.readlines()
-            names = []
-            for line in lines:
-                if line.endswith('\n'):
-                    line = line[:-1]
-                if len(line) > 0:
-                    names.append(line)
+        tuple_list = []
+        for (year, name) in [('2007', 'trainval'), ('2012', 'trainval')]:
+            rootpath = os.path.join(self.db_path, 'VOC' + year)
+            for line in open(os.path.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
+                tuple_list.append((rootpath, line.strip()))
+
         anns = []
-        for item in names:
-            mclass_path = osp.join(self.db_path, 'SegmentationClassAug', item + '.png')
+        for item in tuple_list:#per image
+            mclass_path = osp.join(self.db_path, 'SegmentationClassAug', '{}.png'.format(item))
             mclass_uint = cv2.imread(mclass_path, cv2.IMREAD_GRAYSCALE)
             class_ids = self.get_unique_ids(mclass_uint)
 
-            if read_mode == PASCAL_READ_MODES.SEMANTIC:
+            if read_mode == PASCAL_READ_MODES.SEMANTIC:#TODO
                 for class_id in class_ids:
                     assert (class_id != 0 or class_id != 255)  # 0 is background,255 is ignore
                     anns.append(dict(image_name=item, mask_name=item, class_ids=[class_id]))
             elif read_mode == PASCAL_READ_MODES.SEMANTIC_ALL:
                 anns.append(dict(image_name=item, mask_name=item, class_ids=class_ids))
+            elif  read_mode == PASCAL_READ_MODES.INSTANCE:
+                pass#TODO, image_name,mask_name,class_ids,instance_ids
             else:
                 raise ValueError
+
         with open(self.get_anns_path(read_mode), 'w') as f:
+            cprint("dump pickle file...")
             pickle.dump(anns, f)
 
     def load_anns(self, read_mode):
@@ -178,7 +177,7 @@ class PASCAL:
             ann = anns[i]
             img_path = osp.join(self.db_path, 'JPEGImages', ann['image_name'] + '.jpg')
             mask_path = osp.join(self.db_path, 'SegmentationClassAug', ann['mask_name'] + '.png')
-            item = DBPascalItem('pascal-' + self.dataType + '_' + ann['image_name'] + '_' + str(i), img_path, mask_path,
+            item = DBPascalItem('pascal_{}_{}_{}'.format(self.dataType, ann['image_name'], i), img_path, mask_path,
                                 ann['class_ids'], ids_map)
             items.append(item)
         return items
@@ -215,27 +214,20 @@ class DBInterface():
             self.rand_gen.seed(1385)  # >>>Do not change<<< Fixed seed for deterministic mode.
 
     def load_items(self):
-        def _remove_small_objects(items):
-            filtered_item = []
-            for item in items:
-                mask = item.read_mask()
-                if util.change_coordinates(mask, 32.0, 0.0).sum() > 2:
-                    filtered_item.append(item)
-            return filtered_item
 
         self.db_items = []
         if self.params.has_key('image_sets'):
             for image_set in self.params['image_sets']:
-                pascal_db = util.PASCAL(self.params['pascal_path'], image_set.replace("pascal_",""))  # train or test
+                pascal_db = PASCAL(self.params['pascal_path'], image_set.replace("pascal_",""))  # train or test
                 # reads pair of images from one semantic class and and with binary labels
-                items = pascal_db.getItems(self.params['pascal_cats'], self.params['areaRng'],
-                                           read_mode=util.PASCAL_READ_MODES.SEMANTIC)
-                items = _remove_small_objects(items)
+                items = pascal_db.getItems(self.params['pascal_cats'],
+                                           read_mode=PASCAL_READ_MODES.INSTANCE)
+                #items = _remove_small_objects(items)
                 self.db_items.extend(items)
 
             cprint('Total of ' + str(len(self.db_items)) + ' db items loaded!', bcolors.OKBLUE)
             # In image_pair mode pair of images are sampled from the same semantic class
-            clusters = util.PASCAL.cluster_items(self.db_items)
+            clusters = PASCAL.cluster_items(self.db_items)
 
             # db_items will be a list of tuples (set,j) in which set is the set that img_item belongs to and j is the index of img_item in that set
             self.db_items = []  # empty the list !!
@@ -246,6 +238,7 @@ class DBInterface():
                     'k_shot']), 'class ' + imgset.name + ' has only ' + imgset.length + ' examples.'
                 in_set_index = imgset.image_items.index(item)
                 self.db_items.append((imgset, in_set_index)) #in_set_index is used for "second_image"
+
             cprint('Total of ' + str(len(clusters)) + ' classes!', bcolors.OKBLUE)
 
         self.orig_db_items = copy.copy(self.db_items)
@@ -291,22 +284,4 @@ class DBInterface():
 
 
 
-            
-
-class PairLoaderProcess():
-    def __init__(self, db_interface, params):
-        self.db_interface = db_interface
-        self.first_shape = params['first_shape']
-        self.second_shape = params['second_shape']
-
-        self.deploy_mode = params['deploy_mode'] if params.has_key('deploy_mode') else False
-            
-
-    def load_next_frame(self):
-        return self.db_interface.next_pair()
-
-
-    def read_imgs(self, player, first_index, second_index):
-        pass
-            
 
