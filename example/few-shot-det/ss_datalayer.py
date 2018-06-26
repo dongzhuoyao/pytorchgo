@@ -15,6 +15,8 @@ if sys.version_info[0] == 2:
 else:
     import xml.etree.ElementTree as ET
 
+IS_DEBUG = 0
+
 class PASCAL_READ_MODES:
     #Returns list of DBImageItem each has the image and one object instance in the mask
     INSTANCE = 0
@@ -49,10 +51,11 @@ class DBImageSetItem():
 
 
 class DBPascalItem():
-    def __init__(self, name, img_path, obj_ids, ids_map=None):
+    def __init__(self, name, img_path, obj_ids, bbox, ids_map=None):
         self.name = name
         self.img_path = img_path
         self.obj_ids = obj_ids
+        self.bbox = bbox
         if ids_map is None:
             self.ids_map = dict(zip(obj_ids, np.ones(len(obj_ids))))
         else:
@@ -71,10 +74,11 @@ class PASCAL:
 
         assert dataType == "train" or dataType == "val"
         self.db_path = db_path
-        classes = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable',
-                   'dog', 'horse', 'motorbike', 'person', 'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
-        self.name_id_map = dict(zip(classes, range(1, len(classes) + 1)))
-        self.id_name_map = dict(zip(range(1, len(classes) + 1), classes))
+        classes = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car' , 'cat', 'chair', 'cow',
+               'diningtable', 'dog', 'horse', 'motorbike', 'person', 'potted plant', 'sheep', 'sofa',
+               'train', 'tv/monitor']
+        self.name_id_map = dict(zip(classes, range(1, 21)))
+        self.id_name_map = dict(zip(range(1, 21), classes))
         self.dataType = dataType
 
         self._annopath = osp.join('%s', 'Annotations', '%s.xml')
@@ -82,7 +86,7 @@ class PASCAL:
 
         self.keep_difficult = False
         self.class_to_ind = dict(
-            zip(VOC_CLASSES, range(len(VOC_CLASSES))))
+            zip(VOC_CLASSES, range(1,len(VOC_CLASSES)+1)))#start from 1!!!!!
 
 
     def getCatIds(self, catNms=[]):
@@ -144,16 +148,22 @@ class PASCAL:
         for item in tqdm(tuple_list,total=len(tuple_list),desc="create annotations"):#per image
             image_root = item[0]
             img_id = item[1]
-
+            class_bbox_dict = {}
             if read_mode == PASCAL_READ_MODES.INSTANCE:
                 target = ET.parse(self._annopath % item).getroot()
                 img = cv2.imread(self._imgpath % item)
                 height, width, channels = img.shape
                 target_bboxs = self._get_bbox(target, width, height)
-                for bbox in target_bboxs:
-                    anns.append(dict(image_name = item, mask_name = item, class_ids = [bbox[-1]], bbox = bbox[:-1]))
-            else:
-                raise ValueError
+
+            for bbox in target_bboxs:
+                    class_id = bbox[-1]
+                    xywh = bbox[:-1]
+                    if class_bbox_dict.has_key(class_id):
+                        class_bbox_dict[class_id]['bbox'].append(xywh)
+                    else:
+                        class_bbox_dict[class_id] = dict(image_name = item, mask_name = item, class_ids = [class_id], bbox = [xywh])
+
+            anns.extend([value for value in class_bbox_dict.values()])
 
         with open(self.get_anns_path(read_mode), 'w') as f:
             cprint("dump pickle file...")
@@ -161,7 +171,7 @@ class PASCAL:
 
     def load_anns(self, read_mode):
         path = self.get_anns_path(read_mode)
-        if True:#not osp.exists(path):
+        if not osp.exists(path) or IS_DEBUG:
             self.create_anns(read_mode)
         with open(path, 'rb') as f:
             anns = pickle.load(f)
@@ -174,9 +184,9 @@ class PASCAL:
         if catIds == [] and areaRng == [0, np.inf]:
             return anns
 
-        print("filtering annotations...")
         filtered_anns = [ann for ann in tqdm(anns,total=len(anns)) if
                          ann['class_ids'][0] in catIds]
+        print("origin anns={}, filtered anns={}.".format(len(anns),len(filtered_anns)))
         return filtered_anns
 
     def getItems(self, cats=[], areaRng=[], read_mode=PASCAL_READ_MODES.INSTANCE):
@@ -191,11 +201,12 @@ class PASCAL:
 
         items = []
 
-        ids_map = None
         for i, ann in enumerate(anns):
-            img_path = osp.join(ann['image_name'][0], 'JPEGImages', ann['image_name'][1] + '.jpg')
-            item = DBPascalItem('pascal_{}_{}_instance{}'.format(self.dataType, ann['image_name'], i), img_path,
-                                ann['class_ids'], ids_map)
+            cur_root_path, image_id = ann['image_name']
+            img_path = osp.join(cur_root_path, 'JPEGImages',  '{}.jpg'.format(image_id))
+            item = DBPascalItem('pascal_{}_path{}_imageid{}_instance{}'.format(self.dataType, cur_root_path, image_id, i),
+                                img_path,
+                                ann['class_ids'], bbox=ann['bbox'])
             items.append(item)
         return items
 
@@ -210,7 +221,7 @@ class PASCAL:
             if clusters.has_key(item_id):
                 clusters[item_id].append(item)
             else:
-                clusters[item_id] = DBImageSetItem('set class id = ' + str(item_id), [item])
+                clusters[item_id] = DBImageSetItem('set class id = {}'.format(item_id), [item])
         return clusters
 
 
@@ -232,31 +243,27 @@ class DBInterface():
 
     def load_items(self):
 
-        self.db_items = []
+        pascal_db = PASCAL(self.params['pascal_path'], self.params['image_sets'].replace("pascal_",""))  # train or test
+        # reads pair of images from one semantic class and and with binary labels
+        self.db_items = pascal_db.getItems(self.params['pascal_cats'],read_mode=PASCAL_READ_MODES.INSTANCE)
 
-        for image_set in self.params['image_sets']:
-            pascal_db = PASCAL(self.params['pascal_path'], image_set.replace("pascal_",""))  # train or test
-            # reads pair of images from one semantic class and and with binary labels
-            items = pascal_db.getItems(self.params['pascal_cats'],
-                                       read_mode=PASCAL_READ_MODES.INSTANCE)
-            #items = _remove_small_objects(items)
-            self.db_items.extend(items)
+        cprint('data result: total of ' + str(len(self.db_items)) + ' db items loaded!', bcolors.OKBLUE)
 
-        cprint('Total of ' + str(len(self.db_items)) + ' db items loaded!', bcolors.OKBLUE)
-        # In image_pair mode pair of images are sampled from the same semantic class
+
         clusters = PASCAL.cluster_items(self.db_items)
 
         # db_items will be a list of tuples (set,j) in which set is the set that img_item belongs to and j is the index of img_item in that set
-        self.db_items = []  # empty the list !!
-        for item in self.db_items:
+        final_db_items = []  # empty the list !!
+        for item in tqdm(self.db_items, desc="random assign", total=len(self.db_items)):
             set_id = item.obj_ids[0]
             imgset = clusters[set_id]
             assert (imgset.length > self.params[
                 'k_shot']), 'class ' + imgset.name + ' has only ' + imgset.length + ' examples.'
             in_set_index = imgset.image_items.index(item)
-            self.db_items.append((imgset, in_set_index)) #in_set_index is used for "second_image"
+            final_db_items.append((imgset, in_set_index)) #in_set_index is used for "second_image"
 
-        cprint('Total of ' + str(len(clusters)) + ' classes!', bcolors.OKBLUE)
+        self.db_items = final_db_items
+        cprint('data result: total of ' + str(len(clusters)) + ' classes!', bcolors.OKBLUE)
 
         self.orig_db_items = copy.copy(self.db_items)
         self.seq_index = len(self.db_items)
@@ -285,18 +292,19 @@ class DBInterface():
             assert(len(set_indices) >= self.params['k_shot'])
             self.rand_gen.shuffle(set_indices)
             first_index = set_indices[:self.params['k_shot']] # support set image indexes(may be multi-shot~)
-
-            metadata = {'name':imgset.name,
-                        'class_id':imgset.image_items[0].obj_ids[0],
-                        'image1_name':[os.path.basename(imgset.image_items[ii].img_path) for ii in first_index],
-                        'image2_name': os.path.basename(imgset.image_items[second_index].img_path),
+            class_id = imgset.image_items[second_index].obj_ids[0]
+            metadata = {
+                'class_id':class_id,
+                'class_name':VOC_CLASSES[class_id-1]
                         }
 
-            return [imgset.image_items[v].img_path for v in first_index],\
-                   [imgset.image_items[v].mask_path for v in first_index],\
-                   imgset.image_items[second_index].img_path,\
-                    imgset.image_items[second_index].mask_path, \
-                    metadata
+            #TODO, draw bbox
+            return [imgset.image_items[v].img_path for v in first_index], \
+                   [imgset.image_items[v].bbox for v in first_index], \
+                   imgset.image_items[second_index].img_path, \
+                   imgset.image_items[second_index].bbox, metadata
+
+
 
 
 

@@ -51,8 +51,7 @@ default_profile = Map(
 
 foldall_train = Map(default_profile,
                     read_mode='shuffle',
-                    image_sets=['pascal_train'],
-                    #image_sets=['pascal_training'],
+                    image_sets='pascal_train',
                     pascal_cats = PASCAL_CATS,
                     first_shape=image_size,
                     second_shape=image_size) # original code is second_shape=None),TODO
@@ -60,7 +59,7 @@ foldall_train = Map(default_profile,
 foldall_1shot_test = Map(default_profile,
                          db_cycle = 1000,
                          read_mode='deterministic',
-                         image_sets=['pascal_val'],
+                         image_sets='pascal_val',
                          pascal_cats = PASCAL_CATS,
                          first_shape=image_size,
                          second_shape=image_size,
@@ -69,7 +68,7 @@ foldall_1shot_test = Map(default_profile,
 foldall_5shot_test = Map(default_profile,
                          db_cycle = 1000,
                          read_mode='deterministic',
-                         image_sets=['pascal_val'],
+                         image_sets='pascal_val',
                          pascal_cats = PASCAL_CATS,
                          first_shape=image_size,
                          second_shape=image_size,
@@ -81,7 +80,7 @@ foldall_5shot_test = Map(default_profile,
 # Setting for training (on **training images**)
 fold0_train = Map(default_profile,
                   read_mode='shuffle',
-                  image_sets=['pascal_train'],
+                  image_sets='pascal_train',
                   pascal_cats = get_cats('train',0),
                   first_shape=image_size,
                   second_shape=image_size) # original code is second_shape=None),TODO
@@ -92,7 +91,7 @@ fold0_5shot_train = Map(fold0_train,k_shot=5)
 fold0_5shot_test = Map(default_profile,
                        db_cycle = 1000,
                        read_mode='deterministic',
-                       image_sets=['pascal_val'],
+                       image_sets='pascal_val',
                        pascal_cats = get_cats('val',0),
                        first_shape=image_size,
                        second_shape=image_size,
@@ -101,6 +100,7 @@ fold0_5shot_test = Map(default_profile,
 #### fold 1 ####
 fold1_train = Map(fold0_train, pascal_cats=get_cats('train', 1))
 fold1_5shot_train = Map(fold1_train,k_shot=5)
+
 fold1_5shot_test = Map(fold0_5shot_test, pascal_cats=get_cats('test', 1))
 fold1_1shot_test = Map(fold1_5shot_test, k_shot=1)
 
