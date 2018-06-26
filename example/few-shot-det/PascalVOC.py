@@ -5,17 +5,22 @@ from multiprocessing import Process, Queue, Pool, Lock
 import os.path as osp
 import sys
 import traceback
-import util
-from util import cprint, bcolors
-from skimage.transform import resize
 import copy,cv2,pickle
+from pytorchgo.utils import logger
 from tqdm import tqdm
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
 else:
     import xml.etree.ElementTree as ET
 
+
+from pytorchgo.utils.constant import PASCAL_CLASS
+from pytorchgo.utils.map_util import Map
+
+
 IS_DEBUG = 0
+PASCAL_PATH= '/data2/dataset/VOCdevkit'
+
 
 class PASCAL_READ_MODES:
     #Returns list of DBImageItem each has the image and one object instance in the mask
@@ -25,12 +30,6 @@ class PASCAL_READ_MODES:
     #Returns list of DBImageSetItem each has set of images and corresponding masks for each semantic label
     SEMANTIC = 2
 
-VOC_CLASSES = (  # always index 0
-    'aeroplane', 'bicycle', 'bird', 'boat',
-    'bottle', 'bus', 'car', 'cat', 'chair',
-    'cow', 'diningtable', 'dog', 'horse',
-    'motorbike', 'person', 'pottedplant',
-    'sheep', 'sofa', 'train', 'tvmonitor')
 
 
 class DBImageSetItem():
@@ -74,11 +73,8 @@ class PASCAL:
 
         assert dataType == "train" or dataType == "val"
         self.db_path = db_path
-        classes = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car' , 'cat', 'chair', 'cow',
-               'diningtable', 'dog', 'horse', 'motorbike', 'person', 'potted plant', 'sheep', 'sofa',
-               'train', 'tv/monitor']
-        self.name_id_map = dict(zip(classes, range(1, 21)))
-        self.id_name_map = dict(zip(range(1, 21), classes))
+        self.name_id_map = dict(zip(PASCAL_CLASS, range(1, 21)))
+        self.id_name_map = dict(zip(range(1, 21), PASCAL_CLASS))
         self.dataType = dataType
 
         self._annopath = osp.join('%s', 'Annotations', '%s.xml')
@@ -86,14 +82,14 @@ class PASCAL:
 
         self.keep_difficult = False
         self.class_to_ind = dict(
-            zip(VOC_CLASSES, range(1,len(VOC_CLASSES)+1)))#start from 1!!!!!
+            zip(PASCAL_CLASS, range(1,len(PASCAL_CLASS)+1)))#start from 1!!!!!
 
 
     def getCatIds(self, catNms=[]):
         return [self.name_id_map[catNm] for catNm in catNms]
 
     def get_anns_path(self, read_mode):
-        return osp.join(self.db_path, "{}_{}_anns.pkl".format(self.dataType, str(read_mode)))
+        return osp.join("{}_{}_anns.pkl".format(self.dataType, str(read_mode)))
 
     def get_unique_ids(self, mask, return_counts=False, exclude_ids=[0, 255]):
         ids, sizes = np.unique(mask, return_counts=True)
@@ -137,7 +133,7 @@ class PASCAL:
         return res  # [[xmin, ymin, xmax, ymax, label_ind], ... ]
 
     def create_anns(self, read_mode):
-        cprint("create_anns from origin...")
+        logger.info("create_anns from origin...")
         tuple_list = []
         for (year, name) in [('2007', 'trainval'), ('2012', 'trainval')]:
             rootpath = os.path.join(self.db_path, 'VOC' + year)
@@ -166,7 +162,7 @@ class PASCAL:
             anns.extend([value for value in class_bbox_dict.values()])
 
         with open(self.get_anns_path(read_mode), 'w') as f:
-            cprint("dump pickle file...")
+            logger.info("dump pickle file...")
             pickle.dump(anns, f)
 
     def load_anns(self, read_mode):
@@ -197,7 +193,7 @@ class PASCAL:
         catIds = np.sort(catIds)
 
         anns = self.get_anns(catIds=catIds, areaRng=areaRng, read_mode=read_mode)#heavy operation!
-        cprint(str(len(anns)) + ' annotations read from pascal', bcolors.OKGREEN)
+        logger.info('{} annotations read from pascal'.format(len(anns)))
 
         items = []
 
@@ -247,7 +243,7 @@ class DBInterface():
         # reads pair of images from one semantic class and and with binary labels
         self.db_items = pascal_db.getItems(self.params['pascal_cats'],read_mode=PASCAL_READ_MODES.INSTANCE)
 
-        cprint('data result: total of ' + str(len(self.db_items)) + ' db items loaded!', bcolors.OKBLUE)
+        logger.info('data result: total of {} db items loaded!'.format(len(self.db_items)))
 
 
         clusters = PASCAL.cluster_items(self.db_items)
@@ -263,7 +259,7 @@ class DBInterface():
             final_db_items.append((imgset, in_set_index)) #in_set_index is used for "second_image"
 
         self.db_items = final_db_items
-        cprint('data result: total of ' + str(len(clusters)) + ' classes!', bcolors.OKBLUE)
+        logger.info('data result: total of {} classes!'.format(len(clusters)))
 
         self.orig_db_items = copy.copy(self.db_items)
         self.seq_index = len(self.db_items)
@@ -295,7 +291,7 @@ class DBInterface():
             class_id = imgset.image_items[second_index].obj_ids[0]
             metadata = {
                 'class_id':class_id,
-                'class_name':VOC_CLASSES[class_id-1]
+                'class_name':PASCAL_CLASS[class_id-1]
                         }
 
             #TODO, draw bbox
@@ -303,6 +299,98 @@ class DBInterface():
                    [imgset.image_items[v].bbox for v in first_index], \
                    imgset.image_items[second_index].img_path, \
                    imgset.image_items[second_index].bbox, metadata
+
+
+def get_cats(split, fold, num_folds=4):
+    '''
+      Returns a list of categories (for training/test) for a given fold number
+
+      Inputs:
+        split: specify train/val
+        fold : fold number, out of num_folds
+        num_folds: Split the set of image classes to how many folds. In BMVC paper, we use 4 folds
+
+    '''
+    num_cats = len(PASCAL_CLASS)
+    assert(num_cats%num_folds==0)
+    val_size = int(num_cats/num_folds)
+    assert(fold<num_folds)
+    val_set = [ fold*val_size+v for v in range(val_size)]
+    train_set = [x for x in range(num_cats) if x not in val_set]
+    if split=='train':
+        return [PASCAL_CLASS[x] for x in train_set]
+    else:
+        return [PASCAL_CLASS[x] for x in val_set]
+
+
+default_profile = Map(
+                ###############################################
+                k_shot=1,
+                read_mode=None, # Either "Shuffle" (for training) or "Deterministic" (for testing, random seed fixed)
+                pascal_cats = PASCAL_CLASS,
+                pascal_path = PASCAL_PATH,
+                worker_num = 4)
+
+
+foldall_train = Map(default_profile,
+                    read_mode='shuffle',
+                    data_split = "foldall_train",
+                    image_sets='pascal_train',
+                    pascal_cats = PASCAL_CLASS,) # original code is second_shape=None),TODO
+
+foldall_1shot_test = Map(default_profile,
+                         db_cycle = 1000,
+                         read_mode='deterministic',
+                         image_sets='pascal_val',
+                         pascal_cats = PASCAL_CLASS,
+                         data_split = "foldall_1shot_test",
+                         k_shot=1) # original code is second_shape=None),TODO
+
+foldall_5shot_test = Map(default_profile,
+                         db_cycle = 1000,
+                         read_mode='deterministic',
+                         image_sets='pascal_val',
+                         pascal_cats = PASCAL_CLASS,
+                        data_split = "foldall_5shot_test",
+                         k_shot=5) # original code is second_shape=None),TODO
+
+
+#### fold 0 ####
+
+# Setting for training (on **training images**)
+fold0_train = Map(default_profile,
+                  read_mode='shuffle',
+                  image_sets='pascal_train',
+                  data_split="fold0_train",
+                  pascal_cats = get_cats('train',0),) # original code is second_shape=None),TODO
+
+fold0_5shot_train = Map(fold0_train,k_shot=5,data_split="fold0_5shot_train")
+
+# Setting for testing on **test images** in unseen image classes (in total 5 classes), 5-shot
+fold0_5shot_test = Map(default_profile,
+                       db_cycle = 1000,
+                       read_mode='deterministic',
+                       image_sets='pascal_val',
+                       data_split="fold0_5shot_test",
+                       pascal_cats = get_cats('val',0),
+                       k_shot=5)
+
+#### fold 1 ####
+fold1_train = Map(fold0_train,
+                  pascal_cats=get_cats('train', 1),
+                  data_split="fold1_train",
+                  )
+fold1_5shot_train = Map(fold1_train,k_shot=5,
+                        data_split="fold1_5shot_train",
+                        )
+
+fold1_5shot_test = Map(fold0_5shot_test, pascal_cats=get_cats('val', 1),
+                       data_split="fold1_5shot_test",
+                       )
+
+fold1_1shot_test = Map(fold1_5shot_test, k_shot=1,
+                       data_split="fold1_1shot_test",
+                       )
 
 
 

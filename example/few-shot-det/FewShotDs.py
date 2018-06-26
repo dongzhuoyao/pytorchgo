@@ -8,25 +8,20 @@ import cv2
 
 from tensorpack.utils import logger
 from tensorpack.dataflow.base import RNGDataFlow
-from ss_datalayer import DBInterface
-
+from PascalVOC import DBInterface
+import PascalVOC
 
 __all__ = ['FewShotDs']
 
 
 class FewShotDs(RNGDataFlow):
     def __init__(self,name, image_size=(321,321)):
-        settings = __import__('ss_settings')
         self.name = name
-        profile = getattr(settings, name)
-        profile_copy = profile.copy()
-        profile_copy['first_shape'] = image_size
-        profile_copy['second_shape'] = image_size
+        profile = getattr(PascalVOC, name)
         self.dbi = DBInterface(profile)
         self.data_size = len(self.dbi.db_items)
         if "test" in self.name:
             self.data_size = 1000
-
 
     def size(self):
         return self.data_size
