@@ -299,3 +299,13 @@ def Res_Deeplab(num_classes=21, is_refine=False):
     #https://download.pytorch.org/models/resnet50-19c8e357.pth
     return model
 
+def Res101_Deeplab(num_classes=21, is_refine=False):
+    if is_refine:
+        model = ResNet_Refine(Bottleneck,[3, 4, 23, 3], num_classes)
+    else:
+        model = ResNet(Bottleneck,[3, 4, 23, 3], num_classes)
+
+    #load weight:
+    #https://download.pytorch.org/models/resnet50-19c8e357.pth
+    return model
+

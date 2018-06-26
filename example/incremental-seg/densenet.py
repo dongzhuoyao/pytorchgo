@@ -182,7 +182,7 @@ class DenseNet(nn.Module):
     """
 
     def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16),
-                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000):
+                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000, pre_softmax_node=1024):
 
         super(DenseNet, self).__init__()
 
@@ -196,6 +196,8 @@ class DenseNet(nn.Module):
 
         stride_config = [2,2,1,1]
         dilate_config = [1,1,2,4]
+
+        self.pre_softmax_node = pre_softmax_node
 
         # Each denseblock
         num_features = num_init_features
@@ -226,7 +228,7 @@ class DenseNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def _make_pred_layer(self,block, dilation_series, padding_series,num_classes):
-        return block(dilation_series,padding_series,num_classes)
+        return block(dilation_series,padding_series,num_classes,pre_softmax_node=self.pre_softmax_node)
 
     def forward(self, x):
         features = self.features(x)
@@ -238,11 +240,11 @@ class DenseNet(nn.Module):
 
 class Classifier_Module(nn.Module):
 
-    def __init__(self, dilation_series, padding_series, num_classes):
+    def __init__(self, dilation_series, padding_series, num_classes, pre_softmax_node=1024):
         super(Classifier_Module, self).__init__()
         self.conv2d_list = nn.ModuleList()
         for dilation, padding in zip(dilation_series, padding_series):
-            self.conv2d_list.append(nn.Conv2d(1024, num_classes, kernel_size=3, stride=1, padding=padding, dilation=dilation, bias = True))
+            self.conv2d_list.append(nn.Conv2d(pre_softmax_node, num_classes, kernel_size=3, stride=1, padding=padding, dilation=dilation, bias = True))
 
         for m in self.conv2d_list:
             m.weight.data.normal_(0, 0.01)
