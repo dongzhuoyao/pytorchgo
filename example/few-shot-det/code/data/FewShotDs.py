@@ -8,16 +8,51 @@ import cv2
 
 from tensorpack.utils import logger
 from tensorpack.dataflow.base import RNGDataFlow
-from PascalVOC import DBInterface
-import PascalVOC
+from FewShotVOC import DBInterface
+import FewShotVOC
 
-__all__ = ['FewShotDs']
+__all__ = ['FewShotDs','FewShotVOCDataset']
+
+import torch.utils.data as data
+
+class FewShotVOCDataset(data.Dataset):
+    """VOC Detection Dataset Object
+
+    input is image, target is annotation
+
+    Arguments:
+        root (string): filepath to VOCdevkit folder.
+        image_set (string): imageset to use (eg. 'train', 'val', 'test')
+        transform (callable, optional): transformation to perform on the
+            input image
+        target_transform (callable, optional): transformation to perform on the
+            target `annotation`
+            (eg: take in caption string, return tensor of word indices)
+        dataset_name (string, optional): which dataset to load
+            (default: 'VOC2007')
+    """
+
+    def __init__(self, name):
+        self.name = name
+        profile = getattr(FewShotVOC, name)
+        self.dbi = DBInterface(profile)
+        self.data_size = len(self.dbi.db_items)
+        if "test" in self.name:
+            self.data_size = 1000
+
+    def __getitem__(self, index):
+        first_image_list, first_label_list, second_image, second_label, metadata = self.dbi.next_pair()
+        yield [first_image_list, first_label_list, second_image, second_label, metadata]
+
+    def __len__(self):
+        return len(self.data_size)
+
 
 
 class FewShotDs(RNGDataFlow):
     def __init__(self,name, image_size=(321,321)):
         self.name = name
-        profile = getattr(PascalVOC, name)
+        profile = getattr(FewShotVOC, name)
         self.dbi = DBInterface(profile)
         self.data_size = len(self.dbi.db_items)
         if "test" in self.name:

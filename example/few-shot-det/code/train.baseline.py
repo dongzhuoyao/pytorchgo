@@ -121,6 +121,8 @@ def DatasetSync(dataset='VOC',split='training'):
         dataset = KittiLoader(DataRoot, split=split,img_size=(1000,300),
                   transforms=SSDAugmentation((1000,300),means),
                   target_transform=AnnotationTransform_kitti())
+    elif dataset == "VOC-FEWSHOT":
+        pass
     return dataset
 
 def train():
