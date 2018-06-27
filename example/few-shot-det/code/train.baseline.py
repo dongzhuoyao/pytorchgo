@@ -208,7 +208,7 @@ def train():
         )
     batch_iterator = None
     data_loader = data.DataLoader(dataset, args.batch_size, num_workers=args.num_workers,
-                                  shuffle=True, collate_fn=detection_collate, pin_memory=True)
+                                  shuffle=True, pin_memory=True, collate_fn=detection_collate)
 
     lr=args.lr
     for iteration in range(start_iter, args.iterations + 1):

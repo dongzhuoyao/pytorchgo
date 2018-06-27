@@ -13,6 +13,7 @@ __all__ = ['FewShotDs','FewShotVOCDataset']
 
 import torch
 import torch.utils.data as data
+from pytorchgo.utils.constant import IMG_MEAN
 
 class FewShotVOCDataset(data.Dataset):
     """VOC Detection Dataset Object
@@ -99,12 +100,19 @@ class FewShotVOCDataset(data.Dataset):
             output_first_masked_images_concat.append(ttt)
 
         second_image = cv2.resize(second_image, self.image_size)  # resize
-        second_image = np.transpose(second_image,(2,0,1))#W,H,C->C,W,H
 
-        for bb in second_bbox:
+        second_image = second_image[:, :, ::-1]  # change to BGR
+        second_image -= IMG_MEAN
+        second_image = second_image.transpose((2, 0, 1))#W,H,C->C,W,H
+
+
+        for i, bb in enumerate(second_bbox):
             bb.append(0)#add default class, notice here!!!
 
-        return output_first_masked_images_concat, second_image, second_bbox, metadata
+
+        output_first_masked_images_concat = np.stack(output_first_masked_images_concat, axis=0)
+
+        return torch.from_numpy(output_first_masked_images_concat.copy()), torch.from_numpy(second_image.copy()), second_bbox, metadata
 
     def __len__(self):
         return self.data_size
@@ -122,21 +130,16 @@ def detection_collate(batch):
             1) (tensor) batch of images stacked on their 0 dim
             2) (list of tensors) annotations for a given image are stacked on 0 dim
     """
-    first_images_list = []
-    second_bbox_list = []
-    second_image_list = []
+    first_images = []
+    second_bboxes = []
+    second_images = []
     metadata_list = []
     for sample in batch:
-        output_first_masked_images_concat, second_image, second_bbox, metadata = sample
-        second_image_list.append(torch.from_numpy(second_image))
-        second_bbox_list.append(torch.FloatTensor(second_bbox))
-        first_images_list.append(torch.from_numpy(np.stack(output_first_masked_images_concat,axis=0)))
-        metadata_list.append(metadata)
-
-    first_images_list = torch.FloatTensor(torch.squeeze(torch.stack(first_images_list, 0)))
-    second_image_list = torch.FloatTensor(torch.stack(second_image_list, 0))
-
-    return first_images_list, second_image_list, second_bbox_list, metadata_list
+        first_images.append(sample[0])
+        second_images.append(sample[1])
+        second_bboxes.append(torch.FloatTensor(sample[2]))
+        metadata_list.append(sample[3])
+    return torch.stack(first_images, 0), torch.stack(second_images, 0), second_bboxes, metadata_list
 
 if __name__ == '__main__':
     from PIL import Image, ImageFont, ImageDraw, ImageEnhance
