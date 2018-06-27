@@ -168,7 +168,7 @@ class PASCAL:
 
     def load_anns(self, read_mode):
         path = self.get_anns_path(read_mode)
-        if not osp.exists(path) or IS_DEBUG:
+        if True:
             self.create_anns(read_mode)
         with open(path, 'rb') as f:
             anns = pickle.load(f)
@@ -238,29 +238,40 @@ class DBInterface():
         elif read_mode == 'deterministic':
             self.rand_gen.seed(1385)  # >>>Do not change<<< Fixed seed for deterministic mode.
 
+
+
+
     def load_items(self):
+        pickle_path = osp.join("final_clustered_{}.pkl".format(self.params['data_split']))
+        if not osp.exists(pickle_path) or IS_DEBUG:
+            pascal_db = PASCAL(self.params['pascal_path'], self.params['image_sets'],
+                               data_split=self.params['data_split'])  # train or test
+            # reads pair of images from one semantic class and and with binary labels
+            self.db_items = pascal_db.getItems(self.params['pascal_cats'], read_mode=PASCAL_READ_MODES.INSTANCE)
 
-        pascal_db = PASCAL(self.params['pascal_path'], self.params['image_sets'], data_split= self.params['data_split'])  # train or test
-        # reads pair of images from one semantic class and and with binary labels
-        self.db_items = pascal_db.getItems(self.params['pascal_cats'],read_mode=PASCAL_READ_MODES.INSTANCE)
+            logger.info('data result: total of {} db items loaded!'.format(len(self.db_items)))
+            clusters = PASCAL.cluster_items(self.db_items)
 
-        logger.info('data result: total of {} db items loaded!'.format(len(self.db_items)))
+            # db_items will be a list of tuples (set,j) in which set is the set that img_item belongs to and j is the index of img_item in that set
+            final_db_items = []  # empty the list !!
+            for item in tqdm(self.db_items, desc="random assign", total=len(self.db_items)):
+                set_id = item.obj_ids[0]
+                imgset = clusters[set_id]
+                assert (imgset.length > self.params[
+                    'k_shot']), 'class ' + imgset.name + ' has only ' + imgset.length + ' examples.'
+                in_set_index = imgset.image_items.index(item)
+                final_db_items.append((imgset, in_set_index))  # in_set_index is used for "second_image"
+            self.db_items = final_db_items
+            logger.info('data result: total of {} classes!'.format(len(clusters)))
 
+            with open(pickle_path, 'w') as f:
+                logger.info("dump pickle file...")
+                pickle.dump(self.db_items, f)
 
-        clusters = PASCAL.cluster_items(self.db_items)
+        with open(pickle_path, 'rb') as f:
+            logger.warn("loading data from pickle file....")
+            self.db_items = pickle.load(f)
 
-        # db_items will be a list of tuples (set,j) in which set is the set that img_item belongs to and j is the index of img_item in that set
-        final_db_items = []  # empty the list !!
-        for item in tqdm(self.db_items, desc="random assign", total=len(self.db_items)):
-            set_id = item.obj_ids[0]
-            imgset = clusters[set_id]
-            assert (imgset.length > self.params[
-                'k_shot']), 'class ' + imgset.name + ' has only ' + imgset.length + ' examples.'
-            in_set_index = imgset.image_items.index(item)
-            final_db_items.append((imgset, in_set_index)) #in_set_index is used for "second_image"
-
-        self.db_items = final_db_items
-        logger.info('data result: total of {} classes!'.format(len(clusters)))
 
         self.orig_db_items = copy.copy(self.db_items)
         self.seq_index = len(self.db_items)
@@ -354,6 +365,7 @@ foldall_1shot_val = Map(
                          read_mode='deterministic',
                          image_sets='val',
                          pascal_cats = PASCAL_CLASS,
+                         pascal_path = PASCAL_PATH,
                          k_shot=1)
 
 foldall_5shot_val = Map(
@@ -362,6 +374,7 @@ foldall_5shot_val = Map(
                          image_sets='val',
                          pascal_cats = PASCAL_CLASS,
                         data_split = "foldall_5shot_val",
+                        pascal_path=PASCAL_PATH,
                          k_shot=5)
 
 
@@ -373,6 +386,7 @@ fold0_1shot_train = Map(
                     k_shot = 1,
                     read_mode='shuffle',
                     image_sets='train',
+                    pascal_path=PASCAL_PATH,
                   pascal_cats = get_cats('train',0)
 )
 
@@ -380,6 +394,7 @@ fold0_5shot_train = Map( data_split = "fold0_5shot_train",
                     k_shot = 5,
                     read_mode='shuffle',
                     image_sets='train',
+                         pascal_path=PASCAL_PATH,
                   pascal_cats = get_cats('train',0))
 
 # Setting for testing on **test images** in unseen image classes (in total 5 classes), 5-shot
@@ -388,6 +403,7 @@ fold0_5shot_val = Map(
                        db_cycle = 1000,
                        read_mode='deterministic',
                        image_sets='val',
+                        pascal_path=PASCAL_PATH,
                        pascal_cats = get_cats('val',0),
                        k_shot=5)
 
@@ -397,6 +413,7 @@ fold0_1shot_val = Map(
                        read_mode='deterministic',
                        image_sets='val',
                        pascal_cats = get_cats('val',0),
+                        pascal_path=PASCAL_PATH,
                        k_shot=1)
 
 

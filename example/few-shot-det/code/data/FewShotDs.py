@@ -8,9 +8,10 @@ import cv2
 
 from FewShotVOC import DBInterface
 import FewShotVOC
-
+from PIL import Image
 __all__ = ['FewShotDs','FewShotVOCDataset']
 
+import torch
 import torch.utils.data as data
 
 class FewShotVOCDataset(data.Dataset):
@@ -42,7 +43,7 @@ class FewShotVOCDataset(data.Dataset):
     def __getitem__(self, index):
         first_images, first_bboxs, second_image, second_bbox, metadata = self.dbi.next_pair()
         second_image = Image.open(second_image).convert('RGB')
-        second_image = np.asarray(second_image)
+        second_image = np.asarray(second_image,np.float32)
         if False:
             height, width, channels = second_image.shape
 
@@ -62,13 +63,14 @@ class FewShotVOCDataset(data.Dataset):
         output_first_images = []
         output_first_masks = []
         output_first_masked_images = []
+        output_first_masked_images_concat = []
         for k in range(k_shot):
             first_image = first_images[k]
             first_image = Image.open(first_image).convert('RGB')
             first_image = np.asarray(first_image)
 
             height, width, channels = first_image.shape
-            first_mask = np.zeros((height,width,1),np.uint8)
+            first_mask = np.zeros((height,width,1),np.float32)
             bboxs = first_bboxs[k]
             for bbox in bboxs:
                 min_x, min_y, max_x, max_y = bbox
@@ -84,10 +86,19 @@ class FewShotVOCDataset(data.Dataset):
 
             output_first_images.append(first_image)
             output_first_masks.append(first_mask)
-            output_first_masked_images.append(first_image*first_mask)
+            masked = first_image * first_mask
+            output_first_masked_images.append(masked)
+            ttt = np.concatenate((first_image,masked),axis=2)
+            ttt = np.transpose(ttt,(2,0,1))#W,H,C->C,W,H
+            output_first_masked_images_concat.append(ttt)
 
         second_image = cv2.resize(second_image, self.image_size)  # resize
-        return output_first_images, output_first_masked_images, second_image, second_bbox, metadata
+        second_image = np.transpose(second_image,(2,0,1))#W,H,C->C,W,H
+
+        for bb in second_bbox:
+            bb.append(1)#add default class
+
+        return output_first_masked_images_concat, second_image, second_bbox, metadata
 
     def __len__(self):
         return self.data_size
@@ -105,8 +116,21 @@ def detection_collate(batch):
             1) (tensor) batch of images stacked on their 0 dim
             2) (list of tensors) annotations for a given image are stacked on 0 dim
     """
+    first_images_list = []
+    second_bbox_list = []
+    second_image_list = []
+    metadata_list = []
+    for sample in batch:
+        output_first_masked_images_concat, second_image, second_bbox, metadata = sample
+        second_image_list.append(torch.from_numpy(second_image))
+        second_bbox_list.append(torch.FloatTensor(second_bbox))
+        first_images_list.append(torch.from_numpy(np.stack(output_first_masked_images_concat,axis=0)))
+        metadata_list.append(metadata)
 
-    return batch
+    first_images_list = torch.FloatTensor(torch.squeeze(torch.stack(first_images_list, 0)))
+    second_image_list = torch.FloatTensor(torch.stack(second_image_list, 0))
+
+    return first_images_list, second_image_list, second_bbox_list, metadata_list
 
 if __name__ == '__main__':
     from PIL import Image, ImageFont, ImageDraw, ImageEnhance
@@ -118,8 +142,8 @@ if __name__ == '__main__':
     cur_dir = "fold0_1shot_train_support_masked_images"
     #os.mkdir(cur_dir)
     for idx,data in enumerate(data_loader):
-        first_images, first_masked_images, second_image, second_bbox, metadata = data[0]
-        cv2.imwrite("first_masked_image.jpg",first_masked_images[0])
+        output_first_images, output_first_masks, output_first_masked_images, second_image, second_bbox, metadata= data[0]
+        cv2.imwrite("first_masked_image.jpg",output_first_images[0])
         print ("class_name: {}".format(metadata["class_name"]))
         print("ok")
 

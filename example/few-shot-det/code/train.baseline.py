@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Trai
 parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
 parser.add_argument('-d', '--dataset', default='VOC-FEWSHOT',help='VOC or COCO dataset')
 
-parser.add_argument('--basenet', default='vgg16_reducedfc.pth', help='pretrained base model')
+parser.add_argument('--basenet', default='/home/hutao/lab/pytorchgo/example/few-shot-det/code/vgg16_reducedfc.pth', help='pretrained base model')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
 parser.add_argument('--batch_size', default=16, type=int, help='Batch size for training')
 parser.add_argument('--resume', default=None, type=str, help='Resume from checkpoint')
@@ -42,7 +42,6 @@ parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight dec
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
 parser.add_argument('--log_iters', default=True, type=bool, help='Print the loss at each iteration')
 parser.add_argument('--visdom', default=False, type=str2bool, help='Use visdom to for loss visualization')
-parser.add_argument('--save_folder', default='weights/', help='Location to save checkpoint models')
 parser.add_argument('--data_root', default=VOCroot, help='Location of VOC root directory')
 args = parser.parse_args()
 
@@ -51,8 +50,6 @@ if args.cuda and torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-if not os.path.exists(args.save_folder):
-    os.mkdir(args.save_folder)
 
 train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
 # train_sets = 'train'
@@ -62,6 +59,7 @@ accum_batch_size = 32
 iter_size = accum_batch_size / args.batch_size
 stepvalues = (60000, 80000, 100000)
 start_iter = 0
+data_split = "fold0_1shot_train"
 
 if args.visdom:
     import visdom
@@ -77,9 +75,9 @@ class FewShotNet(nn.Module):
         self.support_net = support_net
         self.det_net = det_net
 
-    def forward(self, x):
-        pass
-        return x
+    def forward(self, first_images, images):
+        det_net_result = self.det_net(images)
+        return det_net_result
 
 
 
@@ -92,13 +90,13 @@ from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
 
 ssd_net = build_ssd('train', args.dim, num_classes)
 net = ssd_net
-support_net = vgg16(start_channels=4)
+support_net = vgg16(start_channels=6)
 fewshotNet = FewShotNet(support_net=support_net, det_net=ssd_net)
 
 model_summary([fewshotNet])
 
 
-vgg16_state_dict = torch.load("vgg16-397923af.pth")
+vgg16_state_dict = torch.load("/home/hutao/lab/pytorchgo/example/few-shot-det/code/vgg16-397923af.pth")
 print(vgg16_state_dict.keys())
 new_params = {}  # model_distill.state_dict().copy()
 for i in vgg16_state_dict:
@@ -116,7 +114,7 @@ if args.resume:
     fewshotNet.det_net.load_weights(args.resume)
     start_iter = int(args.resume.split('/')[-1].split('.')[0].split('_')[-1])
 else:
-    vgg_weights = torch.load(args.save_folder + args.basenet)
+    vgg_weights = torch.load(args.basenet)
     logger.info('Loading base network...')
     fewshotNet.det_net.vgg.load_state_dict(vgg_weights)
     start_iter = 0
@@ -159,7 +157,7 @@ def DatasetSync(dataset='VOC',split='training'):
                   target_transform=AnnotationTransform_kitti())
     elif dataset == "VOC-FEWSHOT":
         from data.FewShotDs import FewShotVOCDataset
-        dataset = FewShotVOCDataset(name="fold0_1shot_train")
+        dataset = FewShotVOCDataset(name=data_split)
     return dataset
 
 def train():
@@ -209,6 +207,7 @@ def train():
         if (not batch_iterator) or (iteration % epoch_size == 0):
             # create batch iterator
             batch_iterator = iter(data_loader)
+
         if iteration in stepvalues:
             step_index += 1
             lr=adjust_learning_rate(optimizer, args.gamma, epoch, step_index, iteration, epoch_size)
@@ -226,7 +225,7 @@ def train():
             epoch += 1
 
         # load train data
-        images, targets = next(batch_iterator)
+        first_images, images, targets, metadata = next(batch_iterator)
         #embed()
         if args.cuda:
             images = Variable(images.cuda())
@@ -236,7 +235,7 @@ def train():
             targets = [Variable(anno, volatile=True) for anno in targets]
         # forward
         t0 = time.time()
-        out = fewshotNet(images)
+        out = fewshotNet(first_images, images)
         # backprop
         optimizer.zero_grad()
         loss_l, loss_c = criterion(out, targets)
@@ -272,8 +271,8 @@ def train():
                 )
         if iteration % 5000 == 0:
             logger.info('Saving state, iter: {}'.format(iteration))
-            torch.save(fewshotNet.state_dict(), 'weights/ssd' + str(args.dim) + '_0712_' +repr(iteration) + '.pth')
-    torch.save(fewshotNet.state_dict(), args.save_folder + 'ssd_' + str(args.dim) + '.pth')
+            torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry-iter{}.pth'.format(iteration)))
+    torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry.pth'))
 
     
 def adjust_learning_rate(optimizer, gamma, epoch, step_index, iteration, epoch_size):
