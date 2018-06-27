@@ -84,7 +84,7 @@ ssd_net = build_ssd('train', args.dim, num_classes)
 net = ssd_net
 
 
-"""
+
 class FewShotNet(nn.Module):
 
     def __init__(self, support_net, det_net):
@@ -112,17 +112,17 @@ for i in vgg16_state_dict:
     logger.info("recovering weight for student model(loading vgg16 weight): {}".format(i))
 
 fewshotNet.support_net.load_state_dict(new_params,strict=False)
-"""
+
 
 
 
 vgg_weights = torch.load(args.basenet)
 logger.info('Loading base network...')
-net.vgg.load_state_dict(vgg_weights)
+fewshotNet.det_net.vgg.load_state_dict(vgg_weights)
 start_iter = 0
 
 if args.cuda:
-    net = net.cuda()
+    fewshotNet = fewshotNet.cuda()
 
 def xavier(param):
     init.xavier_uniform(param)
@@ -137,16 +137,16 @@ def weights_init(m):
 
 logger.info('Initializing weights...')
 # initialize newly added layers' weights with xavier method
-net.extras.apply(weights_init)
-net.loc.apply(weights_init)
-net.conf.apply(weights_init)
+fewshotNet.det_net.extras.apply(weights_init)
+fewshotNet.det_net.loc.apply(weights_init)
+fewshotNet.det_net.conf.apply(weights_init)
 
-optimizer = optim.SGD(net.parameters(), lr=args.lr,
+optimizer = optim.SGD(fewshotNet.parameters(), lr=args.lr,
                       momentum=args.momentum, weight_decay=args.weight_decay)
 criterion = MultiBoxLoss(num_classes, args.dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
 
 
-model_summary(net)
+model_summary(fewshotNet)
 optimizer_summary(optimizer)
 
 
@@ -169,7 +169,7 @@ def DatasetSync(dataset='VOC',split='training'):
     return dataset
 
 def train():
-    net.train()
+    fewshotNet.train()
     # loss counters
     loc_loss = 0  # epoch
     conf_loss = 0
@@ -243,7 +243,7 @@ def train():
             targets = [Variable(anno, volatile=True) for anno in targets]
         # forward
         t0 = time.time()
-        out = net(images)
+        out = fewshotNet(first_images, images)
         # backprop
         optimizer.zero_grad()
         loss_l, loss_c = criterion(out, targets)
@@ -279,8 +279,8 @@ def train():
                 )
         if iteration % 5000 == 0:
             logger.info('Saving state, iter: {}'.format(iteration))
-            torch.save(net.state_dict(), os.path.join(logger.get_logger_dir(),'cherry-iter{}.pth'.format(iteration)))
-    torch.save(net.state_dict(), os.path.join(logger.get_logger_dir(),'cherry.pth'))
+            torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry-iter{}.pth'.format(iteration)))
+    torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry.pth'))
 
     
 def adjust_learning_rate(optimizer, gamma, epoch, step_index, iteration, epoch_size):

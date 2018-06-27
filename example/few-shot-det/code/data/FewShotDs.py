@@ -49,7 +49,10 @@ class FewShotVOCDataset(data.Dataset):
 
             draw = ImageDraw.Draw(second_image)
             for bb in second_bbox:
-                min_x, min_y, max_x, max_y = bb
+                min_x = bb[0]
+                min_y = bb[1]
+                max_x = bb[2]
+                max_y = bb[3]
                 min_x = float(min_x) * width  # normalize 1
                 max_x = float(max_x) * width
                 min_y = float(min_y) * height
@@ -73,7 +76,10 @@ class FewShotVOCDataset(data.Dataset):
             first_mask = np.zeros((height,width,1),np.float32)
             bboxs = first_bboxs[k]
             for bbox in bboxs:
-                min_x, min_y, max_x, max_y = bbox
+                min_x = bbox[0]
+                min_y = bbox[1]
+                max_x = bbox[2]
+                max_y = bbox[3]
                 min_x = int(min_x * width)  # normalize 1
                 max_x = int(max_x * width)
                 min_y = int(min_y * height)
