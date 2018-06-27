@@ -6,8 +6,8 @@ import gzip
 import numpy as np
 import cv2
 
-from FewShotVOC import DBInterface
-import FewShotVOC
+
+from . import FewShotVOC
 from PIL import Image
 __all__ = ['FewShotDs','FewShotVOCDataset']
 
@@ -35,7 +35,7 @@ class FewShotVOCDataset(data.Dataset):
         self.name = name
         self.image_size = image_size
         profile = getattr(FewShotVOC, name)
-        self.dbi = DBInterface(profile)
+        self.dbi = FewShotVOC.DBInterface(profile)
         self.data_size = len(self.dbi.db_items)
         if "test" in self.name:
             self.data_size = 1000
@@ -96,7 +96,7 @@ class FewShotVOCDataset(data.Dataset):
         second_image = np.transpose(second_image,(2,0,1))#W,H,C->C,W,H
 
         for bb in second_bbox:
-            bb.append(1)#add default class
+            bb.append(0)#add default class, notice here!!!
 
         return output_first_masked_images_concat, second_image, second_bbox, metadata
 

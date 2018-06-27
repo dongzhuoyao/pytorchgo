@@ -55,7 +55,7 @@ class MultiBoxLoss(nn.Module):
         """
         loc_data, conf_data, priors = predictions
         # batch_size
-        num = loc_data.size(0)
+        num = loc_data.size(0) #image number
         priors = priors[:loc_data.size(1), :]
         num_priors = (priors.size(0))
         num_classes = self.num_classes
@@ -87,9 +87,9 @@ class MultiBoxLoss(nn.Module):
         loss_l = F.smooth_l1_loss(loc_p, loc_t, size_average=False)
 
         # Compute max conf across batch for hard negative mining
-        batch_conf = conf_data.view(-1, self.num_classes)
+        batch_conf = conf_data.view(-1, self.num_classes)#(140256, 2)
 
-        loss_c = log_sum_exp(batch_conf) - batch_conf.gather(1, conf_t.view(-1, 1))
+        loss_c = log_sum_exp(batch_conf) - batch_conf.gather(1, conf_t.view(-1, 1))#????
 
         # Hard Negative Mining
         loss_c[pos] = 0  # filter out pos boxes for now

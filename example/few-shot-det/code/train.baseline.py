@@ -11,6 +11,7 @@ import torch.utils.data as data
 from data import AnnotationTransform, VOCDetection, VOCroot, VOC_CLASSES
 from data import KittiLoader, AnnotationTransform_kitti,Class_to_ind
 
+#from data import detection_collate
 from data.FewShotDs import detection_collate
 
 from utils.augmentations import SSDAugmentation
@@ -20,23 +21,23 @@ import numpy as np
 import time
 from pytorchgo.utils import logger
 
-num_classes = 2
+#VOC, collcate, class_num
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--dim', default=512, type=int, help='Size of the input image, only support 300 or 512')
-parser.add_argument('-d', '--dataset', default='VOC-FEWSHOT',help='VOC or COCO dataset')
+parser.add_argument('-d', '--dataset', default='VOC-FEWSHOT',help='VOC or VOC-FEWSHOT dataset')
 
 parser.add_argument('--basenet', default='/home/hutao/lab/pytorchgo/example/few-shot-det/code/vgg16_reducedfc.pth', help='pretrained base model')
 parser.add_argument('--jaccard_threshold', default=0.5, type=float, help='Min Jaccard index for matching')
-parser.add_argument('--batch_size', default=16, type=int, help='Batch size for training')
+parser.add_argument('--batch_size', default=4, type=int, help='Batch size for training')
 parser.add_argument('--resume', default=None, type=str, help='Resume from checkpoint')
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--iterations', default=120000, type=int, help='Number of training iterations')
 parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda to train model')
-parser.add_argument('--lr', '--learning-rate', default=3e-3, type=float, help='initial learning rate')
+parser.add_argument('--lr', '--learning-rate', default=3e-4, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
@@ -51,15 +52,16 @@ else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
 
-train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
-# train_sets = 'train'
-means = (104, 117, 123)  # only support voc now
 
+num_classes = 2
+means = (104, 117, 123)  # only support voc now
 accum_batch_size = 32
 iter_size = accum_batch_size / args.batch_size
 stepvalues = (60000, 80000, 100000)
 start_iter = 0
 data_split = "fold0_1shot_train"
+
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 if args.visdom:
     import visdom
@@ -68,16 +70,6 @@ if args.visdom:
 
 
 
-class FewShotNet(nn.Module):
-
-    def __init__(self, support_net, det_net):
-        super(FewShotNet, self).__init__()
-        self.support_net = support_net
-        self.det_net = det_net
-
-    def forward(self, first_images, images):
-        det_net_result = self.det_net(images)
-        return det_net_result
 
 
 
@@ -90,6 +82,20 @@ from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
 
 ssd_net = build_ssd('train', args.dim, num_classes)
 net = ssd_net
+
+
+"""
+class FewShotNet(nn.Module):
+
+    def __init__(self, support_net, det_net):
+        super(FewShotNet, self).__init__()
+        self.support_net = support_net
+        self.det_net = det_net
+
+    def forward(self, first_images, images):
+        det_net_result = self.det_net(images)
+        return det_net_result
+        
 support_net = vgg16(start_channels=6)
 fewshotNet = FewShotNet(support_net=support_net, det_net=ssd_net)
 
@@ -106,18 +112,14 @@ for i in vgg16_state_dict:
     logger.info("recovering weight for student model(loading vgg16 weight): {}".format(i))
 
 fewshotNet.support_net.load_state_dict(new_params,strict=False)
+"""
 
 
 
-if args.resume:
-    logger.info('Resuming training, loading {}...'.format(args.resume))
-    fewshotNet.det_net.load_weights(args.resume)
-    start_iter = int(args.resume.split('/')[-1].split('.')[0].split('_')[-1])
-else:
-    vgg_weights = torch.load(args.basenet)
-    logger.info('Loading base network...')
-    fewshotNet.det_net.vgg.load_state_dict(vgg_weights)
-    start_iter = 0
+vgg_weights = torch.load(args.basenet)
+logger.info('Loading base network...')
+net.vgg.load_state_dict(vgg_weights)
+start_iter = 0
 
 if args.cuda:
     net = net.cuda()
@@ -132,21 +134,27 @@ def weights_init(m):
         m.bias.data.zero_()
 
 
-if not args.resume:
-    logger.info('Initializing weights...')
-    # initialize newly added layers' weights with xavier method
-    fewshotNet.det_net.extras.apply(weights_init)
-    fewshotNet.det_net.loc.apply(weights_init)
-    fewshotNet.det_net.conf.apply(weights_init)
 
-optimizer = optim.SGD(fewshotNet.parameters(), lr=args.lr,
+logger.info('Initializing weights...')
+# initialize newly added layers' weights with xavier method
+net.extras.apply(weights_init)
+net.loc.apply(weights_init)
+net.conf.apply(weights_init)
+
+optimizer = optim.SGD(net.parameters(), lr=args.lr,
                       momentum=args.momentum, weight_decay=args.weight_decay)
 criterion = MultiBoxLoss(num_classes, args.dim, 0.5, True, 0, True, 3, 0.5, False, args.cuda)
+
+
+model_summary(net)
+optimizer_summary(optimizer)
+
 
 def DatasetSync(dataset='VOC',split='training'):
 
     if dataset=='VOC':
         #DataRoot=os.path.join(args.data_root,'VOCdevkit')
+        train_sets = [('2007', 'trainval'), ('2012', 'trainval')]
         DataRoot=args.data_root
         dataset = VOCDetection(DataRoot, train_sets, SSDAugmentation(
         args.dim, means), AnnotationTransform())
@@ -161,7 +169,7 @@ def DatasetSync(dataset='VOC',split='training'):
     return dataset
 
 def train():
-    fewshotNet.train()
+    net.train()
     # loss counters
     loc_loss = 0  # epoch
     conf_loss = 0
@@ -235,7 +243,7 @@ def train():
             targets = [Variable(anno, volatile=True) for anno in targets]
         # forward
         t0 = time.time()
-        out = fewshotNet(first_images, images)
+        out = net(images)
         # backprop
         optimizer.zero_grad()
         loss_l, loss_c = criterion(out, targets)
@@ -271,8 +279,8 @@ def train():
                 )
         if iteration % 5000 == 0:
             logger.info('Saving state, iter: {}'.format(iteration))
-            torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry-iter{}.pth'.format(iteration)))
-    torch.save(fewshotNet.state_dict(), os.path.join(logger.get_logger_dir(),'cherry.pth'))
+            torch.save(net.state_dict(), os.path.join(logger.get_logger_dir(),'cherry-iter{}.pth'.format(iteration)))
+    torch.save(net.state_dict(), os.path.join(logger.get_logger_dir(),'cherry.pth'))
 
     
 def adjust_learning_rate(optimizer, gamma, epoch, step_index, iteration, epoch_size):

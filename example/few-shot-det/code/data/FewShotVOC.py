@@ -155,23 +155,18 @@ class PASCAL:
             for bbox in target_bboxs:
                     class_id = bbox[-1]
                     xywh = bbox[:-1]
-                    if class_bbox_dict.has_key(class_id):
+                    if class_id in class_bbox_dict:
                         class_bbox_dict[class_id]['bbox'].append(xywh)
                     else:
                         class_bbox_dict[class_id] = dict(image_name = item, mask_name = item, class_ids = [class_id], bbox = [xywh])
 
             anns.extend([value for value in class_bbox_dict.values()])
 
-        with open(self.get_anns_path(read_mode), 'w') as f:
-            logger.info("dump pickle file...")
-            pickle.dump(anns, f)
+        return anns
+
 
     def load_anns(self, read_mode):
-        path = self.get_anns_path(read_mode)
-        if True:
-            self.create_anns(read_mode)
-        with open(path, 'rb') as f:
-            anns = pickle.load(f)
+        anns = self.create_anns(read_mode)
         return anns
 
     def get_anns(self, catIds=[], areaRng=[], read_mode=PASCAL_READ_MODES.INSTANCE):
@@ -215,7 +210,7 @@ class PASCAL:
             item_id = item.obj_ids
             assert (len(item_id) == 1), 'For proper clustering, items should only have one id'
             item_id = item_id[0]
-            if clusters.has_key(item_id):
+            if item_id in clusters:
                 clusters[item_id].append(item)
             else:
                 clusters[item_id] = DBImageSetItem('set class id = {}'.format(item_id), [item])
@@ -264,7 +259,7 @@ class DBInterface():
             self.db_items = final_db_items
             logger.info('data result: total of {} classes!'.format(len(clusters)))
 
-            with open(pickle_path, 'w') as f:
+            with open(pickle_path, 'wb') as f:
                 logger.info("dump pickle file...")
                 pickle.dump(self.db_items, f)
 
@@ -285,7 +280,7 @@ class DBInterface():
             self.seq_index = 0
     
     def next_pair(self):
-            end_of_cycle = self.params.has_key('db_cycle') and self.cycle >= self.params['db_cycle']
+            end_of_cycle = 'db_cycle' in self.params and self.cycle >= self.params['db_cycle']
             if end_of_cycle:
                 assert(self.params['db_cycle'] > 0) # full, reset status
                 self.cycle = 0
@@ -296,7 +291,7 @@ class DBInterface():
             self.update_seq_index()
 
             imgset, second_index = self.db_items[self.seq_index] # query image index
-            set_indices = range(second_index) + range(second_index+1, len(imgset.image_items)) # exclude second_index
+            set_indices = list(range(second_index)) + list(range(second_index+1, len(imgset.image_items))) # exclude second_index
             assert(len(set_indices) >= self.params['k_shot'])
             self.rand_gen.shuffle(set_indices)
             first_index = set_indices[:self.params['k_shot']] # support set image indexes(may be multi-shot~)
