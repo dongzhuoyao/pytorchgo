@@ -95,7 +95,11 @@ class FewShotVOCDataset(data.Dataset):
             output_first_masks.append(first_mask)
             masked = first_image * first_mask
             output_first_masked_images.append(masked)
-            ttt = np.concatenate((first_image,masked),axis=2)
+
+            #ttt = np.concatenate((first_image,masked),axis=2)
+            ttt = masked
+
+
             ttt = np.transpose(ttt,(2,0,1))#W,H,C->C,W,H
             output_first_masked_images_concat.append(ttt)
 
@@ -111,6 +115,8 @@ class FewShotVOCDataset(data.Dataset):
 
 
         output_first_masked_images_concat = np.stack(output_first_masked_images_concat, axis=0)
+
+        output_first_masked_images_concat = np.squeeze(output_first_masked_images_concat)#only for one-shot!!!
 
         return torch.from_numpy(output_first_masked_images_concat.copy()), torch.from_numpy(second_image.copy()), second_bbox, metadata
 

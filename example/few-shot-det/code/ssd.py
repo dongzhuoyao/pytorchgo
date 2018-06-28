@@ -43,11 +43,14 @@ class SSD(nn.Module):
         self.loc = nn.ModuleList(head[0])
         self.conf = nn.ModuleList(head[1])
 
+        from vgg_fcn import vgg16
+        self.support_net = vgg16(start_channels=3)
+
         if self.phase == 'test':
             self.softmax = nn.Softmax()
             self.detect = Detect(num_classes, self.size, 0, 200, 0.01, 0.45)
 
-    def forward(self, x):
+    def forward(self, support_images, x):
         """Applies network layers and ops on input image(s) x.
 
         Args:
@@ -70,6 +73,9 @@ class SSD(nn.Module):
         loc = list()
         conf = list()
 
+        support_result = self.support_net(support_images)
+
+
         # apply vgg up to conv4_3 relu
         for k in range(23):
             x = self.vgg[k](x)
@@ -79,7 +85,10 @@ class SSD(nn.Module):
 
         # apply vgg up to fc7
         for k in range(23, len(self.vgg)):
-            x = self.vgg[k](x)
+            if k == 30:
+                x = self.vgg[k](x) + support_result#support !!!
+            else:
+                x = self.vgg[k](x)
         sources.append(x)
 
         # apply extra layers and cache source layer outputs
