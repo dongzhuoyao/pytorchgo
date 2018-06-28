@@ -264,7 +264,7 @@ class DBInterface():
                 pickle.dump(self.db_items, f)
 
         with open(pickle_path, 'rb') as f:
-            logger.warn("loading data from pickle file....")
+            logger.warn("loading {} data from pickle file....".format(self.params['data_split']))
             self.db_items = pickle.load(f)
 
 
