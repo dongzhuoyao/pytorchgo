@@ -38,7 +38,9 @@ class Detect(Function):
         self.output.zero_()
         if num == 1:
             # size batch x num_classes x num_priors
-            conf_preds = conf_data.t().contiguous().unsqueeze(0)
+            #conf_preds = conf_data.t().contiguous().unsqueeze(0)
+            conf_preds = conf_data.view(num, num_priors,
+                                        self.num_classes).transpose(2, 1)#modified by dongzhuoyao
         else:
             conf_preds = conf_data.view(num, num_priors,
                                         self.num_classes).transpose(2, 1)
