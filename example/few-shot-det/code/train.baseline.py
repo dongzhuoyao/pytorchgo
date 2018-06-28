@@ -471,9 +471,6 @@ def train():
                     update=True
                 )
         if iteration % save_per_iter == 0 and iteration>0:
-            logger.info('Saving state, iter: {}'.format(iteration))
-            torch.save(few_shot_net.state_dict(), os.path.join(logger.get_logger_dir(), 'cherry-iter{}.pth'.format(iteration)))
-
             few_shot_net.eval()
             cur_eval_result = do_eval(few_shot_net)
             few_shot_net.train()
@@ -481,15 +478,16 @@ def train():
             is_best = True if cur_eval_result > best_result else False
             if is_best:
                 best_result = cur_eval_result
-                logger.info('taking snapshot...')
                 torch.save({
                     'iteration': iteration,
                     'optim_state_dict': optimizer.state_dict(),
                     'model_state_dict': few_shot_net.state_dict(),
                     'best_mean_iu': best_result,
-                }, os.path.join(logger.get_logger_dir(), 'love.pth'))
+                }, os.path.join(logger.get_logger_dir(), 'cherry.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
+
+            logger.info('current iter: {} current_result: {.5f}'.format(iteration, cur_eval_result))
 
     logger.info("Congrats~")
 
@@ -531,7 +529,7 @@ def do_eval(few_shot_net):
     w = image_size
     h = image_size
 
-    for i, batch in tqdm(enumerate(data_loader), total=len(data_loader), desc="evaluation"):
+    for i, batch in tqdm(enumerate(data_loader), total=len(data_loader), desc="online evaluation"):
         if i > quick_eval:break
         with open(os.path.join(ground_truth_dir, "{}.txt".format(i)), "w") as f_gt:
             with open(os.path.join(predicted_dir, "{}.txt".format(i)), "w") as f_predict:
@@ -584,7 +582,6 @@ def do_eval(few_shot_net):
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
 
-    print('Evaluating detections')
     from eval_map import eval_online
     mAP = eval_online(tmp_eval)
     return mAP
