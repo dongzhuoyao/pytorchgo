@@ -25,7 +25,7 @@ class SSD(nn.Module):
         head: "multibox head" consists of loc and conf conv layers
     """
 
-    def __init__(self, size, base, extras, head, num_classes, start_channels=3):
+    def __init__(self, size, base, extras, head, num_classes):
         super(SSD, self).__init__()
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
@@ -43,7 +43,7 @@ class SSD(nn.Module):
         self.conf = nn.ModuleList(head[1])
 
         from vgg_fcn import vgg16
-        self.support_net = vgg16(start_channels=start_channels)
+        self.support_net = vgg16(start_channels=3)
 
 
         self.softmax = nn.Softmax(dim=-1)
@@ -209,7 +209,7 @@ mbox = {
 }
 
 
-def build_ssd(size=512, num_classes=21,start_channels=3):
+def build_ssd(size=512, num_classes=21):
     if size != 300 and size != 512:
         print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
@@ -218,7 +218,7 @@ def build_ssd(size=512, num_classes=21,start_channels=3):
              add_extras(extras[str(size)], size, 1024),
              mbox[str(size)], num_classes)
 
-    return SSD(size, base_, extras_, head_,  num_classes, start_channels=start_channels)
+    return SSD(size, base_, extras_, head_,  num_classes)
 
 
 
@@ -258,7 +258,7 @@ from pytorchgo.utils import logger
 from data.FewShotDs import FewShotVOCDataset
 from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-is_debug = 0
+is_debug = 1
 num_classes = 2
 iterations = 120000
 stepvalues = (60000, 80000, 100000)
@@ -270,8 +270,6 @@ train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
 quick_eval = 1e10
-start_channels = 3
-
 
 if is_debug == 1:
     log_per_iter = 10
@@ -290,7 +288,7 @@ parser.add_argument('--batch_size', default=16, type=int, help='Batch size for t
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--iterations', default=iterations, type=int, help='Number of training iterations')
 parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda to train model')
-parser.add_argument('--lr', '--learning-rate', default=1e-4, type=float, help='initial learning rate')
+parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
@@ -319,7 +317,7 @@ def train():
 
     logger.info("current cuda device: {}".format(torch.cuda.current_device()))
 
-    few_shot_net = build_ssd(args.dim, num_classes, start_channels=start_channels)
+    few_shot_net = build_ssd(args.dim, num_classes)
 
     vgg16_state_dict = torch.load("vgg16-397923af.pth")
     new_params = {}

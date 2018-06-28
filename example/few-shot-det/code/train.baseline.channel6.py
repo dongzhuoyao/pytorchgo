@@ -270,7 +270,7 @@ train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
 quick_eval = 1e10
-start_channels = 3
+start_channels = 6
 
 
 if is_debug == 1:
@@ -372,7 +372,7 @@ def train():
 
 
 
-    dataset = FewShotVOCDataset(name=train_data_split, image_size=(args.dim, args.dim))
+    dataset = FewShotVOCDataset(name=train_data_split, image_size=(args.dim, args.dim), channel6=True)
 
     epoch_size = len(dataset) // args.batch_size
     logger.info('Training SSD on {}'.format(dataset.name))
@@ -506,10 +506,7 @@ def do_eval(few_shot_net):
     os.makedirs(ground_truth_dir)
     os.makedirs(predicted_dir)
 
-
-
-
-    dataset = FewShotVOCDataset(name=val_data_split)
+    dataset = FewShotVOCDataset(name=val_data_split, image_size=(args.dim, args.dim), channel6=True)
     num_images = len(dataset)
 
     data_loader = data.DataLoader(dataset, batch_size=1, num_workers=args.num_workers,

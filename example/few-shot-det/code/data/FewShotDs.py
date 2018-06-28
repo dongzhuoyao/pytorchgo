@@ -32,14 +32,15 @@ class FewShotVOCDataset(data.Dataset):
             (default: 'VOC2007')
     """
 
-    def __init__(self, name, image_size=(300, 300)):
+    def __init__(self, name, image_size=(300, 300),channel6=False):
         self.name = name
         self.image_size = image_size
         profile = getattr(FewShotVOC, name)
         self.dbi = FewShotVOC.DBInterface(profile)
         self.data_size = len(self.dbi.db_items)
-        if "test" in self.name:
-            self.data_size = 1000
+
+        self.channel6 = channel6
+
 
     def __getitem__(self, index):
         first_images, first_bboxs, second_image, second_bbox, metadata = self.dbi.next_pair()
@@ -96,8 +97,10 @@ class FewShotVOCDataset(data.Dataset):
             masked = first_image * first_mask
             output_first_masked_images.append(masked)
 
-            #ttt = np.concatenate((first_image,masked),axis=2)
-            ttt = masked
+            if self.channel6:
+                ttt = np.concatenate((first_image,masked),axis=2)
+            else:
+                ttt = masked
 
 
             ttt = np.transpose(ttt,(2,0,1))#W,H,C->C,W,H

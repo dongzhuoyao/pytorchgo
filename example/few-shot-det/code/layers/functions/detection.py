@@ -43,7 +43,7 @@ class Detect(Function):
                                         self.num_classes).transpose(2, 1)#modified by dongzhuoyao
         else:
             conf_preds = conf_data.view(num, num_priors,
-                                        self.num_classes).transpose(2, 1)
+                                        self.num_classes).transpose(2, 1)#batch_size, num_classes,num_priors
             self.output.expand_(num, self.num_classes, self.top_k, 5)
 
         # Decode predictions into bboxes.
