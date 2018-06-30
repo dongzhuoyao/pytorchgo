@@ -11,9 +11,14 @@ from . import FewShotVOC
 from PIL import Image
 __all__ = ['FewShotDs','FewShotVOCDataset']
 
-import torch
+import torch,random
 import torch.utils.data as data
 from pytorchgo.utils.constant import IMG_MEAN
+from pytorchgo.utils.rect import FloatBox,IntBox
+from pytorchgo.utils.viz import draw_boxes
+
+from pytorchgo.utils.constant import PASCAL_CLASS
+
 
 class FewShotVOCDataset(data.Dataset):
     """VOC Detection Dataset Object
@@ -36,17 +41,48 @@ class FewShotVOCDataset(data.Dataset):
         self.name = name
         self.image_size = image_size
         profile = getattr(FewShotVOC, name)
+        self.params = profile
         self.dbi = FewShotVOC.DBInterface(profile)
         self.data_size = len(self.dbi.db_items)
+        self.init_randget(profile['read_mode'])
 
         self.channel6 = channel6
         self.channel5 = channel5
         self.channel4 = channel4
 
+    def init_randget(self, read_mode):
+        self.rand_gen = random.Random()
+        if read_mode == 'shuffle':
+            self.rand_gen.seed()
+        elif read_mode == 'deterministic':
+            self.rand_gen.seed(1385)  # >>>Do not change<<< Fixed seed for deterministic mode.
+
 
 
     def __getitem__(self, index):
-        first_images, first_bboxs, second_image, second_bbox, metadata = self.dbi.next_pair()
+
+        def get_item(idx):
+            imgset, second_index = self.dbi.db_items[idx]  # query image index
+            set_indices = list(range(second_index)) + list(
+                range(second_index + 1, len(imgset.image_items)))  # exclude second_index
+            assert (len(set_indices) >= self.params['k_shot'])
+            self.rand_gen.shuffle(set_indices)#TODO
+            first_index = set_indices[:self.params['k_shot']]  # support set image indexes(may be multi-shot~)
+            class_id = imgset.image_items[second_index].obj_ids[0]
+            metadata = {
+                'class_id': class_id,
+                'class_name': PASCAL_CLASS[class_id - 1],
+                'second_image_path': imgset.image_items[second_index].img_path,
+            }
+
+
+            return [imgset.image_items[v].img_path for v in first_index], \
+                   [imgset.image_items[v].bbox for v in first_index], \
+                   imgset.image_items[second_index].img_path, \
+                   imgset.image_items[second_index].bbox, metadata
+
+
+        first_images, first_bboxs, second_image, second_bbox, metadata = get_item(index)
         second_image = Image.open(second_image).convert('RGB')
         second_image = np.asarray(second_image,np.float32)
         if False:
@@ -69,17 +105,26 @@ class FewShotVOCDataset(data.Dataset):
 
         k_shot = len(first_images)
         output_first_images = []
+        metadata_origin_first_images = []
         output_first_masks = []
         output_first_masked_images = []
         output_first_masked_images_concat = []
+
+
+        def rgb_shit(image):
+            image = image[:, :, ::-1]  # change to BGR
+            image -= IMG_MEAN
+            return image.transpose((2, 0, 1))  # W,H,C->C,W,H
+
         for k in range(k_shot):
             first_image = first_images[k]
             first_image = Image.open(first_image).convert('RGB')
-            first_image = np.asarray(first_image)
+            first_image = np.asarray(first_image,dtype=np.float32)
 
             height, width, channels = first_image.shape
             first_mask = np.zeros((height,width,1),np.float32)
             bboxs = first_bboxs[k]
+            origin_first_image = np.copy(first_image)
             for bbox in bboxs:
                 min_x = bbox[0]
                 min_y = bbox[1]
@@ -91,9 +136,14 @@ class FewShotVOCDataset(data.Dataset):
                 max_y = int(max_y * height)
                 first_mask[min_y:max_y,min_x:max_x] = 1
 
+                intbox = IntBox(min_x, min_y, max_x, max_y)
+                intbox.clip_by_shape((height, width))
+                origin_first_image = draw_boxes(origin_first_image,[intbox],color=(255,0,0))
+
             first_mask = cv2.resize(first_mask,self.image_size)#resize, this resize don't keep extra 3rd dim, so you must extend dim yourself again!
             first_mask = first_mask[:,:,np.newaxis]
             first_image = cv2.resize(first_image, self.image_size)#resize
+            metadata_origin_first_images.append(origin_first_image.astype(np.uint8))
 
             output_first_images.append(first_image)
             output_first_masks.append(first_mask)
@@ -106,25 +156,28 @@ class FewShotVOCDataset(data.Dataset):
             output_first_masked_images.append(masked)
 
             if self.channel6 or self.channel4:
-                ttt = np.concatenate((first_image,masked),axis=2)
+                first_image = rgb_shit(first_image)
+                masked = rgb_shit(masked)
+                ttt = np.concatenate((first_image,masked),axis=0)
             elif self.channel5:
                 tmp = np.copy(masked)
                 masked_exchanged = np.zeros(masked.shape, masked.dtype)
                 masked_exchanged[np.where(tmp==0)] = 1
                 masked_exchanged[np.where(tmp == 1)] = 0
+
                 ttt = np.concatenate((first_image, masked, masked_exchanged), axis=2)
             else:
+                masked = rgb_shit(masked)
                 ttt = masked
 
-
-            ttt = np.transpose(ttt,(2,0,1))#W,H,C->C,W,H
             output_first_masked_images_concat.append(ttt)
 
         second_image = cv2.resize(second_image, self.image_size)  # resize
+        second_origin_image = np.copy(second_image).astype(np.uint8)
 
-        second_image = second_image[:, :, ::-1]  # change to BGR
-        second_image -= IMG_MEAN
-        second_image = second_image.transpose((2, 0, 1))#W,H,C->C,W,H
+
+
+        second_image = rgb_shit(second_image)
 
 
         for i, bb in enumerate(second_bbox):
@@ -134,6 +187,9 @@ class FewShotVOCDataset(data.Dataset):
         output_first_masked_images_concat = np.stack(output_first_masked_images_concat, axis=0)
 
         output_first_masked_images_concat = np.squeeze(output_first_masked_images_concat)#only for one-shot!!!
+
+        metadata['second_origin_image'] = second_origin_image
+        metadata['metadata_origin_first_images'] = metadata_origin_first_images
 
         return torch.from_numpy(output_first_masked_images_concat.copy()), torch.from_numpy(second_image.copy()), second_bbox, metadata
 

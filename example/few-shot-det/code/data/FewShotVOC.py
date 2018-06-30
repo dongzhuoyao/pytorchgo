@@ -280,6 +280,7 @@ class DBInterface():
             self.seq_index = 0
     
     def next_pair(self):
+            """
             end_of_cycle = 'db_cycle' in self.params and self.cycle >= self.params['db_cycle']
             if end_of_cycle:
                 assert(self.params['db_cycle'] > 0) # full, reset status
@@ -290,6 +291,8 @@ class DBInterface():
             self.cycle += 1
             self.update_seq_index()
 
+
+
             imgset, second_index = self.db_items[self.seq_index] # query image index
             set_indices = list(range(second_index)) + list(range(second_index+1, len(imgset.image_items))) # exclude second_index
             assert(len(set_indices) >= self.params['k_shot'])
@@ -298,7 +301,8 @@ class DBInterface():
             class_id = imgset.image_items[second_index].obj_ids[0]
             metadata = {
                 'class_id':class_id,
-                'class_name':PASCAL_CLASS[class_id-1]
+                'class_name':PASCAL_CLASS[class_id-1],
+                'second_image_path':imgset.image_items[second_index].img_path,
                         }
 
             #TODO, draw bbox
@@ -307,6 +311,9 @@ class DBInterface():
                    imgset.image_items[second_index].img_path, \
                    imgset.image_items[second_index].bbox, metadata
 
+            """
+
+            pass
 
 ############################################################
 
@@ -464,8 +471,7 @@ fold3_1shot_train = Map(
                     pascal_path=PASCAL_PATH,
                   pascal_cats = get_cats('train',3)
 )
-fold3_1shot_val = Map(
-                        data_split="fold3_1shot_val",
+fold3_1shot_val = Map(data_split="fold3_1shot_val",
                        db_cycle = 1000,
                        read_mode='deterministic',
                        image_sets='val',

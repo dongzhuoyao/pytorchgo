@@ -601,7 +601,7 @@ def adjust_learning_rate(optimizer, gamma, epoch, step_index, iteration, epoch_s
 
 
 if __name__ == '__main__':
-    args.validation = True
+    #args.validation = True
     if args.validation:
         base_dir = "train_log/train.baseline.5e-4_backup"
         few_shot_net = build_ssd(args.dim, num_classes, start_channels=start_channels,top_k=200)
