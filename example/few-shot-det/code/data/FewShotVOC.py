@@ -142,7 +142,7 @@ class PASCAL:
                 tuple_list.append((rootpath, line.strip()))
 
         anns = []
-        for item in tqdm(tuple_list,total=len(tuple_list),desc="create annotations"):#per image
+        for item in tqdm(tuple_list,total=len(tuple_list),desc="create annotations {}".format(self.data_split)):#per image
             image_root = item[0]
             img_id = item[1]
             class_bbox_dict = {}
@@ -412,6 +412,66 @@ fold0_1shot_val = Map(
                        k_shot=1)
 
 
+
+
+
+################
+
+fold1_1shot_train = Map(
+                    data_split = "fold1_1shot_train",
+                    k_shot = 1,
+                    read_mode='shuffle',
+                    image_sets='train',
+                    pascal_path=PASCAL_PATH,
+                  pascal_cats = get_cats('train',1)
+)
+fold1_1shot_val = Map(
+                        data_split="fold1_1shot_val",
+                       db_cycle = 1000,
+                       read_mode='deterministic',
+                       image_sets='val',
+                       pascal_cats = get_cats('val',1),
+                        pascal_path=PASCAL_PATH,
+                       k_shot=1)
+
+
+################
+
+fold2_1shot_train = Map(
+                    data_split = "fold2_1shot_train",
+                    k_shot = 1,
+                    read_mode='shuffle',
+                    image_sets='train',
+                    pascal_path=PASCAL_PATH,
+                  pascal_cats = get_cats('train',2)
+)
+fold2_1shot_val = Map(
+                        data_split="fold2_1shot_val",
+                       db_cycle = 1000,
+                       read_mode='deterministic',
+                       image_sets='val',
+                       pascal_cats = get_cats('val',2),
+                        pascal_path=PASCAL_PATH,
+                       k_shot=1)
+
+################
+
+fold3_1shot_train = Map(
+                    data_split = "fold3_1shot_train",
+                    k_shot = 1,
+                    read_mode='shuffle',
+                    image_sets='train',
+                    pascal_path=PASCAL_PATH,
+                  pascal_cats = get_cats('train',3)
+)
+fold3_1shot_val = Map(
+                        data_split="fold3_1shot_val",
+                       db_cycle = 1000,
+                       read_mode='deterministic',
+                       image_sets='val',
+                       pascal_cats = get_cats('val',3),
+                        pascal_path=PASCAL_PATH,
+                       k_shot=1)
 
 
 

@@ -25,7 +25,7 @@ class SSD(nn.Module):
         head: "multibox head" consists of loc and conf conv layers
     """
 
-    def __init__(self, size, base, extras, head, num_classes, start_channels=3, top_k=200, conf_thresh=0.01, nms_thresh=0.45):
+    def __init__(self, size, base, extras, head, num_classes, start_channels=3):
         super(SSD, self).__init__()
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
@@ -45,13 +45,9 @@ class SSD(nn.Module):
         from vgg_fcn import vgg16
         self.support_net = vgg16(start_channels=start_channels)
 
-        logger.info("top_k: {}".format(top_k))
-        logger.info("conf_thresh: {}".format(conf_thresh))
-        logger.info("nms_thresh: {}".format(nms_thresh))
-
 
         self.softmax = nn.Softmax(dim=-1)
-        self.detect = Detect(num_classes, self.size, bkg_label=0, top_k=top_k, conf_thresh=conf_thresh, nms_thresh=nms_thresh)
+        self.detect = Detect(num_classes, self.size, bkg_label=0, top_k=200, conf_thresh=0.01, nms_thresh=0.45)
 
     def forward(self, support_images, x, is_train):
         """Applies network layers and ops on input image(s) x.
@@ -213,7 +209,7 @@ mbox = {
 }
 
 
-def build_ssd(size=512, num_classes=21,start_channels=3,top_k=200, conf_thresh=0.01, nms_thresh=0.45):
+def build_ssd(size=512, num_classes=21,start_channels=3):
     if size != 300 and size != 512:
         print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
@@ -222,7 +218,7 @@ def build_ssd(size=512, num_classes=21,start_channels=3,top_k=200, conf_thresh=0
              add_extras(extras[str(size)], size, 1024),
              mbox[str(size)], num_classes)
 
-    return SSD(size, base_, extras_, head_,  num_classes, start_channels=start_channels, top_k=top_k, conf_thresh=conf_thresh, nms_thresh=nms_thresh)
+    return SSD(size, base_, extras_, head_,  num_classes, start_channels=start_channels)
 
 
 
@@ -274,7 +270,7 @@ train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
 quick_eval = 1e10
-start_channels = 3
+start_channels = 5
 
 
 if is_debug == 1:
@@ -294,13 +290,12 @@ parser.add_argument('--batch_size', default=16, type=int, help='Batch size for t
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--iterations', default=iterations, type=int, help='Number of training iterations')
 parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda to train model')
-parser.add_argument('--lr', '--learning-rate', default=5e-4, type=float, help='initial learning rate')
+parser.add_argument('--lr', '--learning-rate', default=1e-4, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
 parser.add_argument('--visdom', default=False, type=str2bool, help='Use visdom to for loss visualization')
 parser.add_argument('--gpu', default=gpu)
-parser.add_argument('--validation', action="store_true")
 args = parser.parse_args()
 
 if args.cuda and torch.cuda.is_available():
@@ -377,7 +372,7 @@ def train():
 
 
 
-    dataset = FewShotVOCDataset(name=train_data_split, image_size=(args.dim, args.dim))
+    dataset = FewShotVOCDataset(name=train_data_split, image_size=(args.dim, args.dim), channel5=True)
 
     epoch_size = len(dataset) // args.batch_size
     logger.info('Training SSD on {}'.format(dataset.name))
@@ -496,14 +491,14 @@ def train():
 
 
 
-def do_eval(few_shot_net, base_dir = logger.get_logger_dir()):
+def do_eval(few_shot_net):
 
 
-    tmp_eval = os.path.join(base_dir, "eval_tmp")
+    tmp_eval = os.path.join(logger.get_logger_dir(), "eval_tmp")
 
     if os.path.isdir(tmp_eval):
         import shutil
-        shutil.rmtree(tmp_eval,ignore_errors=True)
+        shutil.rmtree(tmp_eval)
     os.makedirs(tmp_eval)
 
     ground_truth_dir = os.path.join(tmp_eval, "ground-truth")
@@ -511,10 +506,7 @@ def do_eval(few_shot_net, base_dir = logger.get_logger_dir()):
     os.makedirs(ground_truth_dir)
     os.makedirs(predicted_dir)
 
-
-
-
-    dataset = FewShotVOCDataset(name=val_data_split)
+    dataset = FewShotVOCDataset(name=val_data_split, image_size=(args.dim, args.dim), channel5=True)
     num_images = len(dataset)
 
     data_loader = data.DataLoader(dataset, batch_size=1, num_workers=args.num_workers,
@@ -574,7 +566,7 @@ def do_eval(few_shot_net, base_dir = logger.get_logger_dir()):
                     all_boxes[j][i] = cls_dets
 
                     for _ in range(cls_dets.shape[0]):
-                        f_predict.write("shit {} {} {} {} {}\n".format(cls_dets[_, 4], cls_dets[_, 0], cls_dets[_, 1], cls_dets[_, 2], cls_dets[_, 3]))
+                        f_predict.write("shit 1 {} {} {} {}\n".format(cls_dets[_, 0], cls_dets[_, 1], cls_dets[_, 2], cls_dets[_, 3]))
 
 
 
@@ -601,15 +593,5 @@ def adjust_learning_rate(optimizer, gamma, epoch, step_index, iteration, epoch_s
 
 
 if __name__ == '__main__':
-    args.validation = True
-    if args.validation:
-        base_dir = "train_log/train.baseline.5e-4_backup"
-        few_shot_net = build_ssd(args.dim, num_classes, start_channels=start_channels,top_k=200)
-        saved_dict = torch.load(os.path.join(base_dir,"cherry.pth"))
-
-        few_shot_net.load_state_dict(saved_dict['model_state_dict'])
-        do_eval(few_shot_net=few_shot_net,base_dir= base_dir)
-        print("online validation result: {}".format(saved_dict['best_mean_iu']))
-    else:
-        logger.auto_set_dir()
-        train()
+    logger.auto_set_dir()
+    train()
