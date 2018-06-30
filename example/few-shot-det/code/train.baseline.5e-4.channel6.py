@@ -30,7 +30,7 @@ save_per_iter = 5000
 train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
-quick_eval = 500
+quick_eval = 1e10
 start_channels = 6
 
 image_size = 300
@@ -250,7 +250,7 @@ def train():
 
             logger.info('current iter: {} current_result: {:.5f}'.format(iteration, cur_eval_result))
 
-    cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(), quick_eval_value=1e10)
+    cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(), quick_eval_value=quick_eval)
     logger.info("quick validation result={:.5f}, full validation result={:.5f}".format(cur_eval_result, best_result))
     logger.info("Congrats~")
 
