@@ -1,5 +1,6 @@
 
 # -*- coding: utf-8 -*-
+
 import os
 import torch
 import torch.nn as nn
@@ -29,7 +30,7 @@ save_per_iter = 5000
 train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
-quick_eval = 1e10
+quick_eval = 500
 start_channels = 6
 
 image_size = 300
@@ -37,8 +38,9 @@ batch_size = 16
 
 if is_debug == 1:
     log_per_iter = 10
-    save_per_iter = 100
-    quick_eval = 400
+    save_per_iter = 50
+    quick_eval = 10
+    iterations = 100
 
 
 def str2bool(v):
@@ -231,7 +233,7 @@ def train():
                 )
         if iteration % save_per_iter == 0 and iteration > 0:
             few_shot_net.eval()
-            cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir())
+            cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(),quick_eval_value=quick_eval)
             few_shot_net.train()
 
             is_best = True if cur_eval_result > best_result else False
@@ -248,10 +250,12 @@ def train():
 
             logger.info('current iter: {} current_result: {:.5f}'.format(iteration, cur_eval_result))
 
+    cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(), quick_eval_value=1e10)
+    logger.info("quick validation result={:.5f}, full validation result={:.5f}".format(cur_eval_result, best_result))
     logger.info("Congrats~")
 
 
-def do_eval(few_shot_net, base_dir=logger.get_logger_dir()):
+def do_eval(few_shot_net, quick_eval_value, base_dir=logger.get_logger_dir()):
     tmp_eval = os.path.join(base_dir, "eval_tmp")
 
     if os.path.isdir(tmp_eval):
@@ -268,7 +272,7 @@ def do_eval(few_shot_net, base_dir=logger.get_logger_dir()):
     num_images = len(dataset)
 
     data_loader = data.DataLoader(dataset, batch_size=1, num_workers=args.num_workers,
-                                  shuffle=True, pin_memory=True, collate_fn=detection_collate)
+                                  shuffle=False, pin_memory=True, collate_fn=detection_collate)
 
     # all detections are collected into:
     #    all_boxes[cls][image] = N x 5 array of detections in
@@ -279,7 +283,7 @@ def do_eval(few_shot_net, base_dir=logger.get_logger_dir()):
     h = image_size
 
     for i, batch in tqdm(enumerate(data_loader), total=len(data_loader), desc="online evaluation"):
-        if i > quick_eval: break
+        if i > quick_eval_value: break
         with open(os.path.join(ground_truth_dir, "{}.txt".format(i)), "w") as f_gt:
             with open(os.path.join(predicted_dir, "{}.txt".format(i)), "w") as f_predict:
                 # if i > 500:break

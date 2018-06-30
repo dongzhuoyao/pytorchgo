@@ -1,4 +1,6 @@
 # Author: Tao Hu <taohu620@gmail.com>
+import matplotlib
+matplotlib.use('Agg')
 import torch,os,cv2
 from torch import nn
 from tqdm import tqdm
@@ -16,8 +18,10 @@ num_classes = 2
 num_workers = 4
 image_size = 300
 quick_eval = 1e10
-val_data_split = "fold0_1shot_val"
+val_data_split = "fold2_1shot_val"
+base_dir = "train_log/train.baseline.5e-4.channel6.fold2"
 start_channels = 6
+batch_size = 1
 
 def do_eval(few_shot_net, base_dir):
     tmp_eval = os.path.join(base_dir, "offline_eval_tmp")
@@ -35,7 +39,7 @@ def do_eval(few_shot_net, base_dir):
     dataset = FewShotVOCDataset(name=val_data_split,channel6=True)
     num_images = len(dataset)
 
-    data_loader = data.DataLoader(dataset, batch_size=1, num_workers=num_workers,
+    data_loader = data.DataLoader(dataset, batch_size=batch_size, num_workers=num_workers,
                                   shuffle=False, pin_memory=True, collate_fn=detection_collate)
 
     # all detections are collected into:
@@ -46,67 +50,77 @@ def do_eval(few_shot_net, base_dir):
     w = image_size
     h = image_size
 
+    total_idx = -1
     for i, batch in tqdm(enumerate(data_loader), total=len(data_loader), desc="offline evaluation"):
         if i > quick_eval: break
         with open(os.path.join(ground_truth_dir, "{}.txt".format(i)), "w") as f_gt:
             with open(os.path.join(predicted_dir, "{}.txt".format(i)), "w") as f_predict:
-                # if i > 500:break
-                first_images, images, targets, metadata = batch
-                images_cv = metadata[0]['second_origin_image']
+                first_images_list, images_list, targets_list, metadata_list = batch
+                current_batch_size = len(metadata_list)
+                for iii in range(current_batch_size):
+                        total_idx += 1
+                        first_images = first_images_list[iii]
+                        images = images_list[iii]
+                        targets = targets_list[iii]
+                        metadata = metadata_list[iii]
 
-                first_images = Variable(first_images.cuda())
-                x = Variable(images.cuda())
+                        # if i > 500:break
+                        first_images, images, targets, metadata = batch
+                        images_cv = metadata[0]['second_origin_image']
+
+                        first_images = Variable(first_images.cuda())
+                        x = Variable(images.cuda())
 
 
 
-                gt_bboxes = targets[0].numpy()
-                for _ in range(gt_bboxes.shape[0]):
-                    gt_bboxes[_, 0] *= w
-                    gt_bboxes[_, 2] *= w
-                    gt_bboxes[_, 1] *= h
-                    gt_bboxes[_, 3] *= h
-                    f_gt.write(
-                        "shit {} {} {} {}\n".format(int(gt_bboxes[_, 0]), int(gt_bboxes[_, 1]), int(gt_bboxes[_, 2]),
-                                                    int(gt_bboxes[_, 3])))
+                        gt_bboxes = targets[0].numpy()
+                        for _ in range(gt_bboxes.shape[0]):
+                            gt_bboxes[_, 0] *= w
+                            gt_bboxes[_, 2] *= w
+                            gt_bboxes[_, 1] *= h
+                            gt_bboxes[_, 3] *= h
+                            f_gt.write(
+                                "shit {} {} {} {}\n".format(int(gt_bboxes[_, 0]), int(gt_bboxes[_, 1]), int(gt_bboxes[_, 2]),
+                                                            int(gt_bboxes[_, 3])))
 
-                detections = few_shot_net(first_images, x, is_train=False).data
+                        detections = few_shot_net(first_images, x, is_train=False).data
 
-                # skip j = 0, because it's the background class
-                for j in range(1, detections.size(1)):
-                    dets = detections[0, j, :]
-                    mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t()
-                    dets = torch.masked_select(dets, mask).view(-1, 5)
-                    if dets.dim() == 0:
-                        continue
-                    boxes = dets[:, 1:]
-                    boxes[:, 0] *= w
-                    boxes[:, 2] *= w
-                    boxes[:, 1] *= h
-                    boxes[:, 3] *= h
-                    scores = dets[:, 0].cpu().numpy()
-                    cls_dets = np.hstack((boxes.cpu().numpy(),
-                                          scores[:, np.newaxis])).astype(np.float32,
-                                                                         copy=False)
-                    all_boxes[j][i] = cls_dets
+                        # skip j = 0, because it's the background class
+                        for j in range(1, detections.size(1)):
+                            dets = detections[0, j, :]
+                            mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t()
+                            dets = torch.masked_select(dets, mask).view(-1, 5)
+                            if dets.dim() == 0:
+                                continue
+                            boxes = dets[:, 1:]
+                            boxes[:, 0] *= w
+                            boxes[:, 2] *= w
+                            boxes[:, 1] *= h
+                            boxes[:, 3] *= h
+                            scores = dets[:, 0].cpu().numpy()
+                            cls_dets = np.hstack((boxes.cpu().numpy(),
+                                                  scores[:, np.newaxis])).astype(np.float32,
+                                                                                 copy=False)
+                            all_boxes[j][i] = cls_dets
 
-                    for _ in range(cls_dets.shape[0]):
-                        f_predict.write("shit {} {} {} {} {}\n".format(cls_dets[_, 4], cls_dets[_, 0], cls_dets[_, 1],
-                                                                       cls_dets[_, 2], cls_dets[_, 3]))
+                            for _ in range(cls_dets.shape[0]):
+                                f_predict.write("shit {} {} {} {} {}\n".format(cls_dets[_, 4], cls_dets[_, 0], cls_dets[_, 1],
+                                                                               cls_dets[_, 2], cls_dets[_, 3]))
 
-                        if cls_dets[_, 4] > 0.5:#threshold
-                            floatBox = FloatBox(float(cls_dets[_, 0]), float(cls_dets[_, 1]),float(cls_dets[_, 2]), float(cls_dets[_, 3]))
-                            floatBox.clip_by_shape((image_size,image_size))
-                            images_cv  = draw_boxes(images_cv,[floatBox],color=(255,0,0))
+                                if cls_dets[_, 4] > 0.5:#threshold
+                                    floatBox = FloatBox(float(cls_dets[_, 0]), float(cls_dets[_, 1]),float(cls_dets[_, 2]), float(cls_dets[_, 3]))
+                                    floatBox.clip_by_shape((image_size,image_size))
+                                    images_cv  = draw_boxes(images_cv,[floatBox],color=(255,0,0))
 
-                fig, axes = plt.subplots(2, 1, figsize=(8, 16))#1-shot setting
+                        fig, axes = plt.subplots(2, 1, figsize=(8, 16))#1-shot setting
 
-                axes.flat[0].set_title('support image, class_name={}'.format(metadata[0]['class_name']))
-                axes.flat[0].imshow(cv2.resize(metadata[0]['metadata_origin_first_images'][0],(image_size,image_size)))
+                        axes.flat[0].set_title('support image, class_name={}'.format(metadata[0]['class_name']))
+                        axes.flat[0].imshow(cv2.resize(metadata[0]['metadata_origin_first_images'][0],(image_size,image_size)))
 
-                axes.flat[1].set_title('query image, second_image_path={}'.format(metadata[0]['second_image_path']))
-                axes.flat[1].imshow(images_cv)
-                plt.savefig(os.path.join(predicted_dir,"image-{}.png".format(i)))
-                plt.close(fig)
+                        axes.flat[1].set_title('query image, second_image_path={}'.format(metadata[0]['second_image_path']))
+                        axes.flat[1].imshow(images_cv)
+                        plt.savefig(os.path.join(predicted_dir,"image-{}.png".format(total_idx)))
+                        plt.close(fig)
 
 
 
@@ -118,7 +132,7 @@ def do_eval(few_shot_net, base_dir):
 
 
 if __name__ == '__main__':
-        base_dir = "train_log/train.baseline.5e-4.channel6"
+
         few_shot_net = build_ssd(image_size, num_classes, start_channels=start_channels, top_k=200)
 
         few_shot_net.cuda()

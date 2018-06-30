@@ -44,7 +44,7 @@ class Detect(Function):
         else:
             conf_preds = conf_data.view(num, num_priors,
                                         self.num_classes).transpose(2, 1)#batch_size, num_classes,num_priors
-            self.output.expand_(num, self.num_classes, self.top_k, 5)
+            self.output = self.output.expand(num, self.num_classes, self.top_k, 5)
 
         # Decode predictions into bboxes.
         for i in range(num):
@@ -64,7 +64,7 @@ class Detect(Function):
                 self.output[i, cl, :count] = \
                     torch.cat((scores[ids[:count]].unsqueeze(1),
                                boxes[ids[:count]]), 1)
-        flt = self.output.view(-1, 5)
+        flt = self.output.contiguous().view(-1, 5)
         _, idx = flt[:, 0].sort(0)
         _, rank = idx.sort(0)
         flt[(rank >= self.top_k).unsqueeze(1).expand_as(flt)].fill_(0)
