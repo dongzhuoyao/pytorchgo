@@ -37,7 +37,7 @@ batch_size = 16
 
 if is_debug == 1:
     log_per_iter = 10
-    save_per_iter = 100
+    save_per_iter = 10
     quick_eval = 400
 
 
@@ -231,7 +231,7 @@ def train():
                 )
         if iteration % save_per_iter == 0 and iteration > 0:
             few_shot_net.eval()
-            cur_eval_result = do_eval(few_shot_net)
+            cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir())
             few_shot_net.train()
 
             is_best = True if cur_eval_result > best_result else False
