@@ -35,11 +35,11 @@ from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 from myssd import build_ssd
 is_debug = 0
 num_classes = 2
-iterations = 120000
-stepvalues = (60000, 80000, 100000)
+iterations = 25000
+stepvalues = (10000, 20000)
 start_iter = 0
-log_per_iter = 500
-save_per_iter = 5000
+log_per_iter = 100
+save_per_iter = 2000
 train_data_split = "fold0_1shot_train"
 val_data_split = "fold0_1shot_val"
 gpu = '4'
@@ -68,7 +68,7 @@ parser.add_argument('--batch_size', default=batch_size, type=int, help='Batch si
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--iterations', default=iterations, type=int, help='Number of training iterations')
 parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda to train model')
-parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float, help='initial learning rate')
+parser.add_argument('--lr', '--learning-rate', default=5e-4, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
