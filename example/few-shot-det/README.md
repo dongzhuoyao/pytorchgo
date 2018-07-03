@@ -3,22 +3,6 @@
 
 
 
-##
-
-|arch|mAP|
-|----|----|
-|lre-3|unstable, terminated|
-|train.baseline|5.64|
-|train.baseline.channel4|4.31|
-|train.baseline.channel5|5.36|
-|train.baseline.channel6|5.93|
-|train.baseline.5e-4,intermediate result(top_k=200)|6.96|
-|train.baseline.5e-4,intermediate result(top_k=200,with score)|9.61|
-|train.baseline.5e-4,intermediate result(top_k=20,with score)|9.63|
-train.baseline.fold1|8.08|
-train.baseline.fold2|4.64|
-
-
 
 max 25k iterations, or it will overfit!
 ```
