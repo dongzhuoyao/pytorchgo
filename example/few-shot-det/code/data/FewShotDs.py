@@ -37,7 +37,7 @@ class FewShotVOCDataset(data.Dataset):
             (default: 'VOC2007')
     """
 
-    def __init__(self, name, image_size=(300, 300),channel6=False,channel4=False, channel5=False):
+    def __init__(self, name, image_size=(300, 300), second_image_augs=None,channel6=False,channel4=False, channel5=False):
         self.name = name
         self.image_size = image_size
         profile = getattr(FewShotVOC, name)
@@ -46,6 +46,7 @@ class FewShotVOCDataset(data.Dataset):
         self.data_size = len(self.dbi.db_items)
         self.init_randget(profile['read_mode'])
 
+        self.second_image_augs = second_image_augs
         self.channel6 = channel6
         self.channel5 = channel5
         self.channel4 = channel4
