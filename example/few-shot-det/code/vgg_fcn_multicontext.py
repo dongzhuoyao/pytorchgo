@@ -3,7 +3,7 @@
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import math
-
+import torch.nn.functional as F
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
@@ -25,9 +25,11 @@ model_urls = {
 
 class VGG(nn.Module):
 
-    def __init__(self, features, num_classes=1000, init_weights=True):
+    def __init__(self,start_channels, init_weights=True):
         super(VGG, self).__init__()
-        self.features = features
+
+        self.start_channels = start_channels
+
         """
         self.classifier = nn.Sequential(
             nn.Linear(512 * 7 * 7, 4096),
@@ -59,14 +61,61 @@ class VGG(nn.Module):
         '''
 
 
+
+        self.conv1_1 = nn.Conv2d(self.start_channels, 64, kernel_size=3, padding=1)
+        self.conv1_2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.max_pool_m = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.conv2_1 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.conv2_2 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+
+        self.max_pool_c = nn.MaxPool2d(kernel_size=2, stride=2, ceil_mode=True)
+        self.conv3_1 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
+        self.conv3_2 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        self.conv3_3 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+
+        self.conv4_1 = nn.Conv2d(256, 512, kernel_size=3, padding=1)
+        self.conv4_2 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+        self.conv4_3 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+
+        self.conv5_1 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+        self.conv5_2 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+        self.conv5_3 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+
+
         if init_weights:
             self._initialize_weights()
 
     def forward(self, x):
-        x = self.features(x)
-        #x = x.view(x.size(0), -1)
-        #x = self.classifier(x)
-        return x
+        #x = self.features(x)
+        feature_list = []
+        x = F.relu(self.conv1_1(x));feature_list.append(x)
+        x = F.relu(self.conv1_2(x));feature_list.append(x)
+
+        x =self.max_pool_m(x)
+
+        x = F.relu(self.conv2_1(x));feature_list.append(x)
+        x = F.relu(self.conv2_2(x));feature_list.append(x)
+
+        x = self.max_pool_m(x)
+
+        x = F.relu(self.conv3_1(x));feature_list.append(x)
+        x = F.relu(self.conv3_2(x));feature_list.append(x)
+        x = F.relu(self.conv3_3(x));feature_list.append(x)
+
+        x = self.max_pool_c(x)
+
+        x = F.relu(self.conv4_1(x));feature_list.append(x)
+        x = F.relu(self.conv4_2(x));feature_list.append(x)
+        x = F.relu(self.conv4_3(x));feature_list.append(x)
+
+        x = self.max_pool_m(x)
+
+        x = F.relu(self.conv5_1(x));feature_list.append(x)
+        x = F.relu(self.conv5_2(x));feature_list.append(x)
+        x = F.relu(self.conv5_3(x));feature_list.append(x)
+
+
+        return x, feature_list
 
     def _initialize_weights(self):
         for m in self.modules():
@@ -174,7 +223,7 @@ def vgg16(pretrained=False,start_channels=3, **kwargs):
     """
     if pretrained:
         kwargs['init_weights'] = False
-    model = VGG(make_layers(cfg['D'],start_channels=start_channels), **kwargs)
+    model = VGG(start_channels=start_channels, **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['vgg16']))
     return model
