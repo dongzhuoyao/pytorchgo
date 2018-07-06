@@ -27,7 +27,7 @@ class SSD(nn.Module):
         head: "multibox head" consists of loc and conf conv layers
     """
 
-    def __init__(self, size, base, extras, head, num_classes, start_channels=3, top_k=200, conf_thresh=0.01, nms_thresh=0.45, fuse_conv5=False, fuse_conv45=False, fuse_conv345=False):
+    def __init__(self, size, base, extras, head, num_classes, start_channels=3, top_k=200, conf_thresh=0.01, nms_thresh=0.45, fuse_conv5=False, fuse_conv45=False, fuse_conv345=False,fuse_conv4=False):
         super(SSD, self).__init__()
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
@@ -46,6 +46,7 @@ class SSD(nn.Module):
         self.fuse_conv5 = fuse_conv5
         self.fuse_conv45 = fuse_conv45
         self.fuse_conv345 = fuse_conv345
+        self.fuse_conv4 = fuse_conv4
 
         assert int(self.fuse_conv5)+int(self.fuse_conv45)+int(self.fuse_conv345) <= 1
 
@@ -130,6 +131,27 @@ class SSD(nn.Module):
                 else:
                     x = self.vgg[k](x)
             sources.append(x)
+        elif self.fuse_conv4:
+            # apply vgg up to conv4_3 relu
+            for k in range(23):
+                if k == 22:
+                    x = self.vgg[k](x) + feature_list[-4]  # support !!!
+                elif k == 20:
+                    x = self.vgg[k](x) + feature_list[-5]  # support !!!
+                elif k == 18:
+                    x = self.vgg[k](x) + feature_list[-6]  # support !!!
+                else:
+                    x = self.vgg[k](x)
+
+            s = self.L2Norm(x)
+            sources.append(s)
+
+            # apply vgg from conv5_1 to fc7
+            for k in range(23, len(self.vgg)):
+                x = self.vgg[k](x)
+            sources.append(x)
+
+
         elif self.fuse_conv345:
             # apply vgg up to conv4_3 relu
             for k in range(23):
@@ -295,7 +317,7 @@ mbox = {
 }
 
 
-def build_ssd(fuse_conv5, fuse_conv45, fuse_conv345,size=512, num_classes=21,start_channels=3,top_k=200, conf_thresh=0.01, nms_thresh=0.45):
+def build_ssd(fuse_conv5, fuse_conv45, fuse_conv345, fuse_conv4= False, size=512, num_classes=21,start_channels=3,top_k=200, conf_thresh=0.01, nms_thresh=0.45):
     if size != 300 and size != 512:
         print("Error: Sorry only SSD300 or SSD512 is supported currently!")
         return
@@ -305,7 +327,7 @@ def build_ssd(fuse_conv5, fuse_conv45, fuse_conv345,size=512, num_classes=21,sta
              mbox[str(size)], num_classes)
 
     return SSD(size, base_, extras_, head_,  num_classes, start_channels=start_channels, top_k=top_k,
-               conf_thresh=conf_thresh, nms_thresh=nms_thresh, fuse_conv5=fuse_conv5, fuse_conv45=fuse_conv45, fuse_conv345=fuse_conv345)
+               conf_thresh=conf_thresh, nms_thresh=nms_thresh, fuse_conv5=fuse_conv5, fuse_conv45=fuse_conv45, fuse_conv345=fuse_conv345, fuse_conv4=fuse_conv4)
 
 
 
