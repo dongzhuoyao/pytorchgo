@@ -85,7 +85,7 @@ class FewShotVOCDataset(data.Dataset):
 
         first_images, first_bboxs, second_image, second_bbox, metadata = get_item(index)
         second_image = Image.open(second_image).convert('RGB')
-        second_image = np.asarray(second_image,np.float32)
+        second_image = np.asarray(second_image, np.float32)
         if False:
             height, width, channels = second_image.shape
 
@@ -176,13 +176,22 @@ class FewShotVOCDataset(data.Dataset):
         second_image = cv2.resize(second_image, self.image_size)  # resize
         second_origin_image = np.copy(second_image).astype(np.uint8)
 
-
-
-        second_image = rgb_shit(second_image)
-
-
         for i, bb in enumerate(second_bbox):
             bb.append(0)#add default class, notice here!!!
+
+        if self.second_image_augs is not None:
+            second_bbox_np = np.stack(second_bbox, axis=0)
+            img, boxes, labels = self.second_image_augs(second_image, second_bbox_np[:, :4], second_bbox_np[:, 4])
+            # to rgb
+            img = img[:, :, (2, 1, 0)]
+            # img = img.transpose(2, 0, 1)
+            second_image =  img.transpose((2, 0, 1))
+            second_bbox = np.hstack((boxes, np.expand_dims(labels, axis=1)))
+        else:
+            second_image = rgb_shit(second_image)
+
+
+
 
 
         output_first_masked_images_concat = np.stack(output_first_masked_images_concat, axis=0)

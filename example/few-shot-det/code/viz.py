@@ -36,7 +36,10 @@ def do_eval(few_shot_net, base_dir):
     os.makedirs(ground_truth_dir)
     os.makedirs(predicted_dir)
 
-    dataset = FewShotVOCDataset(name=val_data_split,channel6=True)
+    from utils.augmentations import SSDAugmentation
+    #dataset = FewShotVOCDataset(name=val_data_split,channel6=True)
+    dataset = FewShotVOCDataset(name=val_data_split, channel6=True, second_image_augs = SSDAugmentation(512))
+
     num_images = len(dataset)
 
     data_loader = data.DataLoader(dataset, batch_size=batch_size, num_workers=num_workers,

@@ -28,8 +28,11 @@ train.baseline.5e-4.channel6.fold3|21.32|
 train.baseline.5e-4.channel6.size512|15.5,**U shape result**|
 train.baseline.5e-4.channel6.size512.refined_lr|19.09|
 train.baseline.5e-4.channel6.fold1.size512|27.22|
+train.baseline.5e-4.channel6.fold1.size512.refined_lr|30.84|
 train.baseline.5e-4.channel6.fold2.size512|14.03|
+train.baseline.5e-4.channel6.fold2.size512.refined_lr|18.9|
 train.baseline.5e-4.channel6.fold3.size512|18.01|
+train.baseline.5e-4.channel6.fold3.size512.refined_lr|22.3|
 
 
 
