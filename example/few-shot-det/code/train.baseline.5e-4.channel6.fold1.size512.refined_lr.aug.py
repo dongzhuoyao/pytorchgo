@@ -1,17 +1,3 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
-from layers import *
-from data import v as cfg
-import os
-from IPython import embed
-
-
-
-
-
-############################################################################################################################################################################################
 
 
 # -*- coding: utf-8 -*-
@@ -33,6 +19,7 @@ from pytorchgo.utils import logger
 from data.FewShotDs import FewShotVOCDataset
 from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 from myssd import build_ssd
+
 is_debug = 0
 num_classes = 2
 iterations = 25000
@@ -40,16 +27,14 @@ stepvalues = (10000, 20000)
 start_iter = 0
 log_per_iter = 100
 save_per_iter = 2000
-train_data_split = "fold0_1shot_train"
-val_data_split = "fold0_1shot_val"
+train_data_split = "fold1_1shot_train"
+val_data_split = "fold1_1shot_val"
 gpu = '4'
 quick_eval = 1e10
 start_channels = 6
 
-
 image_size = 512
 batch_size = 12
-
 
 if is_debug == 1:
     log_per_iter = 10
@@ -59,6 +44,7 @@ if is_debug == 1:
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detector Training')
 parser.add_argument('--dim', default=image_size, type=int, help='Size of the input image, only support 300 or 512')
@@ -82,20 +68,19 @@ if args.cuda and torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
+# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+from pytorchgo.utils.pytorch_utils import set_gpu
 
-#os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-from pytorchgo.utils.pytorch_utils import  set_gpu
 set_gpu(args.gpu)
 torch.cuda.set_device(int(args.gpu))
 
-
 if args.visdom:
     import visdom
+
     viz = visdom.Visdom()
 
 
 def train():
-
     logger.info("current cuda device: {}".format(torch.cuda.current_device()))
 
     few_shot_net = build_ssd(args.dim, num_classes, start_channels=start_channels)
@@ -108,7 +93,6 @@ def train():
         new_params[i] = vgg16_state_dict[i]
         logger.info("recovering weight for student model(loading vgg16 weight): {}".format(i))
     few_shot_net.support_net.load_state_dict(new_params, strict=False)
-
 
     logger.info('Loading base network...')
     few_shot_net.vgg.load_state_dict(torch.load(args.basenet))
@@ -133,13 +117,11 @@ def train():
 
     optimizer = optim.SGD(few_shot_net.parameters(), lr=args.lr,
                           momentum=args.momentum, weight_decay=args.weight_decay)
-    criterion = MultiBoxLoss(num_classes, size=args.dim, overlap_thresh=0.5, prior_for_matching=True, bkg_label=0, neg_mining=True, neg_pos=3, neg_overlap=0.5, encode_target=False, use_gpu=args.cuda)
+    criterion = MultiBoxLoss(num_classes, size=args.dim, overlap_thresh=0.5, prior_for_matching=True, bkg_label=0,
+                             neg_mining=True, neg_pos=3, neg_overlap=0.5, encode_target=False, use_gpu=args.cuda)
 
     model_summary(few_shot_net)
     optimizer_summary(optimizer)
-
-
-
 
     few_shot_net.train()
     # loss counters
@@ -148,7 +130,6 @@ def train():
     epoch = 0
     best_result = 0
     logger.info('Loading Dataset...')
-
     from utils.augmentations import SSDAugmentation
     dataset = FewShotVOCDataset(name=train_data_split, image_size=(args.dim, args.dim),second_image_augs=SSDAugmentation(args.dim), channel6=True)
 
@@ -181,20 +162,21 @@ def train():
     data_loader = data.DataLoader(dataset, args.batch_size, num_workers=args.num_workers,
                                   shuffle=True, pin_memory=True, collate_fn=detection_collate)
 
-    lr=args.lr
-    for iteration in tqdm(range(start_iter, args.iterations + 1),total=args.iterations, desc="training {}".format(logger.get_logger_dir())):
+    lr = args.lr
+    for iteration in tqdm(range(start_iter, args.iterations + 1), total=args.iterations,
+                          desc="training {}".format(logger.get_logger_dir())):
         if (not batch_iterator) or (iteration % epoch_size == 0):
             # create batch iterator
             batch_iterator = iter(data_loader)
 
         if iteration in stepvalues:
             step_index += 1
-            lr=adjust_learning_rate(optimizer, args.gamma, epoch, step_index, iteration, epoch_size)
+            lr = adjust_learning_rate(optimizer, args.gamma, epoch, step_index, iteration, epoch_size)
             if args.visdom:
                 viz.line(
                     X=torch.ones((1, 3)).cpu() * epoch,
                     Y=torch.Tensor([loc_loss, conf_loss,
-                        loc_loss + conf_loss]).unsqueeze(0).cpu() / epoch_size,
+                                    loc_loss + conf_loss]).unsqueeze(0).cpu() / epoch_size,
                     win=epoch_lot,
                     update='append'
                 )
@@ -205,7 +187,7 @@ def train():
 
         # load train data
         first_images, images, targets, metadata = next(batch_iterator)
-        #embed()
+        # embed()
         if args.cuda:
             first_images = Variable(first_images.cuda())
             images = Variable(images.cuda())
@@ -215,7 +197,7 @@ def train():
             images = Variable(images)
             targets = [Variable(anno, volatile=True) for anno in targets]
         # forward
-        out = few_shot_net(first_images, images, is_train =True)
+        out = few_shot_net(first_images, images, is_train=True)
         # backprop
         optimizer.zero_grad()
         loss_l, loss_c = criterion(out, targets)
@@ -224,8 +206,10 @@ def train():
         optimizer.step()
         loc_loss += loss_l.data[0]
         conf_loss += loss_c.data[0]
-        if iteration % log_per_iter == 0 and iteration>0:
-            logger.info('''LR: {}\t Iter: {}\t Loss_l: {:.5f}\t Loss_c: {:.5f}\t Loss_total: {:.5f}\t best_result: {:.5f}'''.format(lr,iteration,loss_l.data[0],loss_c.data[0], loss.data[0], best_result))
+        if iteration % log_per_iter == 0 and iteration > 0:
+            logger.info(
+                '''LR: {}\t Iter: {}\t Loss_l: {:.5f}\t Loss_c: {:.5f}\t Loss_total: {:.5f}\t best_result: {:.5f}'''.format(
+                    lr, iteration, loss_l.data[0], loss_c.data[0], loss.data[0], best_result))
             if args.visdom and args.send_images_to_visdom:
                 random_batch_index = np.random.randint(images.size(0))
                 viz.image(images.data[random_batch_index].cpu().numpy())
@@ -233,7 +217,7 @@ def train():
             viz.line(
                 X=torch.ones((1, 3)).cpu() * iteration,
                 Y=torch.Tensor([loss_l.data[0], loss_c.data[0],
-                    loss_l.data[0] + loss_c.data[0]]).unsqueeze(0).cpu(),
+                                loss_l.data[0] + loss_c.data[0]]).unsqueeze(0).cpu(),
                 win=lot,
                 update='append'
             )
@@ -242,34 +226,35 @@ def train():
                 viz.line(
                     X=torch.zeros((1, 3)).cpu(),
                     Y=torch.Tensor([loc_loss, conf_loss,
-                        loc_loss + conf_loss]).unsqueeze(0).cpu(),
+                                    loc_loss + conf_loss]).unsqueeze(0).cpu(),
                     win=epoch_lot,
                     update=True
                 )
         if iteration % save_per_iter == 0 and iteration > 0:
-            few_shot_net.eval()
-            cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(),
-                                      quick_eval_value=quick_eval)
-            few_shot_net.train()
+                    few_shot_net.eval()
+                    cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(),
+                                              quick_eval_value=quick_eval)
+                    few_shot_net.train()
 
-            is_best = True if cur_eval_result > best_result else False
-            if is_best:
-                best_result = cur_eval_result
-                torch.save({
-                    'iteration': iteration,
-                    'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': few_shot_net.state_dict(),
-                    'best_mean_iu': best_result,
-                }, os.path.join(logger.get_logger_dir(), 'cherry.pth'))
-            else:
-                logger.info("current snapshot is not good enough, skip~~")
+                    is_best = True if cur_eval_result > best_result else False
+                    if is_best:
+                        best_result = cur_eval_result
+                        torch.save({
+                            'iteration': iteration,
+                            'optim_state_dict': optimizer.state_dict(),
+                            'model_state_dict': few_shot_net.state_dict(),
+                            'best_mean_iu': best_result,
+                        }, os.path.join(logger.get_logger_dir(), 'cherry.pth'))
+                    else:
+                        logger.info("current snapshot is not good enough, skip~~")
 
-            logger.info('current iter: {} current_result: {:.5f}'.format(iteration, cur_eval_result))
+                    logger.info('current iter: {} current_result: {:.5f}'.format(iteration, cur_eval_result))
 
     cur_eval_result = do_eval(few_shot_net, base_dir=logger.get_logger_dir(), quick_eval_value=quick_eval)
     logger.info(
         "quick validation result={:.5f}, full validation result={:.5f}".format(cur_eval_result, best_result))
     logger.info("Congrats~")
+    
 
 def do_eval(few_shot_net, quick_eval_value, base_dir=logger.get_logger_dir()):
     tmp_eval = os.path.join(base_dir, "eval_tmp")
