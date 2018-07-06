@@ -5,9 +5,9 @@ import os
 import gzip
 import numpy as np
 import cv2
+from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 
-
-from . import FewShotVOC
+from data import FewShotVOC
 from PIL import Image
 __all__ = ['FewShotDs','FewShotVOCDataset']
 
@@ -86,23 +86,6 @@ class FewShotVOCDataset(data.Dataset):
         first_images, first_bboxs, second_image, second_bbox, metadata = get_item(index)
         second_image = Image.open(second_image).convert('RGB')
         second_image = np.asarray(second_image, np.float32)
-        if False:
-            height, width, channels = second_image.shape
-
-            draw = ImageDraw.Draw(second_image)
-            for bb in second_bbox:
-                min_x = bb[0]
-                min_y = bb[1]
-                max_x = bb[2]
-                max_y = bb[3]
-                min_x = float(min_x) * width  # normalize 1
-                max_x = float(max_x) * width
-                min_y = float(min_y) * height
-                max_y = float(max_y) * height
-
-                draw.rectangle(((int(min_x), int(min_y)), (int(max_x), int(max_y))), outline="red")
-            second_image.save("second_image.jpg", "JPEG")
-            print ("class_name: {}".format(metadata["class_name"]))
 
         k_shot = len(first_images)
         output_first_images = []
@@ -182,9 +165,29 @@ class FewShotVOCDataset(data.Dataset):
         if self.second_image_augs is not None:
             second_bbox_np = np.stack(second_bbox, axis=0)
             img, boxes, labels = self.second_image_augs(second_image, second_bbox_np[:, :4], second_bbox_np[:, 4])
-            # to rgb
-            img = img[:, :, (2, 1, 0)]
-            # img = img.transpose(2, 0, 1)
+            #img = img[:, :, ::-1]  # change to BGR
+            if False:
+                height, width, channels = img.shape
+                images_cv = np.copy(img)
+                for _ in range(boxes.shape[0]):
+                    min_x = boxes[_,0]
+                    min_y = boxes[_,1]
+                    max_x = boxes[_,2]
+                    max_y = boxes[_,3]
+                    min_x = float(min_x) * width  # normalize 1
+                    max_x = float(max_x) * width
+                    min_y = float(min_y) * height
+                    max_y = float(max_y) * height
+
+                    floatBox = FloatBox(min_x, min_y, max_x, max_y)
+                    #floatBox.clip_by_shape((image_size, image_size))
+                    images_cv = draw_boxes(images_cv, [floatBox], color=(255, 0, 0))
+
+                cv2.imwrite("second_image.jpg", images_cv)
+                print("class_name: {}".format(metadata["class_name"]))
+
+            img -= IMG_MEAN
+            img = img[:, :, (2, 1, 0)]#back to rgb
             second_image =  img.transpose((2, 0, 1))
             second_bbox = np.hstack((boxes, np.expand_dims(labels, axis=1)))
         else:
@@ -232,17 +235,12 @@ def detection_collate(batch):
 
 if __name__ == '__main__':
     from PIL import Image, ImageFont, ImageDraw, ImageEnhance
-    dataset = FewShotVOCDataset(name="fold0_train")
-    data_loader = data.DataLoader(dataset, batch_size=4, num_workers=1,
+    from utils.augmentations import SSDAugmentation
+    dataset = FewShotVOCDataset(name="fold0_1shot_train",second_image_augs=SSDAugmentation(512))
+    data_loader = data.DataLoader(dataset, batch_size=1, num_workers=1,
                                   shuffle=True, pin_memory=True,collate_fn=detection_collate)
 
-    from tensorpack.utils.segmentation.segmentation import apply_mask, visualize_binary_mask
-    cur_dir = "fold0_1shot_train_support_masked_images"
-    #os.mkdir(cur_dir)
     for idx,data in enumerate(data_loader):
-        output_first_images, output_first_masks, output_first_masked_images, second_image, second_bbox, metadata= data[0]
-        cv2.imwrite("first_masked_image.jpg",output_first_images[0])
-        print ("class_name: {}".format(metadata["class_name"]))
         print("ok")
 
 

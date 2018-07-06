@@ -364,6 +364,24 @@ def draw_boxes(im, boxes, labels=None, color=None):
     return im
 
 
+def PIL_drawbox(image, bbox):
+    height, width, channels = image.shape
+    from PIL import ImageDraw
+    draw = ImageDraw.Draw(image)
+    for bb in bbox:
+        min_x = bb[0]
+        min_y = bb[1]
+        max_x = bb[2]
+        max_y = bb[3]
+        min_x = float(min_x) * width  # normalize 1
+        max_x = float(max_x) * width
+        min_y = float(min_y) * height
+        max_y = float(max_y) * height
+
+        draw.rectangle(((int(min_x), int(min_y)), (int(max_x), int(max_y))), outline="red")
+    image.save("second_image.jpg", "JPEG")
+
+
 
 if __name__ == '__main__':
     if False:
