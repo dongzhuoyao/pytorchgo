@@ -83,7 +83,7 @@ def train():
 
     logger.info("current cuda device: {}".format(torch.cuda.current_device()))
 
-    few_shot_net = build_ssd(size=args.dim, num_classes=num_classes, start_channels=start_channels, fuse_conv5=True, fuse_conv45=False, fuse_conv345=False)
+    few_shot_net = build_ssd(size=args.dim, num_classes=num_classes, start_channels=start_channels, fuse_conv5=False, fuse_conv45=True, fuse_conv345=False)
 
     vgg16_state_dict = torch.load("vgg16-397923af.pth")
     new_params = {}
