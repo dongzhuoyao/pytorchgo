@@ -1,5 +1,7 @@
 # dongzhuoyao
 
+**pytorch==0.3.x**
+
 No time run it.
 
 
