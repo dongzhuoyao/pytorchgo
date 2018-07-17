@@ -31,6 +31,7 @@ train.baseline.5e-4.channel6.size512.refined_lr.fuse_conv5|17.6|
 train.baseline.5e-4.channel6.size512.refined_lr.fuse_conv45|17.82|
 train.baseline.5e-4.channel6.size512.refined_lr.fuse_conv345|18.28|
 train.baseline.5e-4.channel6.size512.refined_lr.aug|18.95|
+train.baseline.5e-4.channel6.size512.refined_lr.fuse_conv345.aug|19.5
 train.baseline.5e-4.channel6.size512.refined_lr.aug.40k|23.02|
 |----|----|
 train.baseline.5e-4.channel6.fold1.size512|27.22|
@@ -39,12 +40,14 @@ train.baseline.5e-4.channel6.fold1.size512.refined_lr.aug|33.38|
 train.baseline.5e-4.channel6.fold1.size512.refined_lr.fuse_conv4|29.09|
 train.baseline.5e-4.channel6.fold1.size512.refined_lr.fuse_conv5|25.35|
 train.baseline.5e-4.channel6.fold1.size512.refined_lr.fuse_conv345|28.13|
+train.baseline.5e-4.channel6.fold1.size512.refined_lr.fuse_conv345.aug|33.48|
 |----|----|
 train.baseline.5e-4.channel6.fold2.size512|14.03|
 train.baseline.5e-4.channel6.fold2.size512.refined_lr|18.9|
 train.baseline.5e-4.channel6.fold2.size512.refined_lr.fuse_conv4|16.83|
 train.baseline.5e-4.channel6.fold2.size512.refined_lr.fuse_conv345|22.83|
 train.baseline.5e-4.channel6.fold2.size512.refined_lr.aug|22.16|
+train.baseline.5e-4.channel6.fold2.size512.refined_lr.fuse_conv345.aug|17.94|
 train.baseline.5e-4.channel6.fold2.size512.refined_lr.aug.40k|19.13|
 |----|----|
 train.baseline.5e-4.channel6.fold3.size512|18.01|
@@ -53,6 +56,7 @@ train.baseline.5e-4.channel6.fold3.size512.refined_lr.aug|25.35|
 train.baseline.5e-4.channel6.fold3.size512.refined_lr.fuse_conv4|22.48|
 train.baseline.5e-4.channel6.fold3.size512.refined_lr.fuse_conv5|21.74|
 train.baseline.5e-4.channel6.fold3.size512.refined_lr.fuse_conv345|24.07|
+train.baseline.5e-4.channel6.fold3.size512.refined_lr.fuse_conv345.aug|25.5|
 
 
 
