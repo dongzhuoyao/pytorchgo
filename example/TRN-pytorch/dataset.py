@@ -115,7 +115,8 @@ class TSNDataSet(data.Dataset):
         record = self.video_list[index]
         # check this is a legit video folder
         while not os.path.exists(os.path.join(self.root_path, record.path, self.image_tmpl.format(1))):
-            print(os.path.join(self.root_path, record.path, self.image_tmpl.format(1)))
+            print("current file not exist, {}".format(os.path.join(self.root_path, record.path, self.image_tmpl.format(1))))
+            raise ValueError
             index = np.random.randint(len(self.video_list))
             record = self.video_list[index]
 

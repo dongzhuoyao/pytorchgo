@@ -20,7 +20,7 @@ def return_something(modality):
         filename_imglist_val = 'data/something-something-v1/val_videofolder.txt'
         prefix = '{:05d}.jpg'
     else:
-        print('no such modality:'+modality)
+        print('no such modality: {}'.format(modality))
         os.exit()
     return filename_categories, filename_imglist_train, filename_imglist_val, root_data, prefix
 
@@ -32,7 +32,7 @@ def return_jester(modality):
         filename_imglist_train = 'jester/train_videofolder.txt'
         filename_imglist_val = 'jester/val_videofolder.txt'
     else:
-        print('no such modality:'+modality)
+        print('no such modality: {}'.format(modality))
         os.exit()
     return filename_categories, filename_imglist_train, filename_imglist_val, root_data, prefix
 
