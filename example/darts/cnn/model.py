@@ -1,9 +1,12 @@
 import torch
 import torch.nn as nn
-from .operations import *
 from torch.autograd import Variable
-from .utils import drop_path
-
+try:
+  from .operations import *
+  from .utils import drop_path
+except Exception:
+  from operations import *
+  from utils import drop_path
 
 class Cell(nn.Module):
 
@@ -181,7 +184,7 @@ class NetworkImageNet(nn.Module):
 
     self.cells = nn.ModuleList()
     reduction_prev = True
-    for i in xrange(layers):
+    for i in range(layers):
       if i in [layers // 3, 2 * layers // 3]:
         C_curr *= 2
         reduction = True

@@ -17,13 +17,12 @@ from torch.autograd import Variable
 from tqdm import tqdm
 try:
   from .model_search import Network
-except Exception: #ImportError
-  from model_search import Network
-
-try:
   from .architect import Architect
 except Exception: #ImportError
+  from model_search import Network
   from architect import Architect
+
+
 
 
 
@@ -56,14 +55,8 @@ parser.add_argument('--arch_weight_decay', type=float, default=1e-3, help='weigh
 args = parser.parse_args()
 
 args.save = 'search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
-utils.create_exp_dir(args.save, scripts_to_save=glob.glob('*.py'))
-
-log_format = '%(asctime)s %(message)s'
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-    format=log_format, datefmt='%m/%d %I:%M:%S %p')
-fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-fh.setFormatter(logging.Formatter(log_format))
-logging.getLogger().addHandler(fh)
+from pytorchgo.utils.mylogger import get_logger
+logging = get_logger(args.save)
 
 
 CIFAR_CLASSES = 10
