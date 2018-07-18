@@ -121,7 +121,7 @@ def main():
 
   architect = Architect(model, args)
 
-  for epoch in tqdm(range(args.epochs)):
+  for epoch in tqdm(range(args.epochs),total=args.epochs):
     scheduler.step()
     lr = scheduler.get_lr()[0]
     genotype = model.genotype()
@@ -131,7 +131,7 @@ def main():
     logging.info("alphas_reduce: {}".format(F.softmax(model.alphas_reduce, dim=-1)))
 
     # training
-    train_acc, train_obj, arch_grad_norm = train(train_queue, search_queue, model, architect, criterion, optimizer, lr)
+    train_acc, train_obj, arch_grad_norm = train(train_queue, search_queue, model, architect, criterion, optimizer, lr, epoch_str="{}/{}".format(epoch, args.epochs))
     logging.info('train_acc = %f', train_acc)
 
     # validation
@@ -141,13 +141,13 @@ def main():
     utils.save(model, os.path.join(args.save, 'weights.pt'))
 
 
-def train(train_queue, search_queue, model, architect, criterion, optimizer, lr):
+def train(train_queue, search_queue, model, architect, criterion, optimizer, lr, epoch_str):
   objs = utils.AvgrageMeter()
   top1 = utils.AvgrageMeter()
   top5 = utils.AvgrageMeter()
   grad = utils.AvgrageMeter()
 
-  for step, (input, target) in enumerate(train_queue):
+  for step, (input, target) in tqdm(enumerate(train_queue),total=len(train_queue),desc="epoch {}".format(epoch_str)):
     model.train()
     n = input.size(0)
 
