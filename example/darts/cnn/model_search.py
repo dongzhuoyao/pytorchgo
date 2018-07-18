@@ -1,10 +1,16 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from operations import *
+
 from torch.autograd import Variable
-from genotypes import PRIMITIVES
-from genotypes import Genotype
+try:
+  from .operations import *
+  from .genotypes import PRIMITIVES
+  from .genotypes import Genotype
+except Exception:
+  from operations import *
+  from genotypes import PRIMITIVES
+  from genotypes import Genotype
 
 
 class MixedOp(nn.Module):
@@ -15,7 +21,7 @@ class MixedOp(nn.Module):
     for primitive in PRIMITIVES:
       op = OPS[primitive](C, stride, False)
       if 'pool' in primitive:
-        op = nn.Sequential(op, nn.BatchNorm2d(C, affine=False))
+        op = nn.Sequential(op, nn.BatchNorm2d(C, affine=False))#Why???
       self._ops.append(op)
 
   def forward(self, x, weights):
@@ -37,7 +43,6 @@ class Cell(nn.Module):
     self._multiplier = multiplier
 
     self._ops = nn.ModuleList()
-    self._bns = nn.ModuleList()
     for i in range(self._steps):
       for j in range(2+i):
         stride = 2 if reduction and j < 2 else 1
@@ -79,7 +84,7 @@ class Network(nn.Module):
     self.cells = nn.ModuleList()
     reduction_prev = False
     for i in range(layers):
-      if i in [layers//3, 2*layers//3]:
+      if i in [layers//3, 2*layers//3]:#downsample 2 times
         C_curr *= 2
         reduction = True
       else:

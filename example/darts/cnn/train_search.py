@@ -14,8 +14,18 @@ import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
 
 from torch.autograd import Variable
-from model_search import Network
-from architect import Architect
+from tqdm import tqdm
+try:
+  from .model_search import Network
+except Exception: #ImportError
+  from model_search import Network
+
+try:
+  from .architect import Architect
+except Exception: #ImportError
+  from architect import Architect
+
+
 
 
 parser = argparse.ArgumentParser("cifar")
@@ -28,12 +38,14 @@ parser.add_argument('--weight_decay', type=float, default=3e-4, help='weight dec
 parser.add_argument('--report_freq', type=float, default=50, help='report frequency')
 parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 parser.add_argument('--epochs', type=int, default=50, help='num of training epochs')
+
 parser.add_argument('--init_channels', type=int, default=16, help='num of init channels')
 parser.add_argument('--layers', type=int, default=8, help='total number of layers')
 parser.add_argument('--model_path', type=str, default='saved_models', help='path to save the model')
 parser.add_argument('--cutout', action='store_true', default=False, help='use cutout')
 parser.add_argument('--cutout_length', type=int, default=16, help='cutout length')
 parser.add_argument('--drop_path_prob', type=float, default=0.3, help='drop path probability')
+
 parser.add_argument('--save', type=str, default='EXP', help='experiment name')
 parser.add_argument('--seed', type=int, default=2, help='random seed')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
@@ -73,7 +85,7 @@ def main():
 
   criterion = nn.CrossEntropyLoss()
   criterion = criterion.cuda()
-  model = Network(args.init_channels, CIFAR_CLASSES, args.layers, criterion)
+  model = Network(C = args.init_channels, num_classes = CIFAR_CLASSES, layers = args.layers, criterion = criterion)
   model = model.cuda()
   logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
 
@@ -109,22 +121,22 @@ def main():
 
   architect = Architect(model, args)
 
-  for epoch in range(args.epochs):
+  for epoch in tqdm(range(args.epochs)):
     scheduler.step()
     lr = scheduler.get_lr()[0]
     genotype = model.genotype()
-    logging.info('epoch %d lr %e, genotype = %s', epoch, lr, genotype)
+    logging.info('epoch=%d,  lr=%e, genotype=%s', epoch, lr, genotype)
 
-    print(F.softmax(model.alphas_normal, dim=-1))
-    print(F.softmax(model.alphas_reduce, dim=-1))
+    logging.info("alphas_normal: {}".format(F.softmax(model.alphas_normal, dim=-1)))
+    logging.info("alphas_reduce: {}".format(F.softmax(model.alphas_reduce, dim=-1)))
 
     # training
     train_acc, train_obj, arch_grad_norm = train(train_queue, search_queue, model, architect, criterion, optimizer, lr)
-    logging.info('train_acc %f', train_acc)
+    logging.info('train_acc = %f', train_acc)
 
     # validation
     valid_acc, valid_obj = infer(valid_queue, model, criterion)
-    logging.info('valid_acc %f', valid_acc)
+    logging.info('valid_acc = %f', valid_acc)
 
     utils.save(model, os.path.join(args.save, 'weights.pt'))
 
@@ -147,11 +159,11 @@ def train(train_queue, search_queue, model, architect, criterion, optimizer, lr)
     input_search = Variable(input_search, requires_grad=False).cuda()
     target_search = Variable(target_search, requires_grad=False).cuda(async=True)
 
-    arch_grad_norm = architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)
+    arch_grad_norm = architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)#key phase
     grad.update(arch_grad_norm)
 
     optimizer.zero_grad()
-    logits = model(input)
+    logits = model(input)#key phase
     loss = criterion(logits, target)
 
     loss.backward()
@@ -164,7 +176,7 @@ def train(train_queue, search_queue, model, architect, criterion, optimizer, lr)
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('train step=%03d, loss=%e, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('train step=%03d/%d, loss=%e, top1=%f, top5=%f', step, len(train_queue), objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg, grad.avg
 
@@ -189,7 +201,7 @@ def infer(valid_queue, model, criterion):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('valid step=%03d/%d, loss=%e, top1=%f, top5=%f', step, len(valid_queue), objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg
 
