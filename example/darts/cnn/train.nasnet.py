@@ -102,7 +102,7 @@ def main():
 
   for epoch in tqdm(range(args.epochs),total=args.epochs):
     scheduler.step()
-    logging.info('epoch=%d, lr=%e', epoch, scheduler.get_lr()[0])
+    logging.info('epoch=%d, lr=%0.7f', epoch, scheduler.get_lr()[0])
     model.drop_path_prob = args.drop_path_prob * epoch / args.epochs
 
     train_acc, train_obj = train(train_queue, model, criterion, optimizer, epoch_str="{}/{}".format(epoch, args.epochs))
@@ -141,7 +141,7 @@ def train(train_queue, model, criterion, optimizer, epoch_str):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('train step=%03d, loss=%e, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('train step=%03d, loss=%0.5f, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg
 
@@ -166,7 +166,7 @@ def infer(valid_queue, model, criterion):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('valid step=%03d, loss=%e, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('valid step=%03d, loss=%0.5f, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg
 

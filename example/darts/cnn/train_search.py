@@ -118,7 +118,7 @@ def main():
     scheduler.step()
     lr = scheduler.get_lr()[0]
     genotype = model.genotype()
-    logging.info('epoch=%d,  lr=%e, genotype=%s', epoch, lr, genotype)
+    logging.info('epoch=%d,  lr=%0.8f, genotype=%s', epoch, lr, genotype)
 
     logging.info("alphas_normal: {}".format(F.softmax(model.alphas_normal, dim=-1)))
     logging.info("alphas_reduce: {}".format(F.softmax(model.alphas_reduce, dim=-1)))
@@ -169,7 +169,7 @@ def train(train_queue, search_queue, model, architect, criterion, optimizer, lr,
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('train step=%03d/%d, loss=%e, top1=%f, top5=%f', step, len(train_queue), objs.avg, top1.avg, top5.avg)
+      logging.info('train step=%03d/%d, loss=%0.5f, top1=%f, top5=%f', step, len(train_queue), objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg, grad.avg
 
@@ -194,7 +194,7 @@ def infer(valid_queue, model, criterion):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('valid step=%03d/%d, loss=%e, top1=%f, top5=%f', step, len(valid_queue), objs.avg, top1.avg, top5.avg)
+      logging.info('valid step=%03d/%d, loss=%0.5f, top1=%f, top5=%f', step, len(valid_queue), objs.avg, top1.avg, top5.avg)
 
   return top1.avg, objs.avg
 
