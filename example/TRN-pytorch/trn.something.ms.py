@@ -83,7 +83,8 @@ def main():
 
     args = parser.parse_args()
 
-    args.num_segments = 7
+    args.num_segments = 6
+    args.batch_size = 64
     args.consensus_type = "TRNmultiscale"
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu

@@ -5,6 +5,8 @@ from . import logger
 from termcolor import colored
 from tabulate import tabulate
 import warnings,os, sys
+import numpy as np
+
 
 if sys.version_info[0] >= 3:
     logger.warn("use reduce from functools...")
@@ -61,7 +63,8 @@ def optimizer_summary(optim_list):
         logger.info(colored("Optimizer Summary, Optimzer Parameters: #param={} \n".format(param_num), 'cyan') + table)
 
 
-
+def count_parameters_in_MB(model):
+  return np.sum(np.prod(v.size()) for v in model.parameters())/1e6
 
 def step_scheduler(optimizer, current_epoch, lr_schedule, net_name):
     """
