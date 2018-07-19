@@ -4,7 +4,7 @@
 
 |arch|Prec@1|
 |---|---|
-|trn.something|27.001|
+|trn.something(num_segment=3,bs=128)|27.00|
 
 
 # Temporal Relation Networks

@@ -57,22 +57,22 @@ def main():
                         help='number of total epochs to run')
     parser.add_argument('-b', '--batch_size', default=128, type=int,
                         metavar='N', help='mini-batch size (default: 256)')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning_rate', default=0.001, type=float,
                         metavar='LR', help='initial learning rate')
     parser.add_argument('--lr_steps', default=[50, 100], type=float, nargs="+",
                         metavar='LRSteps', help='epochs to decay learning rate by 10')
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
-    parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
+    parser.add_argument('--weight_decay', '--wd', default=5e-4, type=float,
                         metavar='W', help='weight decay (default: 5e-4)')
-    parser.add_argument('--clip-gradient', '--gd', default=20, type=float,
+    parser.add_argument('--clip_gradient', '--gd', default=20, type=float,
                         metavar='W', help='gradient norm clipping (default: disabled)')
     parser.add_argument('--no_partialbn', '--npb', default=False, action="store_true")
 
     # ========================= Monitor Configs ==========================
-    parser.add_argument('--print-freq', '-p', default=20, type=int,
+    parser.add_argument('--print_freq', '-p', default=20, type=int,
                         metavar='N', help='print frequency (default: 10)')
-    parser.add_argument('--eval-freq', '-ef', default=5, type=int,
+    parser.add_argument('--eval_freq', '-ef', default=5, type=int,
                         metavar='N', help='evaluation frequency (default: 5)')
 
     # ========================= Runtime Configs ==========================
@@ -83,7 +83,7 @@ def main():
     parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                         help='evaluate model on validation set')
     parser.add_argument('--snapshot_pref', type=str, default="")
-    parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
+    parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                         help='manual epoch number (useful on restarts)')
     parser.add_argument('--gpu', type=str, default='4')
     parser.add_argument('--flow_prefix', default="", type=str)
@@ -93,6 +93,8 @@ def main():
 
     args = parser.parse_args()
 
+    args.num_segments = 7
+    args.batch_size = 32
     args.consensus_type = "TRN"
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -108,7 +110,7 @@ def main():
 
 
     args.store_name = '_'.join(['TRN', args.dataset, args.modality, args.arch, args.consensus_type, 'segment%d'% args.num_segments])
-    print('storing name: ' + args.store_name)
+    logger.info('storing name: ' + args.store_name)
 
     model = TSN(num_class, args.num_segments, args.modality,
                 base_model=args.arch,
@@ -263,7 +265,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)
             if total_norm > args.clip_gradient:
-                logger.info("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
+                logger.warn("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
 
         optimizer.step()
 
