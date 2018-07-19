@@ -5,7 +5,7 @@ from multiprocessing import Process, Queue, Pool, Lock
 import os.path as osp
 import sys
 import traceback
-import copy,cv2,pickle
+import copy,cv2, pickle
 from pytorchgo.utils import logger
 from tqdm import tqdm
 if sys.version_info[0] == 2:

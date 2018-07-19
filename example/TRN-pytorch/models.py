@@ -1,11 +1,17 @@
 from torch import nn
 
-from ops.basic_ops import ConsensusModule, Identity
-from transforms import *
+
 from torch.nn.init import normal, constant
 from pytorchgo.utils import  logger
 
-import TRNmodule
+try:
+    from .ops.basic_ops import ConsensusModule, Identity
+    from .transforms import *
+    import TRNmodule
+except Exception:
+    from ops.basic_ops import ConsensusModule, Identity
+    from transforms import *
+    import TRNmodule
 
 class TSN(nn.Module):
     def __init__(self, num_class, num_segments, modality,
@@ -46,13 +52,13 @@ class TSN(nn.Module):
         feature_dim = self._prepare_tsn(num_class)
 
         if self.modality == 'Flow':
-            print("Converting the ImageNet model to a flow init model")
+            logger.info("Converting the ImageNet model to a flow init model")
             self.base_model = self._construct_flow_model(self.base_model)
-            print("Done. Flow model ready...")
+            logger.info("Done. Flow model ready...")
         elif self.modality == 'RGBDiff':
-            print("Converting the ImageNet model to RGB+Diff init model")
+            logger.info("Converting the ImageNet model to RGB+Diff init model")
             self.base_model = self._construct_diff_model(self.base_model)
-            print("Done. RGBDiff model ready.")
+            logger.info("Done. RGBDiff model ready.")
         if consensus_type in ['TRN', 'TRNmultiscale']:
             # plug in the Temporal Relation Network Module
             self.consensus = TRNmodule.return_TRN(consensus_type, self.img_feature_dim, self.num_segments, num_class)
@@ -146,7 +152,7 @@ class TSN(nn.Module):
         super(TSN, self).train(mode)
         count = 0
         if self._enable_pbn:
-            print("Freezing BatchNorm2D except the first one.")
+            logger.info("Freezing BatchNorm2D except the first one.")
             for m in self.base_model.modules():
                 if isinstance(m, nn.BatchNorm2d):
                     count += 1

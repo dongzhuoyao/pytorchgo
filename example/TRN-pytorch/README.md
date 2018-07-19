@@ -2,7 +2,9 @@
 
 **pytorch==0.3.x**
 
-No time run it.
+|arch|Prec@1|
+|---|---|
+|trn.something|27.001|
 
 
 # Temporal Relation Networks
