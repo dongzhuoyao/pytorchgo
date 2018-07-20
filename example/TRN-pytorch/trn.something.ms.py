@@ -94,7 +94,7 @@ def main():
     args = parser.parse_args()
 
     args.num_segments = 8
-    args.batch_size = 60
+    args.batch_size = 50
     args.consensus_type = "TRNmultiscale"
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -242,7 +242,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
     for i, (input, target) in tqdm(enumerate(train_loader),total=len(train_loader), desc="train epoch={}/{}".format(epoch, args.epochs)):
 
-        if i > 2:break
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
@@ -310,9 +309,6 @@ def validate(val_loader, model, criterion, iter):
 
 
     logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f} Best Prec@1={:0.3f}'.format(top1.avg, top5.avg, losses.avg, best_prec1))
-
-
-
 
     return top1.avg
 
