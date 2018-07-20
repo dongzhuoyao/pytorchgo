@@ -49,7 +49,7 @@ parser.add_argument('--arch', type=str, default='NASNet', help='which architectu
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 args = parser.parse_args()
 
-args.save = 'eval-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+args.save = 'NASNet-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
 from pytorchgo.utils.mylogger import get_logger
 logging = get_logger(args.save)
 
@@ -141,7 +141,7 @@ def train(train_queue, model, criterion, optimizer, epoch_str):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('train step=%03d, loss=%0.5f, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('{:s}： train step={:3d}, loss={:0.5f}, top1={:0.4f}, top5={:0.4f}'.format(os.path.basename(__file__).replace(".py",""), step, objs.avg, top1.avg, top5.avg))
 
   return top1.avg, objs.avg
 
@@ -166,7 +166,7 @@ def infer(valid_queue, model, criterion):
     top5.update(prec5.data[0], n)
 
     if step % args.report_freq == 0:
-      logging.info('valid step=%03d, loss=%0.5f, top1=%f, top5=%f', step, objs.avg, top1.avg, top5.avg)
+      logging.info('log_dir={:s}, valid step={:3d}, loss={:0.5f}, top1={:0.4f}, top5={:0.4f}'.format(args.save, step, objs.avg, top1.avg, top5.avg))
 
   return top1.avg, objs.avg
 

@@ -242,6 +242,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
     for i, (input, target) in tqdm(enumerate(train_loader),total=len(train_loader), desc="train epoch={}/{}".format(epoch, args.epochs)):
 
+        if i > 2:break
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
@@ -278,7 +279,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
 
 def validate(val_loader, model, criterion, iter):
-    batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
@@ -286,7 +286,6 @@ def validate(val_loader, model, criterion, iter):
     # switch to evaluate mode
     model.eval()
 
-    end = time.time()
     for i, (input, target) in enumerate(val_loader):
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
@@ -303,18 +302,16 @@ def validate(val_loader, model, criterion, iter):
         top1.update(prec1[0], input.size(0))
         top5.update(prec5[0], input.size(0))
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
 
         if i % args.print_freq == 0:
-            logger.info('Test: [{}/{}] Time {:0.3f} Loss {:0.4f} Prec@1={:0.3f} Prec@5={:0.3f}'.format(
-                   i, len(val_loader), batch_time, losses.avg, top1.avg, top5.avg))
+            logger.info('Test: [{}/{}] Loss {:0.4f} Prec@1={:0.3f} Prec@5={:0.3f}'.format(
+                   i, len(val_loader), losses.avg, top1.avg, top5.avg))
 
 
 
-    logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f}'.format(top1.avg, top5.avg, losses.avg))
-    logger.info('Best Prec@1={:0.3f}'.format(best_prec1))
+    logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f} Best Prec@1={:0.3f}'.format(top1.avg, top5.avg, losses.avg, best_prec1))
+
+
 
 
     return top1.avg

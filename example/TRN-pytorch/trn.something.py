@@ -319,8 +319,8 @@ def validate(val_loader, model, criterion, iter):
 
 
 
-    logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f}'.format(top1.avg, top5.avg, losses.avg))
-    logger.info('Best Prec@1={:0.3f}'.format(best_prec1))
+    logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f} Best Prec@1={:0.3f}'.format(top1.avg, top5.avg, losses.avg, best_prec1))
+
 
 
     return top1.avg
