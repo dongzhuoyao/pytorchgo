@@ -32,7 +32,7 @@ class TSNDataSet(data.Dataset):
         self.root_path = root_path
         self.list_file = list_file
         self.num_segments = num_segments
-        self.new_length = new_length
+        self.new_length = new_length#default = 1
         self.modality = modality
         self.image_tmpl = image_tmpl
         self.transform = transform
@@ -88,7 +88,7 @@ class TSNDataSet(data.Dataset):
 
         average_duration = (record.num_frames - self.new_length + 1) // self.num_segments
         if average_duration > 0:
-            offsets = np.multiply(list(range(self.num_segments)), average_duration) + randint(average_duration, size=self.num_segments)
+            offsets = np.multiply(list(range(self.num_segments)), average_duration) + randint(average_duration, size=self.num_segments)#if num_segment=7, [0, 9, 18, 27, 36, 45, 54]+[8,5,0,6,1,1,0]
         elif record.num_frames > self.num_segments:
             offsets = np.sort(randint(record.num_frames - self.new_length + 1, size=self.num_segments))
         else:
@@ -115,7 +115,7 @@ class TSNDataSet(data.Dataset):
         record = self.video_list[index]
         # check this is a legit video folder
         while not os.path.exists(os.path.join(self.root_path, record.path, self.image_tmpl.format(1))):
-            print("current file not exist, {}".format(os.path.join(self.root_path, record.path, self.image_tmpl.format(1))))
+            print("current file not exist, {}, we will randomly choose another video instread".format(os.path.join(self.root_path, record.path, self.image_tmpl.format(1))))
             raise ValueError
             index = np.random.randint(len(self.video_list))
             record = self.video_list[index]

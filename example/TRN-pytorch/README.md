@@ -5,6 +5,8 @@
 |arch|Prec@1|
 |---|---|
 |trn.something(num_segment=3,bs=128)|27.00|
+|trn.something(num_segment=7,bs=32)|27.00|
+|trn.something.ms(num_segment=6,bs=64)|31.96|
 
 
 # Temporal Relation Networks

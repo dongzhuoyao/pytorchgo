@@ -94,7 +94,7 @@ def main():
     args = parser.parse_args()
 
     args.num_segments = 7
-    args.batch_size = 32
+    args.batch_size = 64
     args.consensus_type = "TRN"
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -112,7 +112,7 @@ def main():
     args.store_name = '_'.join(['TRN', args.dataset, args.modality, args.arch, args.consensus_type, 'segment%d'% args.num_segments])
     logger.info('storing name: ' + args.store_name)
 
-    model = TSN(num_class, args.num_segments, args.modality,
+    model = TSN(num_class=num_class, num_segments=args.num_segments, modality=args.modality,
                 base_model=args.arch,
                 consensus_type=args.consensus_type,
                 dropout=args.dropout,
@@ -201,6 +201,12 @@ def main():
                                 args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
+
+
+    from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
+    model_summary(model)
+    optimizer_summary(optimizer)
+
 
     if args.evaluate:
         validate(val_loader, model, criterion, 0)

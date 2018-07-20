@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('dataset', type=str, choices=['something','jester','moments','charades'])
 parser.add_argument('modality', type=str, choices=['RGB', 'Flow', 'RGBDiff'])
 parser.add_argument('weights', type=str)
-parser.add_argument('--arch', type=str, default="resnet101")
+parser.add_argument('--arch', type=str, default="BNInception")
 parser.add_argument('--save_scores', type=str, default=None)
 parser.add_argument('--test_segments', type=int, default=25)
 parser.add_argument('--max_num', type=int, default=-1)
@@ -36,6 +36,8 @@ parser.add_argument('--num_set_segments',type=int, default=1,help='TODO: select 
 parser.add_argument('--softmax', type=int, default=0)
 
 args = parser.parse_args()
+args.crop_fusion_type = "TRN"
+args.test_segments = 3
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""

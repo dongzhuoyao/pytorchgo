@@ -17,7 +17,7 @@ class TSN(nn.Module):
     def __init__(self, num_class, num_segments, modality,
                  base_model='resnet101', new_length=None,
                  consensus_type='avg', before_softmax=True,
-                 dropout=0.8,img_feature_dim=256,
+                 dropout=0.8, img_feature_dim=256,
                  crop_num=1, partial_bn=True, print_spec=True):
         super(TSN, self).__init__()
         self.modality = modality
@@ -59,6 +59,7 @@ class TSN(nn.Module):
             logger.info("Converting the ImageNet model to RGB+Diff init model")
             self.base_model = self._construct_diff_model(self.base_model)
             logger.info("Done. RGBDiff model ready.")
+
         if consensus_type in ['TRN', 'TRNmultiscale']:
             # plug in the Temporal Relation Network Module
             self.consensus = TRNmodule.return_TRN(consensus_type, self.img_feature_dim, self.num_segments, num_class)
