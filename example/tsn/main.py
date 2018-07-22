@@ -9,10 +9,16 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 from torch.nn.utils import clip_grad_norm
 
-from dataset import TSNDataSet
-from models import TSN
-from transforms import *
-from opts import parser
+try:
+    from .dataset import TSNDataSet
+    from .models import TSN
+    from .transforms import *
+    from .opts import parser
+except Exception:
+    from dataset import TSNDataSet
+    from models import TSN
+    from transforms import *
+    from opts import parser
 
 best_prec1 = 0
 
@@ -42,6 +48,7 @@ def main():
     train_augmentation = model.get_augmentation()
 
     model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+
 
     if args.resume:
         if os.path.isfile(args.resume):
