@@ -2,10 +2,13 @@
 
 **pytorch==0.3.x**
 
+largest training speed: 1.63iter/s
+
 |arch|Prec@1|
 |---|---|
 |trn.something(num_segment=3,bs=128)|27.00|
 |trn.something(num_segment=7,bs=32)|27.00|
+|trn.something(num_segment=7,bs=64)|31.652|
 |trn.something.ms(num_segment=6,bs=64)|31.96|
 
 

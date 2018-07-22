@@ -25,12 +25,12 @@ def return_something(modality):
     return filename_categories, filename_imglist_train, filename_imglist_val, root_data, prefix
 
 def return_jester(modality):
-    filename_categories = 'jester/category.txt'
+    filename_categories = 'data/jester-v1/file_list/category.txt'
     if modality == 'RGB':
         prefix = '{:05d}.jpg'
-        root_data = '/data/vision/oliva/scratch/bzhou/video/jester/20bn-jester-v1'
-        filename_imglist_train = 'jester/train_videofolder.txt'
-        filename_imglist_val = 'jester/val_videofolder.txt'
+        root_data = 'data/jester-v1/20bn-jester-v1'
+        filename_imglist_train = 'data/jester-v1/file_list/train_videofolder.txt'
+        filename_imglist_val = 'data/jester-v1/file_list/val_videofolder.txt'
     else:
         print('no such modality: {}'.format(modality))
         os.exit()
