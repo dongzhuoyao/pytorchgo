@@ -92,8 +92,8 @@ def dense_flow(augs):
     try:
         videocapture=skvideo.io.vread(video_path)
     except Exception:
-        print('{} read error! '.format(video_path))
-        raise
+        print('{} read error! skip it!'.format(video_path))
+        return
     print(video_name)
     # if extract nothing, exit!
     if videocapture.sum()==0:
