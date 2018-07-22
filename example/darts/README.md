@@ -14,6 +14,7 @@ The algorithm is based on continuous relaxation and gradient descent in the arch
 |arch|acc|retrain_acc|
 |----|----|----|
 |cnn|88.89|96.99|
+|NasNet|--|97.14|
 
 
 ## Requirements
