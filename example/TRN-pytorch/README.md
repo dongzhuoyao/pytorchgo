@@ -10,7 +10,7 @@ largest training speed: 1.63iter/s
 |trn.something(num_segment=7,bs=32)|27.00|
 |trn.something(num_segment=7,bs=64)|31.652|
 |trn.something.ms(num_segment=6,bs=64)|31.96|
-
+|trn.something.ms(num_segment=8,bs=50)|32.91|
 
 # Temporal Relation Networks
 

@@ -40,11 +40,11 @@ for (filename_input, filename_output) in zip(files_input, files_output):
         idx_categories.append(dict_categories[items[1]])
     output = []
     for i in tqdm(range(len(folders)),desc="generating %s"%(filename_output)):
-        curFolder = folders[i]
-        curIDX = idx_categories[i]
+        cur_folder = folders[i]
+        cur_classid = idx_categories[i]
         # counting the number of frames in each video folders
-        dir_files = os.listdir(os.path.join(data_dir, curFolder))
-        output.append('%s %d %d'%(curFolder, len(dir_files), curIDX))
+        dir_files = os.listdir(os.path.join(data_dir, cur_folder))
+        output.append('%s %d %d' % (cur_folder, len(dir_files), cur_classid))
 
     with open(filename_output,'w') as f:
         f.write('\n'.join(output))
