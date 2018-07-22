@@ -13,8 +13,9 @@ args = [
     '--batch-size', '50',
     '--train-size', '0.1',
     '--val-size', '0.1',
-    '--cache-dir', '/nfs.yoda/gsigurds/ai2/caches/',
+    '--cache-dir', '/data4/hutao/cache/',
     '--pretrained',
+    '--gpu','5'
     #'--evaluate',
 ]
 sys.argv.extend(args)

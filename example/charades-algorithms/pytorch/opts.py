@@ -52,6 +52,7 @@ def parse():
     parser.add_argument('--name', default='test', type=str)
     parser.add_argument('--nclass', default=157, type=int)
     parser.add_argument('--accum-grad', default=4, type=int)
+    parser.add_argument('--gpu',  type=str)
     args = parser.parse_args()
     args.distributed = args.world_size > 1
     args.cache = args.cache_dir+args.name+'/'

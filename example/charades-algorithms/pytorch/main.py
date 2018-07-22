@@ -14,6 +14,7 @@ from datasets import get_dataset
 import checkpoints
 from opts import parse
 from utils import tee
+import os
 
 
 def seed(manualseed):
@@ -30,6 +31,9 @@ def main():
     tee.Tee(opt.cache+'/log.txt')
     print(vars(opt))
     seed(opt.manual_seed)
+
+    from pytorchgo.utils.pytorch_utils import set_gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = opt.gpu
 
     model, criterion, optimizer = create_model(opt)
     if opt.resume: best_mAP = checkpoints.load(opt, model, optimizer)
