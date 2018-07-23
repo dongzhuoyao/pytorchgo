@@ -1,5 +1,5 @@
-|arch|Prec@1|Prec@5|
-|main|83.89|96.30|
+|arch|Prec@1|Prec@5|metadata|
+|main|83.89|96.30|less than 6 hours|
 
 # TSN-Pytorch
 

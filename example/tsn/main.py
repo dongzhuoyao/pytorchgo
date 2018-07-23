@@ -8,7 +8,7 @@ import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
 from torch.nn.utils import clip_grad_norm
-
+from pytorchgo.utils import logger
 try:
     from .dataset import TSNDataSet
     from .models import TSN
@@ -25,6 +25,7 @@ best_prec1 = 0
 
 
 def main():
+    logger.auto_set_dir()
     global args, best_prec1
     args = parser.parse_args()
 
@@ -61,15 +62,15 @@ def main():
 
     if args.resume:
         if os.path.isfile(args.resume):
-            print(("=> loading checkpoint '{}'".format(args.resume)))
+            logger.info(("=> loading checkpoint '{}'".format(args.resume)))
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint['epoch']
             best_prec1 = checkpoint['best_prec1']
             model.load_state_dict(checkpoint['state_dict'])
-            print(("=> loaded checkpoint '{}' (epoch {})"
+            logger.info(("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.evaluate, checkpoint['epoch'])))
         else:
-            print(("=> no checkpoint found at '{}'".format(args.resume)))
+            logger.info(("=> no checkpoint found at '{}'".format(args.resume)))
 
     cudnn.benchmark = True
 
@@ -121,7 +122,7 @@ def main():
         raise ValueError("Unknown loss type")
 
     for group in policies:
-        print(('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
+        logger.info(('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
             group['name'], len(group['params']), group['lr_mult'], group['decay_mult'])))
 
     optimizer = torch.optim.SGD(policies,
@@ -199,7 +200,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)
             if total_norm > args.clip_gradient:
-                print("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
+                logger.warn("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
 
         optimizer.step()
 
@@ -208,7 +209,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
         if i % args.print_freq == 0:
-            print(('Epoch: [{0}][{1}/{2}], lr: {lr:.5f}\t'
+            logger.info(('Epoch: [{0}][{1}/{2}], lr: {lr:.5f}\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
@@ -251,7 +252,7 @@ def validate(val_loader, model, criterion, iter, logger=None):
         end = time.time()
 
         if i % args.print_freq == 0:
-            print(('Test: [{0}/{1}]\t'
+            logger.info(('Test: [{0}/{1}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
@@ -259,7 +260,7 @@ def validate(val_loader, model, criterion, iter, logger=None):
                    i, len(val_loader), batch_time=batch_time, loss=losses,
                    top1=top1, top5=top5)))
 
-    print(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
+    logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
           .format(top1=top1, top5=top5, loss=losses)))
 
     return top1.avg
