@@ -14,7 +14,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="densely extract the video frames and optical flows")
     parser.add_argument('--dataset',default='ucf101',type=str,help='set the dataset name, to find the data path')
     parser.add_argument('--data_root',default='/data4/hutao/dataset/UCF-101',type=str)
-    parser.add_argument('--new_dir',default='/data4/hutao/dataset/UCF-101-extracted',type=str)
+    parser.add_argument('--new_dir',default='/data4/hutao/dataset/UCF-101-extracted666',type=str)
     parser.add_argument('--num_workers',default=4,type=int,help='num of workers to act multi-process')
     parser.add_argument('--step',default=1,type=int,help='gap frames')
     parser.add_argument('--bound',default=15,type=int,help='set the maximum of optical flow')
@@ -106,7 +106,7 @@ def dense_flow(augs):
     for l in range(len_frame):
         if not os.path.exists(os.path.join(data_root, new_dir, save_dir)):
             os.makedirs(os.path.join(data_root, new_dir, save_dir))
-        save_img = os.path.join(data_root, new_dir, save_dir, '{:05d}.jpg'.format(l))
+        save_img = os.path.join(data_root, new_dir, save_dir, '{:05d}.jpg'.format(l+1))#start from 1
         scipy.misc.imsave(save_img, videocapture[l])
 
     while False:#to extract dense flow

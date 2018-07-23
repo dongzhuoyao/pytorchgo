@@ -20,6 +20,7 @@ except Exception:
     from transforms import *
     from opts import parser
 
+is_debug = 0
 best_prec1 = 0
 
 
@@ -47,7 +48,15 @@ def main():
     policies = model.get_optim_policies()
     train_augmentation = model.get_augmentation()
 
-    model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)#TODO, , device_ids=[int(id) for id in args.gpu.split(',')]
+
+    if torch.cuda.is_available():
+       model.cuda()
+
 
 
     if args.resume:
@@ -79,7 +88,7 @@ def main():
         TSNDataSet("", args.train_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
-                   image_tmpl="img_{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
+                   image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
                    transform=torchvision.transforms.Compose([
                        train_augmentation,
                        Stack(roll=args.arch == 'BNInception'),
@@ -93,7 +102,7 @@ def main():
         TSNDataSet("", args.val_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
-                   image_tmpl="img_{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
+                   image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
                    random_shift=False,
                    transform=torchvision.transforms.Compose([
                        GroupScale(int(scale_size)),
@@ -153,18 +162,20 @@ def train(train_loader, model, criterion, optimizer, epoch):
     top5 = AverageMeter()
 
     if args.no_partialbn:
-        model.module.partialBN(False)
+        model.partialBN(False)
     else:
-        model.module.partialBN(True)
+        model.partialBN(True)
 
     # switch to train mode
     model.train()
 
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
+        if i>5 and is_debug:break
         # measure data loading time
         data_time.update(time.time() - end)
 
+        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
@@ -218,6 +229,8 @@ def validate(val_loader, model, criterion, iter, logger=None):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
+        if i > 5 and is_debug: break
+        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)

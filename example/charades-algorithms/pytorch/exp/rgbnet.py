@@ -10,7 +10,7 @@ args = [
     '--dataset', 'charadesrgb',
     '--arch', 'vgg16',
     '--lr', '1e-3',
-    '--batch-size', '64',
+    '--batch-size', '32',
     '--train-size', '0.1',
     '--val-size', '0.1',
     '--cache-dir', '/data4/hutao/cache/',

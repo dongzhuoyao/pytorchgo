@@ -6,6 +6,8 @@ import os.path
 import numpy as np
 from numpy.random import randint
 
+data_base = "/data4/hutao/dataset/UCF-101-extracted"
+
 class VideoRecord(object):
     def __init__(self, row):
         self._data = row
@@ -26,7 +28,7 @@ class VideoRecord(object):
 class TSNDataSet(data.Dataset):
     def __init__(self, root_path, list_file,
                  num_segments=3, new_length=1, modality='RGB',
-                 image_tmpl='img_{:05d}.jpg', transform=None,
+                 image_tmpl='{:05d}.jpg', transform=None,
                  force_grayscale=False, random_shift=True, test_mode=False):
 
         self.root_path = root_path
@@ -46,10 +48,10 @@ class TSNDataSet(data.Dataset):
 
     def _load_image(self, directory, idx):
         if self.modality == 'RGB' or self.modality == 'RGBDiff':
-            return [Image.open(os.path.join(directory, self.image_tmpl.format(idx))).convert('RGB')]
+            return [Image.open(os.path.join(data_base, directory, self.image_tmpl.format(idx))).convert('RGB')]
         elif self.modality == 'Flow':
-            x_img = Image.open(os.path.join(directory, self.image_tmpl.format('x', idx))).convert('L')
-            y_img = Image.open(os.path.join(directory, self.image_tmpl.format('y', idx))).convert('L')
+            x_img = Image.open(os.path.join(data_base, directory, self.image_tmpl.format('x', idx))).convert('L')
+            y_img = Image.open(os.path.join(data_base, directory, self.image_tmpl.format('y', idx))).convert('L')
 
             return [x_img, y_img]
 
@@ -70,7 +72,7 @@ class TSNDataSet(data.Dataset):
             offsets = np.sort(randint(record.num_frames - self.new_length + 1, size=self.num_segments))
         else:
             offsets = np.zeros((self.num_segments,))
-        return offsets + 1
+        return offsets + 1#start from 1
 
     def _get_val_indices(self, record):
         if record.num_frames > self.num_segments + self.new_length - 1:
@@ -78,7 +80,7 @@ class TSNDataSet(data.Dataset):
             offsets = np.array([int(tick / 2.0 + tick * x) for x in range(self.num_segments)])
         else:
             offsets = np.zeros((self.num_segments,))
-        return offsets + 1
+        return offsets + 1#start from 1
 
     def _get_test_indices(self, record):
 
@@ -86,7 +88,7 @@ class TSNDataSet(data.Dataset):
 
         offsets = np.array([int(tick / 2.0 + tick * x) for x in range(self.num_segments)])
 
-        return offsets + 1
+        return offsets + 1#start from 1
 
     def __getitem__(self, index):
         record = self.video_list[index]
