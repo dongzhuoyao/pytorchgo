@@ -1,3 +1,6 @@
+|arch|Prec@1|Prec@5|
+|main|83.89|96.30|
+
 # TSN-Pytorch
 
 *Now in experimental release, suggestions welcome*.
