@@ -3,7 +3,7 @@
 |arch|mAP|
 |---|---|
 |rgbnet|17.9|
-
+|rgbnet_inception|19.4|
 
 
 ## PyTorch Starter Code for Activity Classification and Localization on Charades

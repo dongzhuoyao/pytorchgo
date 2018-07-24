@@ -15,7 +15,7 @@ args = [
     '--val-size', '0.1',
     '--cache-dir', '/data4/hutao/cache/',
     '--pretrained',
-    '--gpu','7'
+    '--gpu','1,2,4,5'
     #'--evaluate',
 ]
 sys.argv.extend(args)
