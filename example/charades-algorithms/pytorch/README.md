@@ -1,3 +1,11 @@
+## dongzhuoyao
+
+|arch|mAP|
+|---|---|
+|rgbnet|17.9|
+
+
+
 ## PyTorch Starter Code for Activity Classification and Localization on Charades
 
 Contributor: Gunnar Atli Sigurdsson
