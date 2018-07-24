@@ -13,7 +13,7 @@ import scipy.misc
 def parse_args():
     parser = argparse.ArgumentParser(description="densely extract the video frames and optical flows")
     parser.add_argument('--dataset',default='ucf101',type=str,help='set the dataset name, to find the data path')
-    parser.add_argument('--data_root', default='/data4/hutao/dataset/hmdb51_videos', type=str)
+    parser.add_argument('--data_root', default='/data4/hutao/dataset/hmdb51_videos_mpeg4', type=str)
     parser.add_argument('--new_dir', default='/data4/hutao/dataset/hmdb51_videos_extracted', type=str)
     parser.add_argument('--num_workers',default=4,type=int,help='num of workers to act multi-process')
     parser.add_argument('--mode',default='run',type=str,help='set \'run\' if debug done, otherwise, set debug')
@@ -58,7 +58,7 @@ def to_frame(augs):
         exit()
     len_frame=len(videocapture)
     for l in range(len_frame):
-        parent_dir = os.path.join(data_root,"{}_{}".format(video_name[0], video_name[1]).replace(".avi",""))
+        parent_dir = os.path.join(new_dir,"{}_{}".format(video_name[0], video_name[1]).replace(".avi","").replace(".mp4",""))
         if not os.path.exists(parent_dir):
             os.makedirs(parent_dir)
         save_img = os.path.join(parent_dir, '{:05d}.jpg'.format(l+1))#start from 1

@@ -5,16 +5,16 @@ dataset_dir = "/data4/hutao/dataset/UCF-101-extracted"
 
 #generate all ground truth dict
 gt_dict = {}
-for txt in ['trainlist01.txt', 'trainlist02.txt', 'trainlist03.txt']:
+for txt in ['hmdb51_split1_train.txt', 'hmdb51_split2_train.txt', 'hmdb51_split3_train.txt']:
     with open(txt,"r") as f:
         for line in f.readlines():
-            file_name, class_index = line.strip().split()
+            file_name, class_name, class_index = line.strip().split()
             if not (file_name in gt_dict):
-                gt_dict[file_name] = int(class_index)-1#start from 0
+                gt_dict[file_name] = int(class_index)#start from 0
 
 print("gt number :{}".format(len(gt_dict.keys())))
 
-for old_file,new_file in [('trainlist01.txt','datalist/train_videofolder_split1.txt'), ('testlist01.txt','datalist/test_videofolder_split1.txt')]:
+for old_file,new_file in [('hmdb51_split1_train.txt','datalist/train_videofolder_split1.txt'), ('hmdb51_split1_test.txt','datalist/test_videofolder_split1.txt')]:
     print("process {}".format(old_file))
     with open(old_file,"r") as f_read:
         with open(new_file,"w") as f_write:

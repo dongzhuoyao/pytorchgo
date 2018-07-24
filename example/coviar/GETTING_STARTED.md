@@ -1,3 +1,9 @@
+please set **LD_LIBRARY_PATH** as neccessary to make data_loader really work!
+
+```angularjs
+
+```
+
 # Getting Started
 This document briefly describes how to install and use the code.
 

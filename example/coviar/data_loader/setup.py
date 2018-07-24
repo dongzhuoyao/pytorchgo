@@ -3,9 +3,9 @@ import numpy as np
 
 coviar_utils_module = Extension('coviar',
 		sources = ['coviar_data_loader.c'],
-		include_dirs=[np.get_include(), './ffmpeg/include/'],
+		include_dirs=[np.get_include(), '/home/hutao/ffmpeg_installed/include/'],
 		extra_compile_args=['-DNDEBUG', '-O3'],
-		extra_link_args=['-lavutil', '-lavcodec', '-lavformat', '-lswscale', '-L./ffmpeg/lib/']
+		extra_link_args=['-lavutil', '-lavcodec', '-lavformat', '-lswscale', '-L/home/hutao/ffmpeg_installed/lib/']
 )
 
 setup ( name = 'coviar',

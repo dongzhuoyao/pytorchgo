@@ -4,7 +4,7 @@ import shutil
 import time
 import numpy as np
 
-import torch
+import torch, os
 import torch.backends.cudnn as cudnn
 import torch.nn.parallel
 import torchvision
@@ -71,7 +71,15 @@ def main():
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
-    model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpus
+
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)  # TODO, , device_ids=[int(id) for id in args.gpu.split(',')]
+
+    if torch.cuda.is_available():
+        model.cuda()
+
     cudnn.benchmark = True
 
     params_dict = dict(model.named_parameters())
@@ -132,7 +140,7 @@ def train(train_loader, model, criterion, optimizer, epoch, cur_lr):
     for i, (input, target) in enumerate(train_loader):
 
         data_time.update(time.time() - end)
-
+        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
@@ -181,6 +189,7 @@ def validate(val_loader, model, criterion):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
+        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
