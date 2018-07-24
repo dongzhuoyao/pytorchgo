@@ -1,7 +1,7 @@
 # Author: Tao Hu <taohu620@gmail.com>
 import os
 from tqdm import tqdm
-dataset_dir = "/data4/hutao/dataset/UCF-101-extracted"
+dataset_dir = "/data4/hutao/dataset/hmdb51_videos_extracted"
 
 #generate all ground truth dict
 gt_dict = {}
@@ -20,8 +20,9 @@ for old_file,new_file in [('hmdb51_split1_train.txt','datalist/train_videofolder
         with open(new_file,"w") as f_write:
             for line in tqdm(f_read.readlines()):
                 video_path = line.strip().split()[0]
-                video_name = video_path.split("/")[1].replace(".avi","")
+                video_class_name, video_name = video_path.split("/")
+                video_name = video_name.replace(".avi","").replace(".mp4","")
                 if video_name in os.listdir(dataset_dir):
                     class_index = gt_dict[video_path]
-                    frame_number = len(os.listdir(os.path.join(dataset_dir,video_name)))
+                    frame_number = len(os.listdir(os.path.join(dataset_dir,"{}_{}".format(video_class_name, video_name))))
                     f_write.write("{} {} {}\n".format(video_name, frame_number, class_index))
