@@ -3,6 +3,7 @@
 |arch|mAP|
 |---|---|
 |rgbnet|17.9|
+|rgbnet,4gpu|17.8|
 |rgbnet_inception|19.4|
 
 

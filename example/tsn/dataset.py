@@ -6,7 +6,7 @@ import os.path
 import numpy as np
 from numpy.random import randint
 
-data_base = "/data4/hutao/dataset/UCF-101-extracted"
+
 
 class VideoRecord(object):
     def __init__(self, row):
@@ -48,10 +48,10 @@ class TSNDataSet(data.Dataset):
 
     def _load_image(self, directory, idx):
         if self.modality == 'RGB' or self.modality == 'RGBDiff':
-            return [Image.open(os.path.join(data_base, directory, self.image_tmpl.format(idx))).convert('RGB')]
+            return [Image.open(os.path.join(self.root_path, directory, self.image_tmpl.format(idx))).convert('RGB')]
         elif self.modality == 'Flow':
-            x_img = Image.open(os.path.join(data_base, directory, self.image_tmpl.format('x', idx))).convert('L')
-            y_img = Image.open(os.path.join(data_base, directory, self.image_tmpl.format('y', idx))).convert('L')
+            x_img = Image.open(os.path.join(self.root_path, directory, self.image_tmpl.format('x', idx))).convert('L')
+            y_img = Image.open(os.path.join(self.root_path, directory, self.image_tmpl.format('y', idx))).convert('L')
 
             return [x_img, y_img]
 

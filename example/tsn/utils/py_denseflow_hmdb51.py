@@ -14,7 +14,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="densely extract the video frames and optical flows")
     parser.add_argument('--dataset',default='ucf101',type=str,help='set the dataset name, to find the data path')
     parser.add_argument('--data_root', default='/data4/hutao/dataset/hmdb51_videos_mpeg4', type=str)
-    parser.add_argument('--new_dir', default='/data4/hutao/dataset/hmdb51_videos_extracted', type=str)
+    parser.add_argument('--new_dir', default='/data4/hutao/dataset/hmdb51_videos_extracted666', type=str)
     parser.add_argument('--num_workers',default=4,type=int,help='num of workers to act multi-process')
     parser.add_argument('--mode',default='run',type=str,help='set \'run\' if debug done, otherwise, set debug')
     args = parser.parse_args()

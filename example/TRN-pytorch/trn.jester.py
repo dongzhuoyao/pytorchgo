@@ -9,97 +9,115 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 from torch.nn.utils import clip_grad_norm
 from pytorchgo.utils import logger
+from tqdm import tqdm
+
 try:
     from .dataset import TSNDataSet
     from .models import TSN
     from .transforms import *
-    from .opts import parser
+    from . import datasets_video
+
+
 except Exception:
     from dataset import TSNDataSet
     from models import TSN
     from transforms import *
-    from opts import parser
+    import datasets_video
 
-is_debug = 0
+
 best_prec1 = 0
 
-def parse_args():
+def main():
+    logger.auto_set_dir()
+
+    global args, best_prec1
+
     import argparse
     parser = argparse.ArgumentParser(description="PyTorch implementation of Temporal Segment Networks")
-    parser.add_argument('--dataset', type=str, default='ucf101', choices=['ucf101', 'hmdb51', 'kinetics'])
-    parser.add_argument('--modality', type=str, default='RGB', choices=['RGB', 'Flow', 'RGBDiff'])
-    parser.add_argument('--train_list', type=str, default='data/ucf101_splits/datalist/train_videofolder_split1.txt')
-    parser.add_argument('--val_list', type=str, default='data/ucf101_splits/datalist/test_videofolder_split1.txt')
-    parser.add_argument('--root_path', type=str, default="/data4/hutao/dataset/UCF-101-extracted")
-
-
-
+    parser.add_argument('--dataset', type=str,default="jester", choices=['something', 'jester', 'moments'])
+    parser.add_argument('--modality', type=str, default="RGB", choices=['RGB', 'Flow'])
+    parser.add_argument('--train_list', type=str, default="")
+    parser.add_argument('--val_list', type=str, default="")
+    parser.add_argument('--root_path', type=str, default="")
+    parser.add_argument('--store_name', type=str, default="")
     # ========================= Model Configs ==========================
-    parser.add_argument('--arch', type=str, default="resnet101")
+    parser.add_argument('--arch', type=str, default="BNInception")
     parser.add_argument('--num_segments', type=int, default=3)
-    parser.add_argument('--consensus_type', type=str, default='avg',
-                        choices=['avg', 'max', 'topk', 'identity', 'rnn', 'cnn'])
+    parser.add_argument('--consensus_type', type=str, default='avg')
     parser.add_argument('--k', type=int, default=3)
 
-    parser.add_argument('--dropout', '--do', default=0.5, type=float,
+    parser.add_argument('--dropout', '--do', default=0.8, type=float,
                         metavar='DO', help='dropout ratio (default: 0.5)')
     parser.add_argument('--loss_type', type=str, default="nll",
                         choices=['nll'])
+    parser.add_argument('--img_feature_dim', default=256, type=int, help="the feature dimension for each frame")
 
     # ========================= Learning Configs ==========================
-    parser.add_argument('--epochs', default=45, type=int, metavar='N',
+    parser.add_argument('--epochs', default=120, type=int, metavar='N',
                         help='number of total epochs to run')
-    parser.add_argument('-b', '--batch-size', default=16, type=int,
+    parser.add_argument('-b', '--batch_size', default=128, type=int,
                         metavar='N', help='mini-batch size (default: 256)')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning_rate', default=0.001, type=float,
                         metavar='LR', help='initial learning rate')
-    parser.add_argument('--lr_steps', default=[20, 40], type=float, nargs="+",
+    parser.add_argument('--lr_steps', default=[50, 100], type=float, nargs="+",
                         metavar='LRSteps', help='epochs to decay learning rate by 10')
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
-    parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
+    parser.add_argument('--weight_decay', '--wd', default=5e-4, type=float,
                         metavar='W', help='weight decay (default: 5e-4)')
-    parser.add_argument('--clip-gradient', '--gd', default=None, type=float,
+    parser.add_argument('--clip_gradient', '--gd', default=20, type=float,
                         metavar='W', help='gradient norm clipping (default: disabled)')
     parser.add_argument('--no_partialbn', '--npb', default=False, action="store_true")
 
     # ========================= Monitor Configs ==========================
-    parser.add_argument('--print-freq', '-p', default=20, type=int,
+    parser.add_argument('--print_freq', '-p', default=20, type=int,
                         metavar='N', help='print frequency (default: 10)')
-    parser.add_argument('--eval-freq', '-ef', default=5, type=int,
+    parser.add_argument('--eval_freq', '-ef', default=5, type=int,
                         metavar='N', help='evaluation frequency (default: 5)')
 
     # ========================= Runtime Configs ==========================
-    parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+    parser.add_argument('-j', '--workers', default=30, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='path to latest checkpoint (default: none)')
     parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                         help='evaluate model on validation set')
     parser.add_argument('--snapshot_pref', type=str, default="")
-    parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
+    parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                         help='manual epoch number (useful on restarts)')
     parser.add_argument('--gpu', type=str, default='4')
     parser.add_argument('--flow_prefix', default="", type=str)
-    return parser.parse_args()
+    parser.add_argument('--root_log', type=str, default='log')
+    parser.add_argument('--root_model', type=str, default='model')
+    parser.add_argument('--root_output', type=str, default='output')
 
-def main():
-    logger.auto_set_dir()
-    global args, best_prec1
-    args = parse_args()
+    args = parser.parse_args()
 
-    if args.dataset == 'ucf101':
-        num_class = 101
-    elif args.dataset == 'hmdb51':
-        num_class = 51
-    elif args.dataset == 'kinetics':
-        num_class = 400
-    else:
-        raise ValueError('Unknown dataset '+args.dataset)
+    args.num_segments = 7
+    args.batch_size = 64
+    args.consensus_type = "TRN"
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    device_ids = [int(id) for id in args.gpu.split(',')]
+    assert len(device_ids) >1, "TRN must run with GPU_num > 1"
 
-    model = TSN(num_class, args.num_segments, args.modality,
+    args.root_log = logger.get_logger_dir()
+    args.root_model = logger.get_logger_dir()
+    args.root_output = logger.get_logger_dir()
+
+    categories, args.train_list, args.val_list, args.root_path, prefix = datasets_video.return_dataset(args.dataset, args.modality)
+    num_class = len(categories)
+
+
+    args.store_name = '_'.join(['TRN', args.dataset, args.modality, args.arch, args.consensus_type, 'segment%d'% args.num_segments])
+    logger.info('storing name: ' + args.store_name)
+
+    model = TSN(num_class=num_class, num_segments=args.num_segments, modality=args.modality,
                 base_model=args.arch,
-                consensus_type=args.consensus_type, dropout=args.dropout, partial_bn=not args.no_partialbn)
+                consensus_type=args.consensus_type,
+                dropout=args.dropout,
+                img_feature_dim=args.img_feature_dim,
+                partial_bn=not args.no_partialbn)
 
     crop_size = model.crop_size
     scale_size = model.scale_size
@@ -108,16 +126,11 @@ def main():
     policies = model.get_optim_policies()
     train_augmentation = model.get_augmentation()
 
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-
     if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)#TODO, , device_ids=[int(id) for id in args.gpu.split(',')]
 
     if torch.cuda.is_available():
        model.cuda()
-
-
 
     if args.resume:
         if os.path.isfile(args.resume):
@@ -148,11 +161,11 @@ def main():
         TSNDataSet(args.root_path, args.train_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
-                   image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
+                   image_tmpl=prefix,
                    transform=torchvision.transforms.Compose([
                        train_augmentation,
-                       Stack(roll=args.arch == 'BNInception'),
-                       ToTorchFormatTensor(div=args.arch != 'BNInception'),
+                       Stack(roll=(args.arch in ['BNInception','InceptionV3'])),
+                       ToTorchFormatTensor(div=(args.arch not in ['BNInception','InceptionV3'])),
                        normalize,
                    ])),
         batch_size=args.batch_size, shuffle=True,
@@ -162,13 +175,13 @@ def main():
         TSNDataSet(args.root_path, args.val_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
-                   image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
+                   image_tmpl=prefix,
                    random_shift=False,
                    transform=torchvision.transforms.Compose([
                        GroupScale(int(scale_size)),
                        GroupCenterCrop(crop_size),
-                       Stack(roll=args.arch == 'BNInception'),
-                       ToTorchFormatTensor(div=args.arch != 'BNInception'),
+                       Stack(roll=(args.arch in ['BNInception','InceptionV3'])),
+                       ToTorchFormatTensor(div=(args.arch not in ['BNInception','InceptionV3'])),
                        normalize,
                    ])),
         batch_size=args.batch_size, shuffle=False,
@@ -181,19 +194,25 @@ def main():
         raise ValueError("Unknown loss type")
 
     for group in policies:
-        logger.info(('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
-            group['name'], len(group['params']), group['lr_mult'], group['decay_mult'])))
+        logger.info('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
+            group['name'], len(group['params']), group['lr_mult'], group['decay_mult']))
 
     optimizer = torch.optim.SGD(policies,
                                 args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
 
+
+    from pytorchgo.utils.pytorch_utils import model_summary,optimizer_summary
+    model_summary(model)
+    optimizer_summary(optimizer)
+
+
     if args.evaluate:
         validate(val_loader, model, criterion, 0)
         return
 
-    for epoch in range(args.start_epoch, args.epochs):
+    for epoch in tqdm(range(args.start_epoch, args.epochs)):
         adjust_learning_rate(optimizer, epoch, args.lr_steps)
 
         # train for one epoch
@@ -215,27 +234,20 @@ def main():
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
 
     if args.no_partialbn:
-        model.partialBN(False)
+        model.module.partialBN(False)#only data_parellel exists model.module object!!!
     else:
-        model.partialBN(True)
+        model.module.partialBN(True)
 
     # switch to train mode
     model.train()
 
-    end = time.time()
-    for i, (input, target) in enumerate(train_loader):
-        if i>5 and is_debug:break
-        # measure data loading time
-        data_time.update(time.time() - end)
+    for i, (input, target) in tqdm(enumerate(train_loader),total=len(train_loader), desc="train epoch={}/{}".format(epoch, args.epochs)):
 
-        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
@@ -263,23 +275,14 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         optimizer.step()
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
 
         if i % args.print_freq == 0:
-            logger.info(('Epoch: [{0}][{1}/{2}], lr: {lr:.5f}\t'
-                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr'])))
+            logger.info('iter=[{}/{}], lr={:0.5f}  Loss={:0.4f} Prec@1={:0.3f} Prec@5={:0.3f}'.format(
+                        i, len(train_loader), optimizer.param_groups[-1]['lr'], losses.avg, top1.avg, top5.avg))
 
 
-def validate(val_loader, model, criterion, iter, logger=None):
-    batch_time = AverageMeter()
+
+def validate(val_loader, model, criterion, iter):
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
@@ -287,10 +290,7 @@ def validate(val_loader, model, criterion, iter, logger=None):
     # switch to evaluate mode
     model.eval()
 
-    end = time.time()
     for i, (input, target) in enumerate(val_loader):
-        if i > 5 and is_debug: break
-        input = input.cuda()
         target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
@@ -306,32 +306,21 @@ def validate(val_loader, model, criterion, iter, logger=None):
         top1.update(prec1[0], input.size(0))
         top5.update(prec5[0], input.size(0))
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
 
         if i % args.print_freq == 0:
-            logger.info(('Test: [{0}/{1}]\t'
-                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   i, len(val_loader), batch_time=batch_time, loss=losses,
-                   top1=top1, top5=top5)))
+            logger.info('Test: [{}/{}] Loss {:0.4f} Prec@1={:0.3f} Prec@5={:0.3f}'.format(
+                   i, len(val_loader), losses.avg, top1.avg, top5.avg))
 
-    logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
-          .format(top1=top1, top5=top5, loss=losses)))
+
+
+    logger.info('Testing Results: Prec@1={:0.3f} Prec@5={:0.3f} Loss={:0.5f} Best Prec@1={:0.3f}'.format(top1.avg, top5.avg, losses.avg, best_prec1))
 
     return top1.avg
 
-
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    filename = '_'.join((args.snapshot_pref, args.modality.lower(), filename))
-    torch.save(state, filename)
+    torch.save(state, '%s/%s_checkpoint.pth.tar' % (args.root_model, args.store_name))
     if is_best:
-        best_name = '_'.join((args.snapshot_pref, args.modality.lower(), 'model_best.pth.tar'))
-        shutil.copyfile(filename, best_name)
-
+        shutil.copyfile('%s/%s_checkpoint.pth.tar' % (args.root_model, args.store_name),'%s/%s_best.pth.tar' % (args.root_model, args.store_name))
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -375,6 +364,7 @@ def accuracy(output, target, topk=(1,)):
         correct_k = correct[:k].view(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
+
 
 
 if __name__ == '__main__':

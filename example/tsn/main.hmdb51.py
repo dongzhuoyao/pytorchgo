@@ -28,8 +28,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="PyTorch implementation of Temporal Segment Networks")
     parser.add_argument('--dataset', type=str, default='ucf101', choices=['ucf101', 'hmdb51', 'kinetics'])
     parser.add_argument('--modality', type=str, default='RGB', choices=['RGB', 'Flow', 'RGBDiff'])
-    parser.add_argument('--train_list', type=str, default='data/ucf101_splits/datalist/train_videofolder_split1.txt')
-    parser.add_argument('--val_list', type=str, default='data/ucf101_splits/datalist/test_videofolder_split1.txt')
+    parser.add_argument('--train_list', type=str, default='data/hmdb51_splits/datalist/train_videofolder_split1.txt')
+    parser.add_argument('--val_list', type=str, default='data/hmdb51_splits/datalist/test_videofolder_split1.txt')
+    parser.add_argument('--root_path', type=str, default="/data4/hutao/dataset/hmdb51_videos_extracted")
 
     # ========================= Model Configs ==========================
     parser.add_argument('--arch', type=str, default="resnet101")
@@ -76,7 +77,7 @@ def parse_args():
     parser.add_argument('--snapshot_pref', type=str, default="")
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                         help='manual epoch number (useful on restarts)')
-    parser.add_argument('--gpu', type=str, default='4')
+    parser.add_argument('--gpu', type=str, default='7')
     parser.add_argument('--flow_prefix', default="", type=str)
     return parser.parse_args()
 
@@ -142,7 +143,7 @@ def main():
         data_length = 5
 
     train_loader = torch.utils.data.DataLoader(
-        TSNDataSet("", args.train_list, num_segments=args.num_segments,
+        TSNDataSet(args.root_path, args.train_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
                    image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",
@@ -156,7 +157,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        TSNDataSet("", args.val_list, num_segments=args.num_segments,
+        TSNDataSet(args.root_path, args.val_list, num_segments=args.num_segments,
                    new_length=data_length,
                    modality=args.modality,
                    image_tmpl="{:05d}.jpg" if args.modality in ["RGB", "RGBDiff"] else args.flow_prefix+"{}_{:05d}.jpg",

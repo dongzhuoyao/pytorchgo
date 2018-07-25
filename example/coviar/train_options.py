@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description="CoViAR")
 # Data.
 parser.add_argument('--data-name', type=str, default="hmdb51", choices=['ucf101', 'hmdb51'],
                     help='dataset name.')
-parser.add_argument('--data-root', type=str, default='/data4/hutao/dataset/hmdb51_videos_mpeg4',
+parser.add_argument('--data-root', type=str, default='/data4/hutao/dataset/hmdb51_videos_extracted',
                     help='root of data directory.')
 parser.add_argument('--train-list', type=str, default='data/datalists/hmdb51_split1_train.txt',
                     help='training example list.')
