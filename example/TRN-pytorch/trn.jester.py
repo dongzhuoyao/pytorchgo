@@ -16,8 +16,6 @@ try:
     from .models import TSN
     from .transforms import *
     from . import datasets_video
-
-
 except Exception:
     from dataset import TSNDataSet
     from models import TSN

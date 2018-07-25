@@ -13,12 +13,11 @@ try:
     from .dataset import TSNDataSet
     from .models import TSN
     from .transforms import *
-    from .opts import parser
 except Exception:
     from dataset import TSNDataSet
     from models import TSN
     from transforms import *
-    from opts import parser
+
 
 is_debug = 0
 best_prec1 = 0
@@ -276,7 +275,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr'])))
 
 
-def validate(val_loader, model, criterion, iter, logger=None):
+def validate(val_loader, model, criterion, iter):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
