@@ -19,7 +19,7 @@ except Exception:
     from transforms import *
 
 
-is_debug = 1
+is_debug = 0
 best_prec1 = 0
 
 def parse_args():

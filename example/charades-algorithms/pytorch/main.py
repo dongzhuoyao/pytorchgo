@@ -9,11 +9,11 @@ import torch
 import numpy as np
 import random
 import train
-from models import create_model
-from datasets import get_dataset
+from .models import create_model
+from .datasets import get_dataset
 import checkpoints
-from opts import parse
-from utils import tee
+from .opts import parse
+from .utils import tee
 import os
 
 
