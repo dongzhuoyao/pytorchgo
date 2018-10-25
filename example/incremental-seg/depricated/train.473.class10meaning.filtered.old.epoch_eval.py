@@ -23,9 +23,9 @@ start = timeit.default_timer()
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 9
-DATA_DIRECTORY = '/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012'
-DATA_LIST_PATH = 'datalist/class10+10/old/train_10582.txt'
-VAL_DATA_LIST_PATH = 'datalist/class10+10/old/val_1449.txt'
+DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
+DATA_LIST_PATH = 'datalist_nonoverlap/class10+10/old/train_10582.txt'
+VAL_DATA_LIST_PATH = 'datalist_nonoverlap/class10+10/old/val_1449.txt'
 NUM_CLASSES = 10+1
 
 
@@ -99,7 +99,7 @@ def get_arguments():
     parser.add_argument("--test", action="store_true",help="test")
     parser.add_argument("--test_restore_from",  help="test")
 
-    parser.add_argument("--gpu", type=int, default=3,
+    parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
     return parser.parse_args()
 
