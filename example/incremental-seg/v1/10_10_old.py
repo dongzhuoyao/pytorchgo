@@ -243,7 +243,7 @@ def main():
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
-    best_miou = 0
+    best_miou = 0; best_val_ious = 0
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
@@ -274,6 +274,7 @@ def main():
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 best_miou = cur_miou
+                best_val_ious = ious
                 logger.info('taking snapshot...')
                 torch.save({
                     'iteration': i_iter,
@@ -295,6 +296,8 @@ def main():
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
+                best_miou = cur_miou
+                best_val_ious = ious
                 logger.info('taking snapshot...')
                 torch.save({
                     'iteration': i_iter,
@@ -309,10 +312,13 @@ def main():
     logger.info('test result...')
     from evaluate_incremental import do_eval
     model.eval()
-    ious = do_eval(model=model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES)
-    cur_miou = np.mean(ious[1:])
+    test_ious = do_eval(model=model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES)
 
-    logger.info("Congrats~, test miou = {}".format(cur_miou))
+    logger.info("Congrats~, val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+    logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
+    logger.info("Congrats~, test miou w/o bg = {}".format(np.mean(test_ious[1:])))
+    logger.info("Congrats~, test miou w bg = {}".format(np.mean(test_ious)))
+
 
 
 if __name__ == '__main__':

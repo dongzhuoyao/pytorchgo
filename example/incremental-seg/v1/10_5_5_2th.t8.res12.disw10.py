@@ -24,12 +24,12 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
-DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/class10+5+5_2th/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+5+5_2th/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+5+5_2th/current_incremental_test.txt'
 
 teacher_class_num = 10+1
-student_class_num = 20+1
+student_class_num = 15+1
 
 
 IGNORE_LABEL = 255
@@ -368,8 +368,6 @@ def main():
     from evaluate_incremental import do_eval
     student_model.eval()
     test_ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num)
-
-
 
 
     logger.info("test iou: {}".format(str(best_val_ious)))

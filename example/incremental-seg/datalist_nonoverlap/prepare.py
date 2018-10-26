@@ -395,8 +395,15 @@ def total19(label_img):
 
 
 
-conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_singlenetwork_old")
-conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=True, label_name="class10+10_singlenetwork_new")
+#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_singlenetwork_old")
+#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=True, label_name="class10+10_singlenetwork_new")
+
+
+#10+5+5
+conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+5+5_1th")
+conduct_filter(filter_func=filter10_gradual_new15, train_slic=[5000, 7500], need_remap_val=True, label_name="class10+5+5_2th")
+conduct_filter(filter_func=filter10_gradual_new20, train_slic=[7500,-1], need_remap_val=False, label_name="class10+5+5_3th")
+
 
 
 
@@ -437,6 +444,7 @@ conduct_filter(filter_func=filter15_gradual_new20, result_dir ="class15_gradual/
 
 conduct_filter(filter_func=filter10_gradual_new15, result_dir ="class10_gradual/new15", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new15")
 conduct_filter(filter_func=filter10_gradual_new20, result_dir ="class10_gradual/new20", label_dir ="/home/hutao/dataset/incremental_seg/class15_gradual_new20")
+
 
 
 conduct_filter(filter_func=single16, result_dir ="single16", label_dir ="/home/hutao/dataset/incremental_seg/single16")
