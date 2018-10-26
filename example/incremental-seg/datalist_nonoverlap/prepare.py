@@ -390,9 +390,13 @@ def total19(label_img):
 
 
 
-conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_old")
-conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=False, label_name="class10+10_new")
+#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_old")
+#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=False, label_name="class10+10_new")
 
+
+
+conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_singlenetwork_old")
+conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=True, label_name="class10+10_singlenetwork_new")
 
 
 
