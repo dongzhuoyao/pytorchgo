@@ -34,6 +34,8 @@ os.makedirs(label_dir)
 
 voc_ids_list = [5, 2, 16, 9, 44, 6, 3, 17, 62, 21, 67, 18, 19, 4, 1, 64, 20, 63, 7, 72]
 #sofa=couch
+
+
 voc_ids_set = set(voc_ids_list)
 coco_to_voc_dict = {}
 for voc_id, coco_id in enumerate(voc_ids_list):

@@ -284,7 +284,7 @@ def main():
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
     best_miou = 0
-    best_ious = 0
+    best_val_ious = np.array([0])
 
 
     for param in teacher_model.parameters():
@@ -331,7 +331,7 @@ def main():
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 best_miou = cur_miou
-                best_val_ious = best_ious
+                best_val_ious = ious
 
                 logger.info('taking snapshot...')
                 torch.save({
@@ -353,6 +353,8 @@ def main():
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
+                best_miou = cur_miou
+                best_val_ious = ious
                 logger.info('taking snapshot...')
                 torch.save({
                     'iteration': i_iter,

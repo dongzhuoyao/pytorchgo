@@ -48,7 +48,7 @@ with open(test_path,"r") as f:
 
 
 
-def conduct_filter(filter_func, train_slic=[0,-1], need_remap_val = True, label_name ="class19+1/old"):
+def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, label_name ="class19+1/old"):
 
     if os.path.exists(label_name):
         shutil.rmtree(label_name)
@@ -77,8 +77,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], need_remap_val = True, label_
         for image_id in tqdm(val_list, desc="val images for {}".format(label_name)):
             label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
 
-            if need_remap_val:
-                is_needed, label_image = filter_func(label_image)
+            if valtest_filter_func is not None:
+                is_needed, label_image = valtest_filter_func(label_image)
             #if not is_needed:
             #    continue
 
@@ -91,8 +91,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], need_remap_val = True, label_
         for image_id in tqdm(test_list, desc="test images for {}".format(label_name)):
             label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
 
-            if need_remap_val:
-                is_needed, label_image = filter_func(label_image)
+            if valtest_filter_func is not None:
+                is_needed, label_image = valtest_filter_func(label_image)
             #if not is_needed:
             #    continue
 
@@ -390,19 +390,21 @@ def total19(label_img):
 
 
 
-#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_old")
-#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=False, label_name="class10+10_new")
+#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func=filter10_old, label_name="class10+10_old")
+#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], valtest_filter_func=None, label_name="class10+10_new")
 
 
 
-#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+10_singlenetwork_old")
-#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], need_remap_val=True, label_name="class10+10_singlenetwork_new")
+#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func=filter10_old, label_name="class10+10_singlenetwork_old")
+#conduct_filter(filter_func=filter10_new, train_slic=[5000,-1], valtest_filter_func=filter10_new, label_name="class10+10_singlenetwork_new")
 
 
 #10+5+5
-conduct_filter(filter_func=filter10_old, train_slic=[0,5000], need_remap_val=True, label_name="class10+5+5_1th")
-conduct_filter(filter_func=filter10_gradual_new15, train_slic=[5000, 7500], need_remap_val=True, label_name="class10+5+5_2th")
-conduct_filter(filter_func=filter10_gradual_new20, train_slic=[7500,-1], need_remap_val=False, label_name="class10+5+5_3th")
+conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func=filter10_old, label_name="class10+5+5_1th")
+conduct_filter(filter_func=filter10_gradual_new15, train_slic=[5000, 7500], valtest_filter_func=filter15_old,  label_name="class10+5+5_2th")
+conduct_filter(filter_func=filter10_gradual_new20, train_slic=[7500,-1], valtest_filter_func=None,  label_name="class10+5+5_3th")
+
+
 
 
 
