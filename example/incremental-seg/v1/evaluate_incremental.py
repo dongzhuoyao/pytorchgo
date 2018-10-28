@@ -156,7 +156,7 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save 
         output = model(Variable(image, volatile=True).cuda())
         output = interp(output).cpu().data[0].numpy()
 
-        output = output[:, :size[0], :size[1]]
+        output = output[:num_classes, :size[0], :size[1]]#notice here, maybe buggy
         gt = np.asarray(label[0].numpy()[:size[0], :size[1]], dtype=np.int)
 
         output = output.transpose(1, 2, 0)
