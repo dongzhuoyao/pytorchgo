@@ -6,6 +6,7 @@ from collections import Counter
 from tqdm import tqdm
 import cv2, os, shutil
 
+"""
 catid2trainid = {
 1:1,
 2:2,
@@ -88,6 +89,11 @@ catid2trainid = {
 89:79,
 90:80,
 }
+#trainid2catstr = {value:key for key,value in catstr2trainid.items()}
+#catid2catstr = {catid: trainid2catstr[catid2trainid[catid]] for catid in  catid2trainid.keys()}
+#trainid2catid = {value:key for key,value in catid2trainid.items()}
+"""
+
 
 
 catstr2trainid = {
@@ -172,12 +178,6 @@ catstr2trainid = {
 'backpack':25,
 'zebra':23,
 }
-
-trainid2catstr = {value:key for key,value in catstr2trainid.items()}
-
-catid2catstr = {catid: trainid2catstr[catid2trainid[catid]] for catid in  catid2trainid.keys()}
-
-trainid2catid = {value:key for key,value in catid2trainid.items()}
 
 
 def generate_image_mask(_coco, img_mask, annId, cat_dict=catid2trainid):

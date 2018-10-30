@@ -304,6 +304,7 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
 
 
     train_num = 0;val_num=0;test_num = 0
+    useful_train = 0; useful_val = 0; useful_test = 0
     with open(os.path.join(label_name,"coco_incremental_train.txt"),"w") as f:
         for key,value in tqdm(_coco.imgs.items()[train_slic[0]:train_slic[1]], desc="train images for {}".format(label_name)):
             #if train_num > 100: break
@@ -313,14 +314,15 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
             is_needed, label_image = filter_func(label_image)
             #if not is_needed:
             #    continue
-
+            if is_needed:
+                useful_train += 1
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
             f.write("{} {}\n".format(img_name, cur_label_path))
             train_num += 1
 
     with open(os.path.join(label_name,"coco_incremental_val.txt"),"w") as f:
-        for key,value in tqdm(_coco_val.imgs.items()[:20000], desc="val images for {}".format(label_name)):
+        for key,value in tqdm(_coco_val.imgs.items()[:582], desc="val images for {}".format(label_name)):
             #if val_num > 100: break
             image_id = value['id']
             img_name = value['file_name']
@@ -329,7 +331,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
                 is_needed, label_image = valtest_filter_func(label_image)
             #if not is_needed:
             #    continue
-
+            if is_needed:
+                useful_test += 1
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
             f.write("{} {}\n".format(img_name, cur_label_path))
@@ -337,7 +340,7 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
 
 
     with open(os.path.join(label_name, "coco_incremental_test.txt"),"w") as f:
-        for key,value in tqdm(_coco_val.imgs.items()[20000:], desc="test images for {}".format(label_name)):
+        for key,value in tqdm(_coco_val.imgs.items()[582:582+1449], desc="test images for {}".format(label_name)):
             #if val_num > 100: break
             image_id = value['id']
             img_name = value['file_name']
@@ -347,15 +350,17 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
 
             #if not is_needed:
             #    continue
+            if is_needed:
+                useful_test += 1
 
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
             f.write("{} {}\n".format(img_name, cur_label_path))
             test_num += 1
 
-    print "train num={}".format(train_num)
-    print "val num={}".format(val_num)
-    print "test num={}".format(test_num)
+    print "train num={}, useful num={}".format(train_num, useful_train)
+    print "val num={}, useful num={}".format(val_num), useful_val
+    print "test num={}, useful num={}".format(test_num, useful_test)
 
 
 def filter40_old(label_img):
@@ -393,8 +398,8 @@ def filter80(label_img):
 
 #conduct_filter(filter_func=filter80, result_dir ="class80", label_dir ="/home/hutao/dataset/incremental_coco/class80")
 
-conduct_filter(filter_func=filter40_old, train_slic=[0,40000], valtest_filter_func = filter40_old, label_name ="class40+40_old")
-conduct_filter(filter_func=filter40_new, train_slic=[40000,-1], valtest_filter_func = None, label_name ="class40+40_new")
+#conduct_filter(filter_func=filter40_old, train_slic=[0,40000], valtest_filter_func = filter40_old, label_name ="class40+40_old")
+conduct_filter(filter_func=filter40_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
 
 
 
