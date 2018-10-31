@@ -343,6 +343,13 @@ def main():
             else:
                 logger.info("current snapshot is not good enough, skip~~")
 
+            logger.info("val iou: {}".format(str(best_val_ious)))
+            logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
+            logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+            logger.info("val miou for old class = {}".format(np.mean(best_val_ious[1:11])))
+            logger.info("val miou for new class = {}".format(np.mean(best_val_ious[11:])))
+
+
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
             from evaluate_incremental import do_eval
@@ -374,11 +381,11 @@ def main():
 
 
 
-    logger.info("test iou: {}".format(str(best_val_ious)))
-    logger.info("test miou w bg= {}".format(np.mean(best_val_ious)))
-    logger.info("test miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
-    logger.info("test miou for old class = {}".format(np.mean(best_val_ious[1:11])))
-    logger.info("test miou for new class = {}".format(np.mean(best_val_ious[11:])))
+    logger.info("val iou: {}".format(str(best_val_ious)))
+    logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
+    logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+    logger.info("val miou for old class = {}".format(np.mean(best_val_ious[1:11])))
+    logger.info("val miou for new class = {}".format(np.mean(best_val_ious[11:])))
 
     logger.info("test iou: {}".format(str(test_ious)))
     logger.info("test miou w bg= {}".format(np.mean(test_ious)))

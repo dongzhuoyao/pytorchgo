@@ -26,7 +26,19 @@ class VOCDataSet(data.Dataset):
 
         self.files = []
         for image_id, val_img_path in self.img_ids:
-            img_file = osp.join(self.root, img_prefix, "%s" % image_id)
+            #inference img_file path from image_name
+            if "COCO" in image_id:
+                if "train" in image_id:
+                    foldername = "train2014"
+                elif "val" in image_id:
+                    foldername = "val2014"
+                elif "test" in image_id:
+                    foldername = "test2014"
+                else:
+                    raise
+                img_file = osp.join("/home/tao/dataset/coco14", foldername, "%s" % image_id)
+            else:
+                img_file = osp.join(self.root, img_prefix, "%s" % image_id)
             label_file = osp.join(new_label_basedir, val_img_path)
             self.files.append({
                 "img": img_file,

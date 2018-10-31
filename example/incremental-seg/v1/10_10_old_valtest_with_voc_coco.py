@@ -24,9 +24,9 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 9
 DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
-DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_singlenetwork_new/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_singlenetwork_new/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_singlenetwork_new/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_old_on_coco/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_old_on_coco/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_old_on_coco/current_incremental_test.txt'
 NUM_CLASSES = 10+1
 
 
@@ -38,7 +38,7 @@ NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = '../resnet50-19c8e357.pth'
+RESTORE_FROM = '../resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
 WEIGHT_DECAY = 0.0005
 
 
@@ -243,8 +243,7 @@ def main():
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
-    best_miou = 0;best_val_ious=np.array([0,0])
-
+    best_miou = 0; best_val_ious = 0
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
@@ -262,6 +261,7 @@ def main():
 
         if i_iter%50 == 0:
             logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
+
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
@@ -284,8 +284,7 @@ def main():
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
-            logger.info("Congrats~, val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
-            logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
+
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
@@ -310,7 +309,6 @@ def main():
                 logger.info("current snapshot is not good enough, skip~~")
             break
 
-
     logger.info('test result...')
     from evaluate_incremental import do_eval
     model.eval()
@@ -320,6 +318,7 @@ def main():
     logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
     logger.info("Congrats~, test miou w/o bg = {}".format(np.mean(test_ious[1:])))
     logger.info("Congrats~, test miou w bg = {}".format(np.mean(test_ious)))
+
 
 
 if __name__ == '__main__':

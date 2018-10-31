@@ -147,7 +147,7 @@ COCO_PATH = '/home/tao/dataset/coco14/'
 image_format = os.path.join(COCO_PATH, 'train2014/{}')
 label_format = os.path.join(COCO_PATH, "val2014/{}")
 
-new_label_basedir = "/home/tao/dataset/incremental_seg/coco"
+new_label_basedir = "/home/tao/dataset/incremental_seg"
 
 
 
@@ -251,7 +251,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
             #if not is_needed:
             #    continue
             if is_needed:
-                useful_test += 1
+                useful_val += 1
+
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
             f.write("{} {}\n".format(img_name, cur_label_path))
