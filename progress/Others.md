@@ -11,3 +11,5 @@ zero-shot detection(or zero shot instance segmentation)
 time-dimension pooling in activity classification.
 
 RGB-D video for object localization.
+
+Factorized Bilinear Models for Image Recognition for video
