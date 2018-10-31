@@ -9,3 +9,5 @@ crowd counting with localization
 zero-shot detection(or zero shot instance segmentation)
 
 time-dimension pooling in activity classification.
+
+RGB-D video for object localization.
