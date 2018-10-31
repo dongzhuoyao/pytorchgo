@@ -204,8 +204,14 @@ def main():
 
     cudnn.enabled = True
 
+    def get_anneal(iter):
+        if iter <= 10000:
+            return 10.0 / iter
+        else:
+            return 0
+
     # Create network.
-    handinhand_model = get_handinhand(teacher_class_num, student_class_num)
+    handinhand_model = get_handinhand(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal)
 
 
     #load student weight

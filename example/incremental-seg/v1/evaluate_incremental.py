@@ -103,7 +103,7 @@ def show_all(gt, pred):
 
 
 
-def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save = False):
+def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save = False, handinhand=False):
 
     if restore_from is not None:
         saved_state_dict = torch.load(restore_from)['model_state_dict']
@@ -154,6 +154,8 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save 
         origin_image, image, label, size, name = batch
         size = size[0].numpy()
         output = model(Variable(image, volatile=True).cuda())
+        if handinhand == True:
+            output = output[1]#[teacher, student]
         output = interp(output).cpu().data[0].numpy()
 
         output = output[:num_classes, :size[0], :size[1]]#notice here, maybe buggy

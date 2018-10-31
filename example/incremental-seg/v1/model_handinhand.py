@@ -393,13 +393,18 @@ class MyResNet(nn.Module):
 
 class HandInHandModel(nn.Module):
 
-    def __init__(self, block, layers, teacher_class_num, student_class_num):
+    def __init__(self, block, layers, teacher_class_num, student_class_num, annealing = False,get_anneal=None):
         super(HandInHandModel, self).__init__()
         #teacher network
         self.teacher = MyResNet(block, layers, teacher_class_num)
 
+        self.iter = 1.0
+        self.annealing = annealing
 
-        self.semodule1 = SELayer(channel=64*4)#TODO
+
+        self.get_anneal = get_anneal
+
+        self.semodule1 = SELayer(channel=64*4)
         self.semodule2 = SELayer(channel=128*4)
         self.semodule3 = SELayer(channel=256*4)
         self.semodule4 = SELayer(channel=512*4)
@@ -460,19 +465,30 @@ class HandInHandModel(nn.Module):
         b2 = self.bn1(b2)
         b2 = self.relu(b2)
         b2 = self.maxpool(b2)
-        b2 = self.layer1(b2) + self.semodule1(b1_layer1)
 
-        b2 = self.layer2(b2) + self.semodule2(b1_layer2)
+        if self.annealing:
+            annealing_value = self.get_anneal(self.iter)
+        else:
+            annealing_value = 1
 
-        b2 = self.layer3(b2) + self.semodule3(b1_layer3)
+        if self.training:
+            #print "update!"
+            self.iter += 1
+        #print "anneal: {}".format(annealing_value)
+        b2 = self.layer1(b2) + self.semodule1(b1_layer1)*annealing_value
 
-        b2 = self.layer4(b2) + self.semodule4(b1_layer4)
+        b2 = self.layer2(b2) + self.semodule2(b1_layer2)*annealing_value
+
+        b2 = self.layer3(b2) + self.semodule3(b1_layer3)*annealing_value
+
+        b2 = self.layer4(b2) + self.semodule4(b1_layer4)*annealing_value
 
         b2 = self.layer5(b2)
 
         return b1, b2
 
-def get_handinhand(teacher_class_num, student_class_num):
-     model = HandInHandModel(block=Bottleneck, layers = [3, 4, 6, 3], teacher_class_num=teacher_class_num, student_class_num=student_class_num)
+def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_anneal=None):
+     model = HandInHandModel(block=Bottleneck, layers = [3, 4, 6, 3], teacher_class_num=teacher_class_num, student_class_num=student_class_num, annealing=annealing,get_anneal=get_anneal)
 
      return model
+

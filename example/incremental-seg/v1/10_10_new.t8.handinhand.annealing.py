@@ -36,8 +36,8 @@ IGNORE_LABEL = 255
 INPUT_SIZE = (473,473)
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
-NUM_STEPS = 20000
-SAVE_PRED_EVERY = 1000
+NUM_STEPS = 20#20000
+SAVE_PRED_EVERY = 10#1000
 POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = 'train_log/10_10_old/love.pth'
@@ -204,8 +204,14 @@ def main():
 
     cudnn.enabled = True
 
+    def get_anneal(iter):
+        if iter <= 10000:
+            return 1.0 / iter
+        else:
+            return 0
+
     # Create network.
-    handinhand_model = get_handinhand(teacher_class_num, student_class_num)
+    handinhand_model = get_handinhand(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal)
 
 
     #load student weight
