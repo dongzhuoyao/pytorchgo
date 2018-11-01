@@ -393,13 +393,14 @@ class MyResNet(nn.Module):
 
 class HandInHandModel(nn.Module):
 
-    def __init__(self, block, layers, teacher_class_num, student_class_num, annealing = False,get_anneal=None):
+    def __init__(self, block, layers, teacher_class_num, student_class_num, annealing = False,get_anneal=None, netstyle=0):
         super(HandInHandModel, self).__init__()
         #teacher network
         self.teacher = MyResNet(block, layers, teacher_class_num)
 
         self.iter = 1.0
         self.annealing = annealing
+        self.netstyle = netstyle
 
 
         self.get_anneal = get_anneal
@@ -475,20 +476,26 @@ class HandInHandModel(nn.Module):
             #print "update!"
             self.iter += 1
         #print "anneal: {}".format(annealing_value)
-        b2 = self.layer1(b2) + self.semodule1(b1_layer1)*annealing_value
+        if self.netstyle == 0:
+            b2 = self.layer1(b2) + self.semodule1(b1_layer1)*annealing_value
+            b2 = self.layer2(b2) + self.semodule2(b1_layer2)*annealing_value
+            b2 = self.layer3(b2) + self.semodule3(b1_layer3)*annealing_value
+            b2 = self.layer4(b2) + self.semodule4(b1_layer4)*annealing_value
 
-        b2 = self.layer2(b2) + self.semodule2(b1_layer2)*annealing_value
-
-        b2 = self.layer3(b2) + self.semodule3(b1_layer3)*annealing_value
-
-        b2 = self.layer4(b2) + self.semodule4(b1_layer4)*annealing_value
+        elif self.netstyle == 1:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2)
+            b2 = self.layer3(b2)
+            b2 = self.layer4(b2) + self.semodule4(b1_layer4) * annealing_value
+        else:
+            raise
 
         b2 = self.layer5(b2)
 
         return b1, b2
 
-def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_anneal=None):
-     model = HandInHandModel(block=Bottleneck, layers = [3, 4, 6, 3], teacher_class_num=teacher_class_num, student_class_num=student_class_num, annealing=annealing,get_anneal=get_anneal)
+def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_anneal=None, netstyle=0):
+     model = HandInHandModel(block=Bottleneck, layers = [3, 4, 6, 3], teacher_class_num=teacher_class_num, student_class_num=student_class_num, annealing=annealing,get_anneal=get_anneal, netstyle=netstyle)
 
      return model
 
