@@ -206,7 +206,7 @@ def main():
 
     def get_anneal(iter):
         if iter <= 10000:
-            return 1.0 / iter
+            return 1.0 / pow(iter,1.0/8)
         else:
             return 0
 
