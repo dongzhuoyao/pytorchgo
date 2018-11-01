@@ -141,7 +141,10 @@ def get_1x_lr_params_NOscale(model):
     b.append(model.layer2)
     b.append(model.layer3)
     b.append(model.layer4)
-
+    b.append(model.semodule1)
+    b.append(model.semodule2)
+    b.append(model.semodule3)
+    b.append(model.semodule4)
 
     
     for i in range(len(b)):
