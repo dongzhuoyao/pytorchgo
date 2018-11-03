@@ -545,7 +545,7 @@ class HandInHandModel_Hourglass(nn.Module):
 
         self.get_anneal = get_anneal
 
-        self.semodule1 = ResidualAttentionModule(in_channels=64*4, mid_channels=16*4/compress_ratio,  depth=hourglass_depth)
+        self.semodule1 = ResidualAttentionModule(in_channels=64*4, mid_channels=64*4/compress_ratio,  depth=hourglass_depth)
         self.semodule2 = ResidualAttentionModule(in_channels=128*4, mid_channels=128*4/compress_ratio, depth=hourglass_depth)
         self.semodule3 = ResidualAttentionModule(in_channels=256*4, mid_channels=256*4/compress_ratio, depth=hourglass_depth)
         self.semodule4 = ResidualAttentionModule(in_channels=512*4, mid_channels=512*4/compress_ratio, depth=hourglass_depth)
