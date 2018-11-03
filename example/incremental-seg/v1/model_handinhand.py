@@ -662,6 +662,11 @@ class HandInHandModel_Hourglass(nn.Module):
             b2 = self.layer2(b2)
             b2 = self.layer3(b2) + b1_layer3*annealing_value
             b2 = self.layer4(b2)
+        elif self.netstyle == 9:
+            b2 = self.layer1(b2) + b1_layer1*annealing_value
+            b2 = self.layer2(b2) + b1_layer2*annealing_value
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2)
         else:
             raise
 
@@ -820,10 +825,10 @@ def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_a
      return model
 
 
-def get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=0):
+def get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=0, compress_ratio=8):
     model = HandInHandModel_Hourglass(block=Bottleneck, layers=[3, 4, 6, 3], teacher_class_num=teacher_class_num,
                             student_class_num=student_class_num, annealing=annealing, get_anneal=get_anneal,
-                            netstyle=netstyle)
+                            netstyle=netstyle, compress_ratio = compress_ratio)
 
     return model
 

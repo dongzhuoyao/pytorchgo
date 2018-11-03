@@ -209,7 +209,7 @@ def main():
     cudnn.enabled = True
 
     # Create network.
-    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, netstyle=0)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, netstyle=9)
 
 
     #load student weight
