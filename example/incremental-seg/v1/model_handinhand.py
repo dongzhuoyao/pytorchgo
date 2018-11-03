@@ -492,6 +492,31 @@ class HandInHandModel(nn.Module):
             b2 = self.layer2(b2)
             b2 = self.layer3(b2)+ self.semodule3(b1_layer3)*annealing_value
             b2 = self.layer4(b2) + self.semodule4(b1_layer4) * annealing_value
+        elif self.netstyle == 3:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2) + self.semodule2(b1_layer2)*annealing_value
+            b2 = self.layer3(b2)+ self.semodule3(b1_layer3)*annealing_value
+            b2 = self.layer4(b2) + self.semodule4(b1_layer4) * annealing_value
+        elif self.netstyle == 4:
+            b2 = self.layer1(b2) + b1_layer1*annealing_value
+            b2 = self.layer2(b2) + b1_layer2*annealing_value
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2) + b1_layer4*annealing_value
+        elif self.netstyle == 5:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2) + b1_layer2*annealing_value
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2) + b1_layer4*annealing_value
+        elif self.netstyle == 6:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2)
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2) + b1_layer4*annealing_value
+        elif self.netstyle == 7:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2)
+            b2 = self.layer3(b2)
+            b2 = self.layer4(b2) + b1_layer4*annealing_value
         else:
             raise
 

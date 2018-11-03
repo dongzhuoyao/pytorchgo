@@ -18,30 +18,34 @@ from datasets_incremental import VOCDataSet
 import random
 import timeit
 from tqdm import tqdm
-
 start = timeit.default_timer()
 
-IMG_MEAN = np.array((104.00698793, 116.66876762, 122.67891434), dtype=np.float32)
+IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
-DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new_on_coco/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new_on_coco/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new_on_coco/current_incremental_test.txt'
 
-teacher_class_num = 10 + 1
-student_class_num = 20 + 1
+teacher_class_num = 10+1
+student_class_num = 20+1
+
 
 IGNORE_LABEL = 255
-INPUT_SIZE = (473, 473)
+INPUT_SIZE = (473,473)
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
 NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/10_10_old/love.pth'
+RESTORE_FROM = 'train_log/10_10_old_valtest_with_voc_coco/love.pth'
 WEIGHT_DECAY = 0.0005
+
+
+
+
 
 from pytorchgo.utils import logger
 
@@ -52,7 +56,7 @@ def cal_iou(ious):
 
 def get_arguments():
     """Parse all the arguments provided from the CLI.
-
+    
     Returns:
       A list of parsed arguments.
     """
@@ -65,7 +69,7 @@ def get_arguments():
                         help="Path to the file listing the images in the dataset.")
     parser.add_argument("--ignore-label", type=int, default=IGNORE_LABEL,
                         help="The index of the label to ignore during the training.")
-    parser.add_argument("--input_size", default=INPUT_SIZE,
+    parser.add_argument("--input_size",  default=INPUT_SIZE,
                         help="Comma-separated string with height and width of images.")
     parser.add_argument("--is-training", action="store_true",
                         help="Whether to updates the running means and variances during the training.")
@@ -94,18 +98,17 @@ def get_arguments():
 
     parser.add_argument("--distill_loss", type=str, default="kl", choices=['l2', 'kl'])
 
-    parser.add_argument("--test", action="store_true", help="test")
-    parser.add_argument("--test_restore_from", help="test")
+    parser.add_argument("--test", action="store_true",help="test")
+    parser.add_argument("--test_restore_from",  help="test")
 
     parser.add_argument("--gpu", type=int, default=0,
                         help="choose gpu device.")
     return parser.parse_args()
 
-
 args = get_arguments()
 
-random.seed(args.random_seed)
 
+random.seed(args.random_seed)
 
 def loss_calc(pred, label):
     """
@@ -115,19 +118,19 @@ def loss_calc(pred, label):
     # label shape h x w x 1 x batch_size  -> batch_size x 1 x h x w
     label = Variable(label.long()).cuda()
     criterion = torch.nn.CrossEntropyLoss(ignore_index=IGNORE_LABEL).cuda()
-
+    
     return criterion(pred, label)
 
 
 def lr_poly(base_lr, iter, max_iter, power):
-    return base_lr * ((1 - float(iter) / max_iter) ** (power))
+    return base_lr*((1-float(iter)/max_iter)**(power))
 
 
 def get_1x_lr_params_NOscale(model):
     """
-    This generator returns all the parameters of the net except for
-    the last classification layer. Note that for each batchnorm layer,
-    requires_grad is set to False in deeplab_resnet.py, therefore this function does not return
+    This generator returns all the parameters of the net except for 
+    the last classification layer. Note that for each batchnorm layer, 
+    requires_grad is set to False in deeplab_resnet.py, therefore this function does not return 
     any batchnorm parameter
     """
     b = []
@@ -139,14 +142,14 @@ def get_1x_lr_params_NOscale(model):
     b.append(model.layer3)
     b.append(model.layer4)
 
+    
     for i in range(len(b)):
         for j in b[i].modules():
             jj = 0
             for k in j.parameters():
-                jj += 1
+                jj+=1
                 if k.requires_grad:
                     yield k
-
 
 def get_10x_lr_params(model):
     """
@@ -159,8 +162,8 @@ def get_10x_lr_params(model):
     for j in range(len(b)):
         for i in b[j]:
             yield i
-
-
+            
+            
 def adjust_learning_rate(optimizer, i_iter):
     """Sets the learning rate to the initial LR divided by 5 at 60th, 120th and 160th epochs"""
     lr = lr_poly(args.learning_rate, i_iter, args.num_steps, args.power)
@@ -171,13 +174,13 @@ def adjust_learning_rate(optimizer, i_iter):
 
 def main():
     """Create the model and start the training."""
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+    
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
     os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
     if args.distill_loss == "kl":
         import torch.nn.functional as F
-        def distill_loss_fn(outputs, teacher_outputs, T=8):
+        def distill_loss_fn(outputs, teacher_outputs, T=1):
             """
             Compute the knowledge-distillation (KD) loss given outputs, labels.
             "Hyperparameters": temperature and alpha
@@ -261,16 +264,7 @@ def main():
 
     from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    """
-    for param in student_model.conv1.parameters():
-        param.requires_grad = False
 
-    for param in student_model.layer1.parameters():
-        param.requires_grad = False
-
-    for param in student_model.layer2.parameters():
-        param.requires_grad = False
-    """
 
     for param in teacher_model.parameters():
         param.requires_grad = False
@@ -282,7 +276,8 @@ def main():
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
     best_miou = 0
-    best_val_ious = 0
+    best_val_ious = np.array([0]*21)
+
 
     for param in teacher_model.parameters():
         param.requires_grad = False
@@ -309,17 +304,19 @@ def main():
         loss.backward()
         optimizer.step()
 
-        if i_iter % 50 == 0:
-            logger.info('loss = {}, seg_loss = {}, distill_loss = {}, lr = {}, best_miou_new = {}'.format(
-                loss.data.cpu().numpy(),
-                seg_loss.data.cpu().numpy(), distill_loss.data.cpu().numpy(), lr, best_miou))
+        
 
-        if i_iter % args.save_pred_every == 0 and i_iter != 0:
+
+        if i_iter%50 == 0:
+            logger.info('loss = {}, seg_loss = {}, distill_loss = {}, lr = {}, best_miou_new = {}'.format(loss.data.cpu().numpy(),
+             seg_loss.data.cpu().numpy(), distill_loss.data.cpu().numpy(), lr, best_miou))
+
+
+        if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
             from evaluate_incremental import do_eval
             student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH,
-                           num_classes=student_class_num)
+            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
             cur_miou = cal_iou(ious)
             student_model.train()
 
@@ -338,12 +335,18 @@ def main():
             else:
                 logger.info("current snapshot is not good enough, skip~~")
 
-        if i_iter >= args.num_steps - 1:
+            logger.info("val iou: {}".format(str(best_val_ious)))
+            logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
+            logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+            logger.info("val miou for old class = {}".format(np.mean(best_val_ious[1:11])))
+            logger.info("val miou for new class = {}".format(np.mean(best_val_ious[11:])))
+
+
+        if i_iter >= args.num_steps-1:
             logger.info('validation...')
             from evaluate_incremental import do_eval
             student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH,
-                           num_classes=student_class_num)
+            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
             cur_miou = cal_iou(ious)
             student_model.train()
 
@@ -365,8 +368,10 @@ def main():
     logger.info('test result...')
     from evaluate_incremental import do_eval
     student_model.eval()
-    test_ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
-                        num_classes=student_class_num)
+    test_ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num)
+
+
+
 
     logger.info("val iou: {}".format(str(best_val_ious)))
     logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
@@ -387,12 +392,11 @@ if __name__ == '__main__':
         from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=student_class_num)
-        # saved_state_dict = torch.load(args.test_restore_from)
-        # student_model.load_state_dict(saved_state_dict)
+        #saved_state_dict = torch.load(args.test_restore_from)
+        #student_model.load_state_dict(saved_state_dict)
 
         student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir,
-                data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
     else:
         logger.auto_set_dir()
         main()

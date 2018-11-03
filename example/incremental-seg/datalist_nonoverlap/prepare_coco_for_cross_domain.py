@@ -150,66 +150,6 @@ label_format = os.path.join(COCO_PATH, "val2014/{}")
 new_label_basedir = "/home/tao/dataset/incremental_seg"
 
 
-
-def conduct_filter_old(filter_func, train_slic=[0,-1], valtest_filter_func = None, label_name ="class19+1/old"):
-
-    if os.path.exists(label_name):
-        shutil.rmtree(label_name)
-    os.makedirs(label_name)
-
-    if os.path.exists(os.path.join(new_label_basedir, label_name)):
-        shutil.rmtree(os.path.join(new_label_basedir, label_name))
-    os.makedirs(os.path.join(new_label_basedir, label_name))
-
-
-
-    train_num = 0;val_num=0;test_num=0
-    with open(os.path.join(label_name, "current_incremental_train.txt"), "w") as f:
-        for image_id in tqdm(train_list[train_slic[0]:train_slic[1]], desc="train images for {}".format(label_name)):
-            label_image = cv2.imread(label_format.format(image_id),cv2.IMREAD_GRAYSCALE)
-            is_needed, label_image = filter_func(label_image)
-            #if not is_needed:
-            #    continue
-
-            cur_label_path = "{}.png".format(os.path.join(label_name, image_id))
-            cv2.imwrite(os.path.join(new_label_basedir, cur_label_path),label_image)
-            f.write("{}.jpg {}\n".format(image_id, cur_label_path))
-            train_num += 1
-
-    with open(os.path.join(label_name, "current_incremental_val.txt"), "w") as f:
-        for image_id in tqdm(val_list, desc="val images for {}".format(label_name)):
-            label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
-
-            if valtest_filter_func is not None:
-                is_needed, label_image = valtest_filter_func(label_image)
-            #if not is_needed:
-            #    continue
-
-            cur_label_path = "{}.png".format(os.path.join(label_name, image_id))
-            cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
-            f.write("{}.jpg {}\n".format(image_id, cur_label_path))
-            val_num += 1
-
-    with open(os.path.join(label_name, "current_incremental_test.txt"), "w") as f:
-        for image_id in tqdm(test_list, desc="test images for {}".format(label_name)):
-            label_image = cv2.imread(label_format.format(image_id), cv2.IMREAD_GRAYSCALE)
-
-            if valtest_filter_func is not None:
-                is_needed, label_image = valtest_filter_func(label_image)
-            #if not is_needed:
-            #    continue
-
-            cur_label_path = "{}.png".format(os.path.join(label_name, image_id))
-            cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
-            f.write("{}.jpg {}\n".format(image_id, cur_label_path))
-            test_num += 1
-
-    print "train num={}".format(train_num)
-    print "val num={}".format(val_num)
-    print "test num={}".format(test_num)
-
-
-
 def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, label_name ="class19+1_old"):
     #old data
 
@@ -230,7 +170,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
             image_id = value['id']
             img_name = value['file_name']
             _, label_image = generate_mask(_coco, image_id)
-            is_needed, label_image = filter_func(label_image)
+            if filter_func is not None:
+                is_needed, label_image = filter_func(label_image)
             #if not is_needed:
             #    continue
             if is_needed:
@@ -300,8 +241,10 @@ def filter10_new(label_img):
     return is_needed, label_img
 
 
-conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
-conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_singlenetwork_new_on_coco")
+#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
+#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_singlenetwork_new_on_coco")
+
+conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_whole_on_coco")
 
 
 

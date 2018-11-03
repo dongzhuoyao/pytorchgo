@@ -25,7 +25,11 @@ class VOCDataSet(data.Dataset):
         self.label_transform = label_transform
 
         self.files = []
-        for image_id, val_img_path in self.img_ids:
+        for ttt in self.img_ids:
+            try:
+                image_id, val_img_path = ttt
+            except:
+                raise
             #inference img_file path from image_name
             if "COCO" in image_id:
                 if "train" in image_id:

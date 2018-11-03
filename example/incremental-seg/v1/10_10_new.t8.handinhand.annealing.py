@@ -372,8 +372,6 @@ def main():
     test_ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
 
 
-
-
     logger.info("val iou: {}".format(str(best_val_ious)))
     logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
     logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
