@@ -533,7 +533,7 @@ class HandInHandModel(nn.Module):
 
 class HandInHandModel_Hourglass(nn.Module):
 
-    def __init__(self, block, layers, teacher_class_num, student_class_num, hourglass_depth=3, annealing = False,get_anneal=None, netstyle=0):
+    def __init__(self, block, layers, teacher_class_num, student_class_num, hourglass_depth=3, annealing = False,get_anneal=None, netstyle=0, compress_ratio=8):
         super(HandInHandModel_Hourglass, self).__init__()
         #teacher network
         self.teacher = MyResNet(block, layers, teacher_class_num)
@@ -545,10 +545,10 @@ class HandInHandModel_Hourglass(nn.Module):
 
         self.get_anneal = get_anneal
 
-        self.semodule1 = ResidualAttentionModule(in_channels=64*4, size1=(119,119), size2=(60, 60), size3=(30, 30), size4=None, depth=hourglass_depth)
-        self.semodule2 = ResidualAttentionModule(in_channels=128*4, size1=(60, 60), size2=(30, 30), size3=(15, 15), size4=None, depth=hourglass_depth)
-        self.semodule3 = ResidualAttentionModule(in_channels=256*4, size1=(60, 60), size2=(30, 30), size3=(15, 15), size4=None, depth=hourglass_depth)
-        self.semodule4 = ResidualAttentionModule(in_channels=512*4, size1=(60, 60), size2=(30, 30), size3=(15, 15), size4=None, depth=hourglass_depth)
+        self.semodule1 = ResidualAttentionModule(in_channels=64*4, mid_channels=16*4/compress_ratio,  depth=hourglass_depth)
+        self.semodule2 = ResidualAttentionModule(in_channels=128*4, mid_channels=128*4/compress_ratio, depth=hourglass_depth)
+        self.semodule3 = ResidualAttentionModule(in_channels=256*4, mid_channels=256*4/compress_ratio, depth=hourglass_depth)
+        self.semodule4 = ResidualAttentionModule(in_channels=512*4, mid_channels=512*4/compress_ratio, depth=hourglass_depth)
 
 
         #student network
@@ -707,65 +707,69 @@ class ResidualBlock(nn.Module):
 
 class ResidualAttentionModule(nn.Module):
     # input size is 112*112
-    def __init__(self, in_channels, size1=(112, 112), size2=(56, 56), size3=(28, 28), size4=(14, 14), depth=3):
+    def __init__(self, in_channels, mid_channels, depth=3):
         super(ResidualAttentionModule, self).__init__()
-        out_channels = in_channels
 
-
-        self.first_residual_blocks = ResidualBlock(in_channels, out_channels)
+        self.first_residual_blocks = ResidualBlock(in_channels, mid_channels)
         self.depth = depth
 
         self.trunk_branches = nn.Sequential(
-            ResidualBlock(in_channels, out_channels),
-            ResidualBlock(in_channels, out_channels)
+            ResidualBlock(in_channels, mid_channels),
+            ResidualBlock(in_channels, mid_channels)
          )
+
+
 
         self.mpool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         # 56*56
-        self.softmax1_blocks = ResidualBlock(in_channels, out_channels)
+        self.softmax1_blocks = ResidualBlock(mid_channels, mid_channels)
 
-        self.skip1_connection_residual_block = ResidualBlock(in_channels, out_channels)
+        self.skip1_connection_residual_block = ResidualBlock(mid_channels, mid_channels)
 
         self.mpool2 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         # 28*28
-        self.softmax2_blocks = ResidualBlock(in_channels, out_channels)
+        self.softmax2_blocks = ResidualBlock(mid_channels, mid_channels)
 
-        self.skip2_connection_residual_block = ResidualBlock(in_channels, out_channels)
+        self.skip2_connection_residual_block = ResidualBlock(mid_channels, mid_channels)
 
         self.mpool3 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         # 14*14
-        self.softmax3_blocks = ResidualBlock(in_channels, out_channels)
-        self.skip3_connection_residual_block = ResidualBlock(in_channels, out_channels)
+        self.softmax3_blocks = ResidualBlock(mid_channels, mid_channels)
+        self.skip3_connection_residual_block = ResidualBlock(mid_channels, mid_channels)
         self.mpool4 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         # 7*7
         self.softmax4_blocks = nn.Sequential(
-            ResidualBlock(in_channels, out_channels),
-            ResidualBlock(in_channels, out_channels)
+            ResidualBlock(mid_channels, mid_channels),
+            ResidualBlock(mid_channels, mid_channels)
         )
-        self.interpolation4 = nn.UpsamplingBilinear2d(size=size4)
-        self.softmax5_blocks = ResidualBlock(in_channels, out_channels)
-        self.interpolation3 = nn.UpsamplingBilinear2d(size=size3)
-        self.softmax6_blocks = ResidualBlock(in_channels, out_channels)
-        self.interpolation2 = nn.UpsamplingBilinear2d(size=size2)
-        self.softmax7_blocks = ResidualBlock(in_channels, out_channels)
-        self.interpolation1 = nn.UpsamplingBilinear2d(size=size1)
+
+
+        self.softmax5_blocks = ResidualBlock(mid_channels, mid_channels)
+        self.softmax6_blocks = ResidualBlock(mid_channels, mid_channels)
+        self.softmax7_blocks = ResidualBlock(mid_channels, mid_channels)
+
 
         self.softmax8_blocks = nn.Sequential(
-            nn.BatchNorm2d(out_channels),
+            nn.BatchNorm2d(mid_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=1, bias = False),
-            nn.BatchNorm2d(out_channels),
+            nn.Conv2d(mid_channels, mid_channels, kernel_size=1, stride=1, bias = False),
+            nn.BatchNorm2d(mid_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels , kernel_size=1, stride=1, bias = False),
+            nn.Conv2d(mid_channels, mid_channels, kernel_size=1, stride=1, bias = False),
             nn.Sigmoid()
         )
 
-        self.last_blocks = ResidualBlock(in_channels, out_channels)
+        self.last_blocks = ResidualBlock(mid_channels, in_channels)
 
     def forward(self, x):
-        # 112*112
-        out_trunk = x
 
+
+
+
+        # 112*112
+        x = self.first_residual_blocks(x)
+
+        out_trunk = x
         out_mpool1 = self.mpool1(x)
         # 56*56
         out_softmax1 = self.softmax1_blocks(out_mpool1)
@@ -790,14 +794,17 @@ class ResidualAttentionModule(nn.Module):
         out_softmax5 = self.softmax5_blocks(out)
 
         """
+        self.interpolation3 = nn.UpsamplingBilinear2d(size=out_softmax2.shape[2:])
         out_interp3 = self.interpolation3(out_softmax3) + out_softmax2 #change out_softmax5 to out_softmax3
         out = out_interp3 + out_skip2_connection
         out_softmax6 = self.softmax6_blocks(out)
 
+        self.interpolation2 = nn.UpsamplingBilinear2d(size=out_softmax1.shape[2:])
         out_interp2 = self.interpolation2(out_softmax6) + out_softmax1
         out = out_interp2 + out_skip1_connection
         out_softmax7 = self.softmax7_blocks(out)
 
+        self.interpolation1 = nn.UpsamplingBilinear2d(size=out_trunk.shape[2:])
         out_interp1 = self.interpolation1(out_softmax7) + out_trunk
         out_softmax8 = self.softmax8_blocks(out_interp1)#normalize to 1
 
