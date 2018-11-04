@@ -667,6 +667,16 @@ class HandInHandModel_Hourglass(nn.Module):
             b2 = self.layer2(b2) + b1_layer2*annealing_value
             b2 = self.layer3(b2) + b1_layer3*annealing_value
             b2 = self.layer4(b2)
+        elif self.netstyle == 10:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2) + b1_layer2*annealing_value
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2)
+        elif self.netstyle == 11:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2)
+            b2 = self.layer3(b2) + b1_layer3*annealing_value
+            b2 = self.layer4(b2)
         else:
             raise
 
