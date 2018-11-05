@@ -224,6 +224,18 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
     print "test num={}, useful num={}".format(test_num, useful_test)
 
 
+def filter10_old(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(11, 21):#11~20
+        label_img[np.where(label_img_copy==i)] = 0
+
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]) or ids == set([0]):
+        #print("empty label, skip")
+        is_needed = False
+    return is_needed, label_img
+
 def filter10_new(label_img):
     label_img_copy = np.copy(label_img)
     for i in range(1,11):#from 1 to 10
@@ -244,7 +256,12 @@ def filter10_new(label_img):
 #conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
 #conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_singlenetwork_new_on_coco")
 
-conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
+#conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
+
+#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_old")
+
+conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_new")
+
 
 
 
