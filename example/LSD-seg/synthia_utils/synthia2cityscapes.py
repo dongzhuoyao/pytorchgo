@@ -3,7 +3,7 @@
 #void, sky, building, road, sidewalk, \
 #fence, vegetation, pole, car,traffic sign, \
 #pedestrian, bicycle, motorcycle, parking-slot,road-work,
-#traffic light, terrain, rider,truck, bus
+#traffic light, terrain, rider, truck, bus
 #train, wall, lanemarking
 
 from collections import namedtuple
@@ -56,8 +56,8 @@ city2common_table = [
     city2common('motorcycle',    32, 14),
     city2common('bicycle',    33, 15),
     city2common('license plate',    -1, 255),
-
 ]
+
 
 
 synthia2common_table = [
