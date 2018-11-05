@@ -174,8 +174,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
                 is_needed, label_image = filter_func(label_image)
             #if not is_needed:
             #    continue
-            if is_needed:
-                useful_train += 1
+                if is_needed:
+                    useful_train += 1
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
             f.write("{} {}\n".format(img_name, cur_label_path))
@@ -191,8 +191,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
                 is_needed, label_image = valtest_filter_func(label_image)
             #if not is_needed:
             #    continue
-            if is_needed:
-                useful_val += 1
+                if is_needed:
+                    useful_val += 1
 
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
@@ -211,8 +211,8 @@ def conduct_filter(filter_func, train_slic=[0,-1], valtest_filter_func = None, l
 
             #if not is_needed:
             #    continue
-            if is_needed:
-                useful_test += 1
+                if is_needed:
+                    useful_test += 1
 
             cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
             cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
@@ -244,7 +244,7 @@ def filter10_new(label_img):
 #conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
 #conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_singlenetwork_new_on_coco")
 
-conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_whole_on_coco")
+conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
 
 
 
