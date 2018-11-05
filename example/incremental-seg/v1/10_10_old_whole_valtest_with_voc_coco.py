@@ -22,7 +22,7 @@ start = timeit.default_timer()
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 9
+BATCH_SIZE = 8
 DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
 DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_whole_on_coco/current_incremental_train.txt'
 VAL_DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_whole_on_coco/current_incremental_val.txt'
