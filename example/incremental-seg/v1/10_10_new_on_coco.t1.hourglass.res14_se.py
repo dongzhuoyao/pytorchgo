@@ -215,7 +215,7 @@ def main():
             return 0
 
     # Create network.
-    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=1)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=15)
 
 
 
