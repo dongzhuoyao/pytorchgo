@@ -92,15 +92,16 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                 #    continue
                     if is_needed:
                         useful_train += 1
-                cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
+
+
+                cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
+                cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "cs"), cur_label_path), label_image)
-                elif data_type == "gta5":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "gta5"), cur_label_path),
-                                label_image)
+                    f.write("{} {}\n".format(os.path.join("gtFine/train",image), cur_label_path))
+                elif data_type =="gta5":
+                    f.write("{} {}\n".format(image, cur_label_path))
                 else:
-                    raise
-                f.write("{} {}\n".format(img_name, cur_label_path))
+                    raise ValueError("error")
                 train_num += 1
 
 
@@ -123,15 +124,14 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                     if is_needed:
                         useful_val += 1
 
-                cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
+                cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
+                cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "cs"), cur_label_path), label_image)
-                elif data_type == "gta5":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "gta5"), cur_label_path),
-                                label_image)
+                    f.write("{} {}\n".format(os.path.join("gtFine/val",image), cur_label_path))
+                elif data_type =="gta5":
+                    f.write("{} {}\n".format(image, cur_label_path))
                 else:
-                    raise
-                f.write("{} {}\n".format(img_name, cur_label_path))
+                    raise ValueError("error")
                 val_num += 1
 
 
@@ -154,15 +154,14 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                     if is_needed:
                         useful_test += 1
 
-                cur_label_path = "{}".format(os.path.join(label_name, img_name)).replace("jpg", "png")
+                cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
+                cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "cs"), cur_label_path), label_image)
-                elif data_type == "gta5":
-                    cv2.imwrite(os.path.join(new_label_basedir, "{}_{}".format(label_name, "gta5"), cur_label_path),
-                                label_image)
+                    f.write("{} {}\n".format(os.path.join("gtFine/val",image), cur_label_path))
+                elif data_type =="gta5":
+                    f.write("{} {}\n".format(image, cur_label_path))
                 else:
-                    raise
-                f.write("{} {}\n".format(img_name, cur_label_path))
+                    raise ValueError("error")
                 test_num += 1
 
     print "train num={}, useful num={}".format(train_num, useful_train)
@@ -204,7 +203,7 @@ def filter10_new(label_img):
 
 #conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
 
-conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cocovoc_10+10_old")
+conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cs_gta5_10+10_old")
 
 #conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_new")
 
