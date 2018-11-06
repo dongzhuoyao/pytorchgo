@@ -181,7 +181,7 @@ def filter10_old(label_img):
         is_needed = False
     return is_needed, label_img
 
-def filter10_new(label_img):
+def filter8_new(label_img):
     label_img_copy = np.copy(label_img)
     for i in range(1,11):#from 1 to 10
         label_img[np.where(label_img_copy==i)] = 0
@@ -193,21 +193,13 @@ def filter10_new(label_img):
         is_needed = False
         return is_needed, label_img
 
-    for i in range(1,11):
+    for i in range(1,9):
         label_img[np.where(label_img_copy == i+10)] = i
     return is_needed, label_img
 
-
-#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_new_on_coco")
-#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = filter10_new, label_name ="class10+10_singlenetwork_new_on_coco")
-
-#conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
-
-conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cs_gta5_10+10_old")
-
-#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_new")
-
-
+#conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cs_gta5_10+10_old")
+#conduct_filter(filter_func=filter8_new,  valtest_filter_func = None, label_name ="cs_gta5_10+8_new")
+conduct_filter(filter_func=None,  valtest_filter_func = None, label_name ="cs_gta5_10+8_whole")
 
 
 

@@ -34,7 +34,7 @@ class VOCDataSet(data.Dataset):
             if "leftImg8bit" in image_id:
                 img_file = osp.join(self.root, "%s" % image_id)
             else:
-                img_file = osp.join("/home/tao/dataset/GTA5", foldername, "%s" % image_id)
+                img_file = osp.join("/home/tao/dataset/GTA5", "%s" % image_id)
             label_file = osp.join(new_label_basedir, val_img_path)
             self.files.append({
                 "img": img_file,
@@ -77,6 +77,7 @@ class VOCDataSet(data.Dataset):
             return image.copy(), label.copy(), np.array(size), name
         else:
             return image.copy(), image.copy(), label.copy(), np.array(size), name
+
 
 
 class CoCoDataSet(data.Dataset):
