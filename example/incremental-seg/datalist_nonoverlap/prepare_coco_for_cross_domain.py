@@ -258,9 +258,9 @@ def filter10_new(label_img):
 
 #conduct_filter(filter_func=None, train_slic=[0,5000], valtest_filter_func = None, label_name ="class10+10_whole_on_coco")
 
-#conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_old")
+conduct_filter(filter_func=filter10_old, train_slic=[0,5000], valtest_filter_func = filter10_old, label_name ="cocovoc_10+10_old")
 
-conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_new")
+#conduct_filter(filter_func=filter10_new, train_slic=[0,5000], valtest_filter_func = None, label_name ="cocovoc_10+10_new")
 
 
 
