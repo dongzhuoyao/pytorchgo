@@ -21,14 +21,14 @@ def get_lines(data_type, split_type="train"):
         elif split_type == "val":
             lines = open("cityscapes_list/cs_val.txt", "r").readlines()
         else:
-            raise
+            raise ValueError("errr")
     elif  data_type == "gta5":
         if split_type == "train":
             lines = open("gta5_list/gta5_train.txt", "r").readlines()
         elif split_type == "val":
             lines = open("gta5_list/gta5_val.txt", "r").readlines()
         else:
-            raise
+            raise ValueError("error")
 
     lines = [line.strip() for line in lines]
     return lines
@@ -41,8 +41,8 @@ def read_image(img_base, label, data_type, split_type):
             label_image = cv2.imread(os.path.join(img_base, "gtFine/val", label))
         else:
             raise ValueError("error")
-
         return label_image
+
     elif data_type == "gta5":
         label_image =  Image.open(os.path.join(img_base, label))
         label_image = np.asarray(label_image, np.float32)
