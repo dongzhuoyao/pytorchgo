@@ -798,56 +798,149 @@ class ResidualAttentionModule(nn.Module):
 
     def forward(self, x):
 
+        if self.depth == 3:
+            # 112*112
+            x = self.first_residual_blocks(x)
+
+            out_trunk = x
+            out_mpool1 = self.mpool1(x)
+            # 56*56
+            out_softmax1 = self.softmax1_blocks(out_mpool1)
+
+            out_skip1_connection = self.skip1_connection_residual_block(out_softmax1)
+            out_mpool2 = self.mpool2(out_softmax1)
+            # 28*28
+            out_softmax2 = self.softmax2_blocks(out_mpool2)
+
+            out_skip2_connection = self.skip2_connection_residual_block(out_softmax2)
+            out_mpool3 = self.mpool3(out_softmax2)
+            # 14*14
+            out_softmax3 = self.softmax3_blocks(out_mpool3)
+
+            """
+            out_skip3_connection = self.skip3_connection_residual_block(out_softmax3)
+            out_mpool4 = self.mpool4(out_softmax3)
+            # 7*7
+            out_softmax4 = self.softmax4_blocks(out_mpool4)
+            out_interp4 = self.interpolation4(out_softmax4) + out_softmax3
+            out = out_interp4 + out_skip3_connection
+            out_softmax5 = self.softmax5_blocks(out)
+            """
+
+            self.interpolation3 = nn.UpsamplingBilinear2d(size=out_softmax2.shape[2:])
+            out_interp3 = self.interpolation3(out_softmax3) + out_softmax2 #change out_softmax5 to out_softmax3
+            out = out_interp3 + out_skip2_connection
+            out_softmax6 = self.softmax6_blocks(out)
+
+            self.interpolation2 = nn.UpsamplingBilinear2d(size=out_softmax1.shape[2:])
+            out_interp2 = self.interpolation2(out_softmax6) + out_softmax1
+            out = out_interp2 + out_skip1_connection
+            out_softmax7 = self.softmax7_blocks(out)
+
+            self.interpolation1 = nn.UpsamplingBilinear2d(size=out_trunk.shape[2:])
+            out_interp1 = self.interpolation1(out_softmax7) + out_trunk
+            out_softmax8 = self.softmax8_blocks(out_interp1)#normalize to 1
+
+            #tail part
+            out = (1 + out_softmax8) * out_trunk
+            out_last = self.last_blocks(out)
+
+            return out_last
+        elif self.depth == 2:
+            # 112*112
+            x = self.first_residual_blocks(x)
+
+            out_trunk = x
+            out_mpool1 = self.mpool1(x)
+            # 56*56
+            out_softmax1 = self.softmax1_blocks(out_mpool1)
+
+            out_skip1_connection = self.skip1_connection_residual_block(out_softmax1)
+            out_mpool2 = self.mpool2(out_softmax1)
+            # 28*28
+            out_softmax2 = self.softmax2_blocks(out_mpool2)
+            """
+            out_skip2_connection = self.skip2_connection_residual_block(out_softmax2)
+            out_mpool3 = self.mpool3(out_softmax2)
+            # 14*14
+            out_softmax3 = self.softmax3_blocks(out_mpool3)
 
 
 
-        # 112*112
-        x = self.first_residual_blocks(x)
+            self.interpolation3 = nn.UpsamplingBilinear2d(size=out_softmax2.shape[2:])
+            out_interp3 = self.interpolation3(out_softmax3) + out_softmax2  # change out_softmax5 to out_softmax3
+            out = out_interp3 + out_skip2_connection
+            out_softmax6 = self.softmax6_blocks(out)
+            """
 
-        out_trunk = x
-        out_mpool1 = self.mpool1(x)
-        # 56*56
-        out_softmax1 = self.softmax1_blocks(out_mpool1)
+            self.interpolation2 = nn.UpsamplingBilinear2d(size=out_softmax1.shape[2:])
+            out_interp2 = self.interpolation2(out_softmax2) + out_softmax1
+            out = out_interp2 + out_skip1_connection
+            out_softmax7 = self.softmax7_blocks(out)
 
-        out_skip1_connection = self.skip1_connection_residual_block(out_softmax1)
-        out_mpool2 = self.mpool2(out_softmax1)
-        # 28*28
-        out_softmax2 = self.softmax2_blocks(out_mpool2)
+            self.interpolation1 = nn.UpsamplingBilinear2d(size=out_trunk.shape[2:])
+            out_interp1 = self.interpolation1(out_softmax7) + out_trunk
+            out_softmax8 = self.softmax8_blocks(out_interp1)  # normalize to 1
 
-        out_skip2_connection = self.skip2_connection_residual_block(out_softmax2)
-        out_mpool3 = self.mpool3(out_softmax2)
-        # 14*14
-        out_softmax3 = self.softmax3_blocks(out_mpool3)
+            # tail part
+            out = (1 + out_softmax8) * out_trunk
+            out_last = self.last_blocks(out)
 
-        """
-        out_skip3_connection = self.skip3_connection_residual_block(out_softmax3)
-        out_mpool4 = self.mpool4(out_softmax3)
-        # 7*7
-        out_softmax4 = self.softmax4_blocks(out_mpool4)
-        out_interp4 = self.interpolation4(out_softmax4) + out_softmax3
-        out = out_interp4 + out_skip3_connection
-        out_softmax5 = self.softmax5_blocks(out)
+            return out_last
+        elif self.depth == 1:
+            # 112*112
+            x = self.first_residual_blocks(x)
 
-        """
-        self.interpolation3 = nn.UpsamplingBilinear2d(size=out_softmax2.shape[2:])
-        out_interp3 = self.interpolation3(out_softmax3) + out_softmax2 #change out_softmax5 to out_softmax3
-        out = out_interp3 + out_skip2_connection
-        out_softmax6 = self.softmax6_blocks(out)
+            out_trunk = x
+            out_mpool1 = self.mpool1(x)
+            # 56*56
+            out_softmax1 = self.softmax1_blocks(out_mpool1)
 
-        self.interpolation2 = nn.UpsamplingBilinear2d(size=out_softmax1.shape[2:])
-        out_interp2 = self.interpolation2(out_softmax6) + out_softmax1
-        out = out_interp2 + out_skip1_connection
-        out_softmax7 = self.softmax7_blocks(out)
+            """
 
-        self.interpolation1 = nn.UpsamplingBilinear2d(size=out_trunk.shape[2:])
-        out_interp1 = self.interpolation1(out_softmax7) + out_trunk
-        out_softmax8 = self.softmax8_blocks(out_interp1)#normalize to 1
+            out_skip1_connection = self.skip1_connection_residual_block(out_softmax1)
+            out_mpool2 = self.mpool2(out_softmax1)
+            # 28*28
+            out_softmax2 = self.softmax2_blocks(out_mpool2)
 
-        #tail part
-        out = (1 + out_softmax8) * out_trunk
-        out_last = self.last_blocks(out)
+            out_skip2_connection = self.skip2_connection_residual_block(out_softmax2)
+            out_mpool3 = self.mpool3(out_softmax2)
+            # 14*14
+            out_softmax3 = self.softmax3_blocks(out_mpool3)
 
-        return out_last
+            
+            out_skip3_connection = self.skip3_connection_residual_block(out_softmax3)
+            out_mpool4 = self.mpool4(out_softmax3)
+            # 7*7
+            out_softmax4 = self.softmax4_blocks(out_mpool4)
+            out_interp4 = self.interpolation4(out_softmax4) + out_softmax3
+            out = out_interp4 + out_skip3_connection
+            out_softmax5 = self.softmax5_blocks(out)
+            
+
+            self.interpolation3 = nn.UpsamplingBilinear2d(size=out_softmax2.shape[2:])
+            out_interp3 = self.interpolation3(out_softmax3) + out_softmax2  # change out_softmax5 to out_softmax3
+            out = out_interp3 + out_skip2_connection
+            out_softmax6 = self.softmax6_blocks(out)
+
+            self.interpolation2 = nn.UpsamplingBilinear2d(size=out_softmax1.shape[2:])
+            out_interp2 = self.interpolation2(out_softmax6) + out_softmax1
+            out = out_interp2 + out_skip1_connection
+            out_softmax7 = self.softmax7_blocks(out)
+            
+            """
+
+            self.interpolation1 = nn.UpsamplingBilinear2d(size=out_trunk.shape[2:])
+            out_interp1 = self.interpolation1(out_softmax1) + out_trunk
+            out_softmax8 = self.softmax8_blocks(out_interp1)  # normalize to 1
+
+            # tail part
+            out = (1 + out_softmax8) * out_trunk
+            out_last = self.last_blocks(out)
+
+            return out_last
+        else:
+            raise  ValueError("error")
 
 
 def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_anneal=None, netstyle=0):
@@ -855,10 +948,10 @@ def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_a
      return model
 
 
-def get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=0, compress_ratio=8):
+def get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=0, compress_ratio=8, depth=3):
     model = HandInHandModel_Hourglass(block=Bottleneck, layers=[3, 4, 6, 3], teacher_class_num=teacher_class_num,
                             student_class_num=student_class_num, annealing=annealing, get_anneal=get_anneal,
-                            netstyle=netstyle, compress_ratio = compress_ratio)
+                            netstyle=netstyle, compress_ratio = compress_ratio, hourglass_depth=depth)
 
     return model
 

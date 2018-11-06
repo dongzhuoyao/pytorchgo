@@ -22,20 +22,20 @@ start = timeit.default_timer()
 from evaluate_incremental_csgta5 import do_eval
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 9
+BATCH_SIZE = 7
 DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
 DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_new/current_incremental_train.txt'
 VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_new/current_incremental_val.txt'
 TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_new/current_incremental_test.txt'
-NUM_CLASSES = 10+1
+NUM_CLASSES = 8+1
 
 
 IGNORE_LABEL = 255
 INPUT_SIZE = (473,473)
 LEARNING_RATE = 2.5e-4
 MOMENTUM = 0.9
-NUM_STEPS = 11#20000
-SAVE_PRED_EVERY = 10#1000
+NUM_STEPS = 20000
+SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
 RESTORE_FROM = '../resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
