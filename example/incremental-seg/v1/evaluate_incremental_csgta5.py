@@ -23,7 +23,7 @@ DATA_DIRECTORY = '/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012
 DATA_LIST_PATH = 'datalist/val.txt'
 NUM_CLASSES = 21
 NUM_STEPS = 1449 # Number of images in the validation set.
-input_size = (513, 513)
+input_size = (473, 473)
 RESTORE_FROM = '/data4/hutao/pytorchgo/example/incremental-seg/train_log/train.473/VOC12_scenes_20000.pth'#'/home/hutao/lab/Pytorch-Deeplab/VOC12_scenes_20000.pth'
 
 #python evaluate.py --num_classes 20 --restore_from train_log/train.473.class19meaning/VOC12_scenes_20000.pth
@@ -168,6 +168,146 @@ def do_eval(model, data_dir, data_list, num_classes, restore_from=None, is_save 
             origin_image = np.squeeze(origin_image)
             from tensorpack.utils.segmentation.segmentation import visualize_label
             cv2.imwrite(os.path.join(result_dir,"{}.jpg".format(index)),np.concatenate((origin_image.numpy(),visualize_label(output)),axis=1))
+        # show_all(gt, output)
+        data_list.append([gt.flatten(), output.flatten()])
+
+    return get_iou(data_list, num_classes)
+
+
+
+def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, is_save = False, handinhand=False):
+
+    if restore_from is not None:
+        saved_state_dict = torch.load(restore_from)['model_state_dict']
+        model.load_state_dict(saved_state_dict)
+
+    model.eval()
+    model.cuda()
+
+
+    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
+        PascalPadding
+    from torchvision.transforms import Compose, Normalize, ToTensor
+
+    img_transform = Compose([  # notice the order!!!
+        SubtractMeans(),
+        # RandomScale()
+    ])
+
+
+    augmentation = Compose(
+        [
+            #PascalPadding(input_size)
+        ]
+    )
+
+    testloader = data.DataLoader(
+        VOCDataSet(data_dir, data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
+        batch_size=1, shuffle=False, pin_memory=True)
+
+    interp = nn.Upsample(size=input_size, mode='bilinear')
+    data_list = []
+    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
+
+    """
+    interp = nn.Upsample(size=input_size, mode='bilinear')
+
+    data_list = []
+    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
+
+    def mypredictor(input_img):
+        # input image: 1*3*H*W
+        # output : C*H*W
+        input_img = torch.from_numpy(input_img.transpose((2, 0, 1))[None, :, :, :])  # (1,C,W,H)
+        output = model(Variable(input_img, volatile=True).cuda())
+        output = interp(output).cpu().data[0].numpy()
+        output = output.transpose(1, 2, 0)  # (H,W,C)
+        return output
+
+    for index, batch in tqdm(enumerate(testloader)):
+        if index > 1e10: break
+        image, label, size, name = batch
+
+        image_hwc = image[0].numpy().transpose((1, 2, 0))
+
+        output = predict_scaler(image_hwc, mypredictor, scales=[1],
+                                classes=num_classes, tile_size=input_size, is_densecrf=False)
+
+        gt = np.asarray(label[0].numpy(), dtype=np.int8)
+
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.int8)
+
+        # show_all(gt, output)
+        data_list.append([gt.flatten(), output.flatten()])
+
+    return get_iou(data_list, num_classes)
+    """
+
+    def mypredictor(input_img):
+        # input image: 1*3*H*W
+        # output : C*H*W
+        input_img = torch.from_numpy(input_img[None, :, :, :])  # (1,C,W,H)
+        output = model(Variable(input_img, volatile=True).cuda())
+        if handinhand == True:
+            output = output[1]#[teacher, student]
+        output = interp(output).cpu().data[0].numpy()
+        output = output.transpose(1, 2, 0)  # (H,W,C)
+        return output
+
+    for index, batch in tqdm(enumerate(testloader)):
+        origin_image, image, label, size, name = batch
+        output = predict_scaler(image, mypredictor, scales=[1],
+                                classes=num_classes, tile_size=input_size, is_densecrf=False)
+
+        output = output[:num_classes]#notice here, maybe buggy
+        gt = np.asarray(label[0].numpy(), dtype=np.int)
+        output = output.transpose(1, 2, 0)
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
+
+
+        data_list.append([gt.flatten(), output.flatten()])
+
+    return get_iou(data_list, num_classes)
+
+
+
+def do_eval_dataset_from_traincs(model, testloader, num_classes, output_size, quick_eval = 1e10, restore_from = None):
+
+    if restore_from is not None:
+        saved_state_dict = torch.load(restore_from)
+        model.load_state_dict(saved_state_dict)
+
+    model.eval()
+    model.cuda()
+
+    interp = nn.Upsample(size=output_size, mode='bilinear')
+
+    data_list = []
+    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
+
+    def mypredictor(input_img):
+        # input image: 1*3*H*W
+        # output : C*H*W
+        input_img = torch.from_numpy(input_img.transpose((2,0,1))[None,:,:,:])#(1,C,W,H)
+        output = model(Variable(input_img, volatile=True).cuda())
+        output = interp(output).cpu().data[0].numpy()
+        output = output.transpose(1, 2, 0) #(H,W,C)
+        return output
+
+
+    for index, batch in tqdm(enumerate(testloader)):
+        if index > quick_eval: break
+        image, label, size, name = batch
+        size = size[0].numpy()
+        image_hwc = image[0].numpy().transpose((1,2,0))
+
+        output = predict_scaler(image_hwc, mypredictor, scales=[1],
+                                    classes=num_classes, tile_size=output_size, is_densecrf=False)
+
+        gt = np.asarray(label[0].numpy(), dtype=np.int8)
+
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.int8)
+
         # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
