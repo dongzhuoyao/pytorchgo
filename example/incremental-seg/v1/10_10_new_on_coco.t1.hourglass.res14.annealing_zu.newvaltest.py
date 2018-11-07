@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 import sys
 import os
 import os.path as osp
-from model import Res_Deeplab
+from model_handinhand import get_handinhand_hourglass
 from loss import CrossEntropy2d
 from datasets_incremental import VOCDataSet
 import random
@@ -40,7 +40,7 @@ NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/10_10_old_valtest_with_voc_coco/love.pth'
+RESTORE_FROM = 'train_log/10_10_old/love.pth'
 WEIGHT_DECAY = 0.0005
 
 
@@ -141,6 +141,10 @@ def get_1x_lr_params_NOscale(model):
     b.append(model.layer2)
     b.append(model.layer3)
     b.append(model.layer4)
+    b.append(model.semodule1)
+    b.append(model.semodule2)
+    b.append(model.semodule3)
+    b.append(model.semodule4)
 
     
     for i in range(len(b)):
@@ -158,6 +162,7 @@ def get_10x_lr_params(model):
     """
     b = []
     b.append(model.layer5.parameters())
+
 
     for j in range(len(b)):
         for i in b[j]:
@@ -203,11 +208,20 @@ def main():
 
     cudnn.enabled = True
 
+    def get_anneal(iter):
+        if iter <= 3000:
+            return 1
+        elif iter <= 16000:
+            return 1.0/(iter - 3000)
+        else:
+            return 0
+
     # Create network.
-    teacher_model = Res_Deeplab(num_classes=teacher_class_num)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=14)
 
-    student_model = Res_Deeplab(num_classes=student_class_num)
 
+
+    #load student weight
     saved_state_dict = torch.load(args.restore_from)['model_state_dict']
     print(saved_state_dict.keys())
     new_params = {}  # model_distill.state_dict().copy()
@@ -219,19 +233,15 @@ def main():
             continue
         new_params[i] = saved_state_dict[i]
         logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
-    student_model.load_state_dict(new_params, strict=False)
+    handinhand_model.load_state_dict(new_params, strict=False)
 
+
+    #load teacher weight
     fix_state_dict = torch.load(args.restore_from)['model_state_dict']
-    teacher_model.load_state_dict(fix_state_dict, strict=True)
+    handinhand_model.teacher.load_state_dict(fix_state_dict, strict=True)
 
-    # model.float()
-    # model.eval() # use_global_stats = True
-    teacher_model.train()
-    teacher_model.cuda()
-
-    student_model.train()
-    student_model.cuda()
-
+    handinhand_model.train()
+    handinhand_model.cuda()
     cudnn.benchmark = True
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
@@ -257,8 +267,8 @@ def main():
                                              label_transform=label_transform, augmentation=augmentation),
                                   batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
 
-    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(student_model), 'lr': args.learning_rate},
-                           {'params': get_10x_lr_params(student_model), 'lr': 10 * args.learning_rate}],
+    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(handinhand_model), 'lr': args.learning_rate},
+                           {'params': get_10x_lr_params(handinhand_model), 'lr': 10 * args.learning_rate}],
                           lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
@@ -266,21 +276,18 @@ def main():
 
 
 
-    for param in teacher_model.parameters():
+    for param in handinhand_model.teacher.parameters():
         param.requires_grad = False
 
-    model_summary([teacher_model, student_model])
-
+    model_summary([handinhand_model])
     optimizer_summary(optimizer)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
     best_miou = 0
-    best_val_ious = np.array([0]*21)
+    best_val_ious = 0
 
 
-    for param in teacher_model.parameters():
-        param.requires_grad = False
 
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
@@ -288,11 +295,11 @@ def main():
 
         optimizer.zero_grad()
         lr = adjust_learning_rate(optimizer, i_iter)
-        teacher_output = interp(teacher_model(images))  # [4,20,473,473]
+        teacher_output, student_output  = handinhand_model(images)
+        teacher_output = interp(teacher_output)
+        student_output = interp(student_output)
 
         pred_old_no_bg = teacher_output[:, :, :, :]  # 15 CLASSES
-
-        student_output = interp(student_model(images))  # [4,21,473,473]
 
         to_be_distill = student_output[:, :11, :, :]
         new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, 11:, :, :]),
@@ -315,10 +322,10 @@ def main():
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
             from evaluate_incremental import do_eval
-            student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
+            handinhand_model.eval()
+            ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
             cur_miou = cal_iou(ious)
-            student_model.train()
+            handinhand_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
@@ -329,7 +336,7 @@ def main():
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': student_model.state_dict(),
+                    'model_state_dict': handinhand_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
@@ -345,10 +352,10 @@ def main():
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
             from evaluate_incremental import do_eval
-            student_model.eval()
-            ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num)
+            handinhand_model.eval()
+            ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
             cur_miou = cal_iou(ious)
-            student_model.train()
+            handinhand_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
@@ -358,7 +365,7 @@ def main():
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': student_model.state_dict(),
+                    'model_state_dict': handinhand_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
@@ -367,8 +374,8 @@ def main():
 
     logger.info('test result...')
     from evaluate_incremental import do_eval
-    student_model.eval()
-    test_ious = do_eval(model=student_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num)
+    handinhand_model.eval()
+    test_ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
 
 
 
