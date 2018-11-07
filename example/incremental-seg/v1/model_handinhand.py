@@ -616,7 +616,12 @@ class HandInHandModel_Hourglass(nn.Module):
             #print "update!"
             self.iter += 1
         #print "anneal: {}".format(annealing_value)
-        if self.netstyle == 0:
+        if self.netstyle == -1:
+            b2 = self.layer1(b2)
+            b2 = self.layer2(b2)
+            b2 = self.layer3(b2)
+            b2 = self.layer4(b2)
+        elif self.netstyle == 0:
             b2 = self.layer1(b2) + self.semodule1(b1_layer1)*annealing_value
             b2 = self.layer2(b2) + self.semodule2(b1_layer2)*annealing_value
             b2 = self.layer3(b2) + self.semodule3(b1_layer3)*annealing_value
@@ -945,7 +950,8 @@ class ResidualAttentionModule(nn.Module):
 
 def get_handinhand(teacher_class_num, student_class_num, annealing = False,get_anneal=None, netstyle=0):
      model = HandInHandModel(block=Bottleneck, layers = [3, 4, 6, 3], teacher_class_num=teacher_class_num, student_class_num=student_class_num, annealing=annealing,get_anneal=get_anneal, netstyle=netstyle)
-     return model
+     raise ValueError("SENet makes no use")
+     return model#wrong
 
 
 def get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=False, get_anneal=None, netstyle=0, compress_ratio=8, depth=3):
