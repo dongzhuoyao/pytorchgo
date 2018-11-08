@@ -12,26 +12,25 @@ import torch.backends.cudnn as cudnn
 import sys
 import os
 import os.path as osp
-from model import Res_Deeplab
+from model_handinhand import get_handinhand_hourglass
 from loss import CrossEntropy2d
 from datasets_incremental_csgta5 import VOCDataSet
+from evaluate_incremental_csgta5 import do_eval
 import random
 import timeit
 from tqdm import tqdm
 start = timeit.default_timer()
-from evaluate_incremental_csgta5 import do_eval
 
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
-BATCH_SIZE = 7
+BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
-DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+_whole/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_new/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_test.txt'
 
-
-
-NUM_CLASSES = 18+1
+teacher_class_num = 10
+student_class_num = 19
 
 
 IGNORE_LABEL = 255
@@ -42,7 +41,7 @@ NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = '../resnet50-19c8e357.pth' #'http://download.pytorch.org/models/resnet50-19c8e357.pth'
+RESTORE_FROM = 'train_log/csgta5.10_9_old/love.pth'
 WEIGHT_DECAY = 0.0005
 
 
@@ -52,7 +51,8 @@ WEIGHT_DECAY = 0.0005
 from pytorchgo.utils import logger
 
 
-
+def cal_iou(ious):
+    return np.mean(ious)
 
 
 def get_arguments():
@@ -80,8 +80,6 @@ def get_arguments():
                         help="Momentum component of the optimiser.")
     parser.add_argument("--not-restore-last", action="store_true",
                         help="Whether to not restore last (FC) layers.")
-    parser.add_argument("--num_classes", type=int, default=NUM_CLASSES,
-                        help="Number of classes to predict (including background).")
     parser.add_argument("--num-steps", type=int, default=NUM_STEPS,
                         help="Number of training steps.")
     parser.add_argument("--power", type=float, default=POWER,
@@ -92,14 +90,14 @@ def get_arguments():
                         help="Whether to randomly scale the inputs during the training.")
     parser.add_argument("--random-seed", type=int, default=RANDOM_SEED,
                         help="Random seed to have reproducible results.")
-    parser.add_argument("--restore-from", type=str, default=RESTORE_FROM,
+    parser.add_argument("--restore_from", type=str, default=RESTORE_FROM,
                         help="Where restore model parameters from.")
     parser.add_argument("--save-pred-every", type=int, default=SAVE_PRED_EVERY,
                         help="Save summaries and checkpoint every often.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
 
-
+    parser.add_argument("--distill_loss", type=str, default="kl", choices=['l2', 'kl'])
 
     parser.add_argument("--test", action="store_true",help="test")
     parser.add_argument("--test_restore_from",  help="test")
@@ -144,6 +142,10 @@ def get_1x_lr_params_NOscale(model):
     b.append(model.layer2)
     b.append(model.layer3)
     b.append(model.layer4)
+    b.append(model.semodule1)
+    b.append(model.semodule2)
+    b.append(model.semodule3)
+    b.append(model.semodule4)
 
     
     for i in range(len(b)):
@@ -162,6 +164,7 @@ def get_10x_lr_params(model):
     b = []
     b.append(model.layer5.parameters())
 
+
     for j in range(len(b)):
         for i in b[j]:
             yield i
@@ -172,48 +175,73 @@ def adjust_learning_rate(optimizer, i_iter):
     lr = lr_poly(args.learning_rate, i_iter, args.num_steps, args.power)
     optimizer.param_groups[0]['lr'] = lr
     optimizer.param_groups[1]['lr'] = lr * 10
+    return lr
 
 
 def main():
     """Create the model and start the training."""
     
     os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
+    os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+
+    if args.distill_loss == "kl":
+        import torch.nn.functional as F
+        def distill_loss_fn(outputs, teacher_outputs, T=1):
+            """
+            Compute the knowledge-distillation (KD) loss given outputs, labels.
+            "Hyperparameters": temperature and alpha
+            NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+            and student expects the input tensor to be log probabilities! See Issue #2
+            """
+            alpha = 1
+            KD_loss = nn.KLDivLoss()(F.log_softmax(outputs / T, dim=1),
+                                     F.softmax(teacher_outputs / T, dim=1)) * (alpha * T * T)
+
+            return KD_loss
+
+    elif args.distill_loss == "l2":
+        from loss import L2_Distill_Loss
+        distill_loss_fn = L2_Distill_Loss()
+    else:
+        raise ValueError
 
     input_size = INPUT_SIZE
 
     cudnn.enabled = True
 
+    def get_anneal(iter):
+        if iter <= 10000:
+            return 1.0 / iter
+        else:
+            return 0
+
     # Create network.
-    model = Res_Deeplab(num_classes=NUM_CLASSES)
-    # For a small batch size, it is better to keep 
-    # the statistics of the BN layers (running means and variances)
-    # frozen, and to not update the values provided by the pre-trained model. 
-    # If is_training=True, the statistics will be updated during the training.
-    # Note that is_training=False still updates BN parameters gamma (scale) and beta (offset)
-    # if they are presented in var_list of the optimiser definition.
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=1, depth=1)
 
-    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
 
-    model_summary(model)
-    saved_state_dict = torch.load(args.restore_from)
+
+    #load student weight
+    saved_state_dict = torch.load(args.restore_from)['model_state_dict']
     print(saved_state_dict.keys())
-    new_params = model.state_dict().copy()
+    new_params = {}  # model_distill.state_dict().copy()
     for i in saved_state_dict:
-        #Scale.layer5.conv2d_list.3.weight
+        # Scale.layer5.conv2d_list.3.weight
         i_parts = i.split('.')
         # print i_parts
-        if  i_parts[0]=='layer5' or i_parts[0]=='fc':
+        if i_parts[0] == 'layer5' or i_parts[0] == 'fc':
             continue
         new_params[i] = saved_state_dict[i]
-    model.load_state_dict(new_params)
-    #model.float()
-    #model.eval() # use_global_stats = True
-    model.train()
-    model.cuda()
-    
+        logger.info("recovering weight for student model(loading resnet weight): {}".format(i))
+    handinhand_model.load_state_dict(new_params, strict=False)
+
+
+    #load teacher weight
+    fix_state_dict = torch.load(args.restore_from)['model_state_dict']
+    handinhand_model.teacher.load_state_dict(fix_state_dict, strict=True)
+
+    handinhand_model.train()
+    handinhand_model.cuda()
     cudnn.benchmark = True
-
-
 
     from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
         PascalPadding
@@ -233,30 +261,51 @@ def main():
         ]
     )
 
+    trainloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, max_iters=args.num_steps * args.batch_size,
+                                             mirror=args.random_mirror, img_transform=img_transform,
+                                             label_transform=label_transform, augmentation=augmentation),
+                                  batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
 
-    trainloader = data.DataLoader(VOCDataSet(args.data_dir, args.data_list, max_iters=args.num_steps*args.batch_size,
-                     mirror=args.random_mirror, img_transform=img_transform, label_transform=label_transform, augmentation=augmentation),
-                    batch_size=args.batch_size, shuffle=True, num_workers=5, pin_memory=True)
-
-    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(model), 'lr': args.learning_rate }, 
-                {'params': get_10x_lr_params(model), 'lr': 10*args.learning_rate}], 
-                lr=args.learning_rate, momentum=args.momentum,weight_decay=args.weight_decay)
+    optimizer = optim.SGD([{'params': get_1x_lr_params_NOscale(handinhand_model), 'lr': args.learning_rate},
+                           {'params': get_10x_lr_params(handinhand_model), 'lr': 10 * args.learning_rate}],
+                          lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     optimizer.zero_grad()
 
+    from pytorchgo.utils.pytorch_utils import model_summary, optimizer_summary
+
+
+
+    for param in handinhand_model.teacher.parameters():
+        param.requires_grad = False
+
+    model_summary([handinhand_model])
     optimizer_summary(optimizer)
 
     interp = nn.Upsample(size=input_size, mode='bilinear')
 
-    best_miou = 0; best_val_ious = 0
+    best_miou = 0
+    best_val_ious = 0
+
+
+
     for i_iter, batch in tqdm(enumerate(trainloader), total=len(trainloader), desc="training deeplab"):
         images, labels, _, _ = batch
         images = Variable(images).cuda()
 
         optimizer.zero_grad()
-        adjust_learning_rate(optimizer, i_iter)
-        pred = interp(model(images))
-        #class2_pred = torch.cat((pred[:,0:1,:,:],pred[:,-1:,:,:]),1)
-        loss = loss_calc(pred, labels)
+        lr = adjust_learning_rate(optimizer, i_iter)
+        teacher_output, student_output  = handinhand_model(images)
+        teacher_output = interp(teacher_output)
+        student_output = interp(student_output)
+
+        pred_old_no_bg = teacher_output[:, :, :, :]  # 15 CLASSES
+
+        to_be_distill = student_output[:, :teacher_class_num, :, :]
+        new_class_part = student_output[:, teacher_class_num:, :, :]
+        seg_loss = loss_calc(new_class_part, labels)
+        distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
+        loss = seg_loss + distill_loss
+
         loss.backward()
         optimizer.step()
 
@@ -264,37 +313,45 @@ def main():
 
 
         if i_iter%50 == 0:
-            logger.info('loss = {}, best_miou={}'.format(loss.data.cpu().numpy(), best_miou))
+            logger.info('loss = {}, seg_loss = {}, distill_loss = {}, lr = {}, best_miou_new = {}'.format(loss.data.cpu().numpy(),
+             seg_loss.data.cpu().numpy(), distill_loss.data.cpu().numpy(), lr, best_miou))
 
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
-            model.eval()
-            ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
-            cur_miou = np.mean(ious[1:])
-            model.train()
+
+            handinhand_model.eval()
+            ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
+            cur_miou = cal_iou(ious)
+            handinhand_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
                 best_miou = cur_miou
                 best_val_ious = ious
+
                 logger.info('taking snapshot...')
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': handinhand_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
                 logger.info("current snapshot is not good enough, skip~~")
 
+            logger.info("val iou: {}".format(str(best_val_ious)))
+            logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
+            logger.info("val miou for old class = {}".format(np.mean(best_val_ious[:teacher_class_num])))
+            logger.info("val miou for new class = {}".format(np.mean(best_val_ious[teacher_class_num:])))
+
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
-            model.eval()
-            ious = do_eval(model=model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
-            cur_miou = np.mean(ious[1:])
-            model.train()
+            handinhand_model.eval()
+            ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
+            cur_miou = cal_iou(ious)
+            handinhand_model.train()
 
             is_best = True if cur_miou > best_miou else False
             if is_best:
@@ -304,7 +361,7 @@ def main():
                 torch.save({
                     'iteration': i_iter,
                     'optim_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': handinhand_model.state_dict(),
                     'best_mean_iu': best_miou,
                 }, osp.join(logger.get_logger_dir(), 'love.pth'))
             else:
@@ -312,27 +369,59 @@ def main():
             break
 
     logger.info('test result...')
-    model.eval()
-    test_ious = do_eval(model=model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+    from evaluate_incremental_csgta5 import do_eval_offline
+    handinhand_model.eval()
+    test_ious = do_eval_offline(model=handinhand_model, is_save=False,
+                                data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                num_classes=student_class_num, handinhand=True)
 
-    logger.info("Congrats~, val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
-    logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
-    logger.info("Congrats~, test miou w/o bg = {}".format(np.mean(test_ious[1:])))
-    logger.info("Congrats~, test miou w bg = {}".format(np.mean(test_ious)))
 
+
+    logger.info("val iou: {}".format(str(best_val_ious)))
+    logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
+    logger.info("val miou for old class = {}".format(np.mean(best_val_ious[:teacher_class_num])))
+    logger.info("val miou for new class = {}".format(np.mean(best_val_ious[teacher_class_num:])))
+
+    logger.info("test iou: {}".format(str(test_ious)))
+    logger.info("test miou w bg= {}".format(np.mean(test_ious)))
+    logger.info("test miou for old class = {}".format(np.mean(test_ious[:teacher_class_num])))
+    logger.info("test miou for new class = {}".format(np.mean(test_ious[teacher_class_num:])))
 
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
-        from evaluate import do_eval
+        #remember to change restore_from and get_handinhand_hourglass!!!
+        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res4_se1.annealing/love.pth"
+        from evaluate_incremental_csgta5 import do_eval_offline
 
-        student_model = Res_Deeplab(num_classes=NUM_CLASSES)
-        #saved_state_dict = torch.load(args.test_restore_from)
-        #student_model.load_state_dict(saved_state_dict)
 
-        student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+        def get_anneal(iter):
+            if iter <= 3000:
+                return 1
+            elif iter <= 16000:
+                return 1.0 / (iter - 3000)
+            else:
+                return 0
+
+
+        # Create network.
+        handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True,
+                                                    get_anneal=get_anneal, netstyle=1, depth=1)
+
+        # saved_state_dict = torch.load(args.test_restore_from)
+        # student_model.load_state_dict(saved_state_dict)
+
+        handinhand_model.eval()
+        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, is_save=True,
+                                    data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                    num_classes=student_class_num, handinhand=True)
+
+        logger.info("test iou: {}".format(str(test_ious)))
+        logger.info("test miou w bg= {}".format(np.mean(test_ious)))
+        logger.info("test miou w/o bg = {}".format(np.mean(test_ious[1:])))
+        logger.info("test miou for old class = {}".format(np.mean(test_ious[1:11])))
+        logger.info("test miou for new class = {}".format(np.mean(test_ious[11:])))
+
     else:
         logger.auto_set_dir()
         main()

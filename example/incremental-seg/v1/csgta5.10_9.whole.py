@@ -25,13 +25,13 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 7
 DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
-DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+_whole/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_test.txt'
 
 
 
-NUM_CLASSES = 18+1
+NUM_CLASSES = 19
 
 
 IGNORE_LABEL = 255
@@ -315,9 +315,8 @@ def main():
     model.eval()
     test_ious = do_eval(model=model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES)
 
-    logger.info("Congrats~, val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+
     logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
-    logger.info("Congrats~, test miou w/o bg = {}".format(np.mean(test_ious[1:])))
     logger.info("Congrats~, test miou w bg = {}".format(np.mean(test_ious)))
 
 

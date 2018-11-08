@@ -20,18 +20,14 @@ import timeit
 from tqdm import tqdm
 start = timeit.default_timer()
 from evaluate_incremental_csgta5 import do_eval
-
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 7
 DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
-DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+_whole/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_test.txt'
-
-
-
-NUM_CLASSES = 18+1
+DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_single_new/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_single_new/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_single_new/current_incremental_test.txt'
+NUM_CLASSES = 9
 
 
 IGNORE_LABEL = 255
@@ -312,19 +308,21 @@ def main():
             break
 
     logger.info('test result...')
+    from evaluate_incremental_csgta5 import do_eval_offline
     model.eval()
-    test_ious = do_eval(model=model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+    test_ious = do_eval_offline(model=model, is_save=False,
+                                data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                num_classes=NUM_CLASSES, handinhand=False)
 
-    logger.info("Congrats~, val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
+
     logger.info("Congrats~, val miou w bg = {}".format(np.mean(best_val_ious)))
-    logger.info("Congrats~, test miou w/o bg = {}".format(np.mean(test_ious[1:])))
     logger.info("Congrats~, test miou w bg = {}".format(np.mean(test_ious)))
 
 
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
+        args.test_restore_from = "train_log/csgta5.10_9_new.singlenetwork/VOC12_scenes_20000.pth"
         from evaluate import do_eval
 
         student_model = Res_Deeplab(num_classes=NUM_CLASSES)
