@@ -97,7 +97,7 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                 cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
                 cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    f.write("{} {}\n".format(os.path.join("gtFine/train",image), cur_label_path))
+                    f.write("{} {}\n".format(os.path.join("leftImg8bit/train",image), cur_label_path))
                 elif data_type =="gta5":
                     f.write("{} {}\n".format(image, cur_label_path))
                 else:
@@ -127,7 +127,7 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                 cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
                 cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    f.write("{} {}\n".format(os.path.join("gtFine/val",image), cur_label_path))
+                    f.write("{} {}\n".format(os.path.join("leftImg8bit/val",image), cur_label_path))
                 elif data_type =="gta5":
                     f.write("{} {}\n".format(image, cur_label_path))
                 else:
@@ -157,7 +157,7 @@ def conduct_filter(filter_func, valtest_filter_func = None, label_name ="class19
                 cur_label_path = os.path.join("{}_{}".format(label_name, data_type), img_name).replace("jpg", "png")
                 cv2.imwrite(os.path.join(new_label_basedir, cur_label_path), label_image)
                 if data_type == "cs":
-                    f.write("{} {}\n".format(os.path.join("gtFine/val",image), cur_label_path))
+                    f.write("{} {}\n".format(os.path.join("leftImg8bit/val",image), cur_label_path))
                 elif data_type =="gta5":
                     f.write("{} {}\n".format(image, cur_label_path))
                 else:
