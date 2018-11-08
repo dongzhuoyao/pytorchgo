@@ -198,9 +198,8 @@ def filter8_new(label_img):
     return is_needed, label_img
 
 #conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cs_gta5_10+10_old")
-conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_new")
+#conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_new")
 #conduct_filter(filter_func=None,  valtest_filter_func = None, label_name ="cs_gta5_10+8_whole")
-
-
+conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_single_new")
 
 
