@@ -615,6 +615,10 @@ class HandInHandModel_Hourglass(nn.Module):
         if self.training:
             #print "update!"
             self.iter += 1
+
+        if not self.training:#override annealing_value to be zero
+            annealing_value = 0
+
         #print "anneal: {}".format(annealing_value)
         if self.netstyle == -1:
             b2 = self.layer1(b2)

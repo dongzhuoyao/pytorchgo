@@ -76,7 +76,7 @@ class VOCDataSet(data.Dataset):
         if "train" in self.list_path:
             return image.copy(), label.copy(), np.array(size), name
         else:
-            return image.copy(), image.copy(), label.copy(), np.array(size), name
+            return origin_image.copy(), image.copy(), label.copy(), np.array(size), name
 
 
 

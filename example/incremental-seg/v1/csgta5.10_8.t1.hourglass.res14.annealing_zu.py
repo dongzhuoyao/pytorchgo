@@ -393,7 +393,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if True:#args.test:
+    if args.test:
         args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res14.annealing_zu/love.pth"
         from evaluate_incremental_csgta5 import do_eval_offline
 
@@ -415,7 +415,9 @@ if __name__ == '__main__':
         #student_model.load_state_dict(saved_state_dict)
 
         handinhand_model.eval()
-        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num,handinhand=True)
+        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, is_save=True,
+                                    data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                    num_classes=student_class_num, handinhand=True)
 
         logger.info("test iou: {}".format(str(test_ious)))
         logger.info("test miou w bg= {}".format(np.mean(test_ious)))

@@ -209,6 +209,11 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
     data_list = []
     from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
 
+    result_dir = "vis-voc"
+    if os.path.isdir(result_dir):
+        import shutil
+        shutil.rmtree(result_dir)
+    if is_save: os.makedirs(result_dir)
 
     def mypredictor(input_img):
         # input image: 1*3*H*W
@@ -222,15 +227,18 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
         return output
 
     for index, batch in tqdm(enumerate(testloader)):
-        if index > 100: break
         origin_image, image, label, size, name = batch
         output = predict_scaler(image[0].numpy().transpose((1,2,0)), mypredictor, scales=[1],
                                 classes=num_classes, tile_size=input_size, is_densecrf=False)
 
-        output = output[:num_classes]#notice here, maybe buggy
+        output = output[:,:,:num_classes]#notice here, maybe buggy
         gt = np.asarray(label[0].numpy(), dtype=np.int)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
-
+        if is_save:
+            origin_image = np.squeeze(origin_image)
+            from tensorpack.utils.segmentation.segmentation import visualize_label
+            cv2.imwrite(os.path.join(result_dir,"{}.jpg".format(index)),np.concatenate((origin_image.numpy(),visualize_label(output)),axis=1))
+        # show_all(gt, output)
 
         data_list.append([gt.flatten(), output.flatten()])
 
