@@ -218,7 +218,7 @@ def main():
             return 0
 
     # Create network.
-    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=14)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=7)
 
 
 
@@ -393,7 +393,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if True:#args.test:
+    if args.test:
         args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res14.annealing_zu/love.pth"
         from evaluate_incremental_csgta5 import do_eval_offline
 

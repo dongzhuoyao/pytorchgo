@@ -209,44 +209,11 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
     data_list = []
     from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
 
-    """
-    interp = nn.Upsample(size=input_size, mode='bilinear')
-
-    data_list = []
-    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
 
     def mypredictor(input_img):
         # input image: 1*3*H*W
         # output : C*H*W
-        input_img = torch.from_numpy(input_img.transpose((2, 0, 1))[None, :, :, :])  # (1,C,W,H)
-        output = model(Variable(input_img, volatile=True).cuda())
-        output = interp(output).cpu().data[0].numpy()
-        output = output.transpose(1, 2, 0)  # (H,W,C)
-        return output
-
-    for index, batch in tqdm(enumerate(testloader)):
-        if index > 1e10: break
-        image, label, size, name = batch
-
-        image_hwc = image[0].numpy().transpose((1, 2, 0))
-
-        output = predict_scaler(image_hwc, mypredictor, scales=[1],
-                                classes=num_classes, tile_size=input_size, is_densecrf=False)
-
-        gt = np.asarray(label[0].numpy(), dtype=np.int8)
-
-        output = np.asarray(np.argmax(output, axis=2), dtype=np.int8)
-
-        # show_all(gt, output)
-        data_list.append([gt.flatten(), output.flatten()])
-
-    return get_iou(data_list, num_classes)
-    """
-
-    def mypredictor(input_img):
-        # input image: 1*3*H*W
-        # output : C*H*W
-        input_img = torch.from_numpy(input_img[None, :, :, :])  # (1,C,W,H)
+        input_img = torch.from_numpy(input_img.transpose((2,0,1))[None, :, :, :])  # (1,C,W,H)
         output = model(Variable(input_img, volatile=True).cuda())
         if handinhand == True:
             output = output[1]#[teacher, student]
@@ -255,193 +222,16 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
         return output
 
     for index, batch in tqdm(enumerate(testloader)):
+        if index > 100: break
         origin_image, image, label, size, name = batch
-        output = predict_scaler(image, mypredictor, scales=[1],
+        output = predict_scaler(image[0].numpy().transpose((1,2,0)), mypredictor, scales=[1],
                                 classes=num_classes, tile_size=input_size, is_densecrf=False)
 
         output = output[:num_classes]#notice here, maybe buggy
         gt = np.asarray(label[0].numpy(), dtype=np.int)
-        output = output.transpose(1, 2, 0)
         output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
 
 
-        data_list.append([gt.flatten(), output.flatten()])
-
-    return get_iou(data_list, num_classes)
-
-
-
-def do_eval_dataset_from_traincs(model, testloader, num_classes, output_size, quick_eval = 1e10, restore_from = None):
-
-    if restore_from is not None:
-        saved_state_dict = torch.load(restore_from)
-        model.load_state_dict(saved_state_dict)
-
-    model.eval()
-    model.cuda()
-
-    interp = nn.Upsample(size=output_size, mode='bilinear')
-
-    data_list = []
-    from tensorpack.utils.segmentation.segmentation import predict_slider, visualize_label, predict_scaler
-
-    def mypredictor(input_img):
-        # input image: 1*3*H*W
-        # output : C*H*W
-        input_img = torch.from_numpy(input_img.transpose((2,0,1))[None,:,:,:])#(1,C,W,H)
-        output = model(Variable(input_img, volatile=True).cuda())
-        output = interp(output).cpu().data[0].numpy()
-        output = output.transpose(1, 2, 0) #(H,W,C)
-        return output
-
-
-    for index, batch in tqdm(enumerate(testloader)):
-        if index > quick_eval: break
-        image, label, size, name = batch
-        size = size[0].numpy()
-        image_hwc = image[0].numpy().transpose((1,2,0))
-
-        output = predict_scaler(image_hwc, mypredictor, scales=[1],
-                                    classes=num_classes, tile_size=output_size, is_densecrf=False)
-
-        gt = np.asarray(label[0].numpy(), dtype=np.int8)
-
-        output = np.asarray(np.argmax(output, axis=2), dtype=np.int8)
-
-        # show_all(gt, output)
-        data_list.append([gt.flatten(), output.flatten()])
-
-    return get_iou(data_list, num_classes)
-
-
-def do_eval_coco2voc(model, data_dir, data_list, num_classes, restore_from=None, is_save = False, quick_eval=1e10):
-
-    if restore_from is not None:
-        saved_state_dict = torch.load(restore_from)['model_state_dict']
-        model.load_state_dict(saved_state_dict)
-
-    model.eval()
-    model.cuda()
-
-
-    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
-        PascalPadding
-    from torchvision.transforms import Compose, Normalize, ToTensor
-
-    img_transform = Compose([  # notice the order!!!
-        SubtractMeans(),
-        # RandomScale()
-    ])
-
-    label_transform = Compose([
-        # PIL_Scale(train_img_shape, Image.NEAREST),
-        PIL2NP(),
-        Value255to0(),
-        ToLabel()
-
-    ])
-
-    augmentation = Compose(
-        [
-            PascalPadding(input_size)
-        ]
-    )
-
-    testloader = data.DataLoader(
-        VOCDataSet(data_dir, data_list, mirror=False, img_transform=img_transform, augmentation=augmentation, img_prefix="image"),
-        batch_size=5, shuffle=False, pin_memory=True)
-
-    interp = nn.Upsample(size=input_size, mode='bilinear')
-    data_list = []
-
-    from tensorpack.utils.segmentation.segmentation import visualize_label
-    result_dir = "vis-voc"
-    if os.path.isdir(result_dir):
-        import shutil
-        shutil.rmtree(result_dir)
-    if is_save:os.makedirs(result_dir)
-
-    for index, batch in tqdm(enumerate(testloader)):
-        if index > quick_eval: break
-
-        origin_image, image, label, size, name = batch
-        size = size[0].numpy()
-        output = model(Variable(image, volatile=True).cuda())
-        output = interp(output).cpu().data[0].numpy()
-
-        output = output[:, :size[0], :size[1]]
-        gt = np.asarray(label[0].numpy()[:size[0], :size[1]], dtype=np.int)
-
-        output = output.transpose(1, 2, 0)
-        output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
-
-        if is_save:
-            origin_image = np.squeeze(origin_image)
-
-            cv2.imwrite(os.path.join(result_dir,"{}.jpg".format(index)),np.concatenate((origin_image.numpy(),visualize_label(output)),axis=1))
-        # show_all(gt, output)
-        data_list.append([gt.flatten(), output.flatten()])
-
-    return get_iou(data_list, num_classes)
-
-
-
-def do_eval_coco(model, data_list, num_classes, restore_from=None, quick_eval=1e10):
-
-    if restore_from is not None:
-        saved_state_dict = torch.load(restore_from)
-        model.load_state_dict(saved_state_dict['model_state_dict'])
-
-    model.eval()
-    model.cuda()
-
-
-    from pytorchgo.augmentation.segmentation import SubtractMeans, PIL2NP, RGB2BGR, PIL_Scale, Value255to0, ToLabel, \
-        PascalPadding
-    from torchvision.transforms import Compose, Normalize, ToTensor
-
-    img_transform = Compose([  # notice the order!!!
-        SubtractMeans(),
-        # RandomScale()
-    ])
-
-    label_transform = Compose([
-        # PIL_Scale(train_img_shape, Image.NEAREST),
-        PIL2NP(),
-        Value255to0(),
-        ToLabel()
-
-    ])
-
-    augmentation = Compose(
-        [
-            PascalPadding(input_size)
-        ]
-    )
-
-    from datasets_incremental import CoCoDataSet
-    testloader = data.DataLoader(
-        CoCoDataSet(data_list, mirror=False, img_transform=img_transform, augmentation=augmentation),
-        batch_size=5, shuffle=False, pin_memory=True)
-
-    interp = nn.Upsample(size=input_size, mode='bilinear')
-    data_list = []
-
-    for index, batch in tqdm(enumerate(testloader)):
-        if index > quick_eval:break
-
-        image, label, size, name = batch
-        size = size[0].numpy()
-        output = model(Variable(image, volatile=True).cuda())
-        output = interp(output).cpu().data[0].numpy()
-
-        output = output[:, :size[0], :size[1]]
-        gt = np.asarray(label[0].numpy()[:size[0], :size[1]], dtype=np.int)
-
-        output = output.transpose(1, 2, 0)
-        output = np.asarray(np.argmax(output, axis=2), dtype=np.int)
-
-        # show_all(gt, output)
         data_list.append([gt.flatten(), output.flatten()])
 
     return get_iou(data_list, num_classes)
