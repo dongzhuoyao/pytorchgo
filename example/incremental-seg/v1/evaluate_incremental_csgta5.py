@@ -226,7 +226,11 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
         output = output.transpose(1, 2, 0)  # (H,W,C)
         return output
 
+    from tensorpack.utils.stats import MIoUStatistics
+    stat = MIoUStatistics(num_classes)
+
     for index, batch in tqdm(enumerate(testloader)):
+        #if index > 100:break
         origin_image, image, label, size, name = batch
         output = predict_scaler(image[0].numpy().transpose((1,2,0)), mypredictor, scales=[1],
                                 classes=num_classes, tile_size=input_size, is_densecrf=False)
@@ -240,9 +244,12 @@ def do_eval_offline(model, data_dir, data_list, num_classes, restore_from=None, 
             cv2.imwrite(os.path.join(result_dir,"{}.jpg".format(index)),np.concatenate((origin_image.numpy(),visualize_label(output)),axis=1))
         # show_all(gt, output)
 
-        data_list.append([gt.flatten(), output.flatten()])
+        #data_list.append([gt.flatten(), output.flatten()])
+        stat.feed(output, gt)
 
-    return get_iou(data_list, num_classes)
+    #return get_iou(data_list, num_classes)
+    return stat.IoU
+
 
 
 def main():

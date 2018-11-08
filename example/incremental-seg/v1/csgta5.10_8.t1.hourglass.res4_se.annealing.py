@@ -392,28 +392,29 @@ def main():
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res14.annealing_zu/love.pth"
+        #remember to change restore_from and get_handinhand_hourglass!!!
+        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res4_se.annealing/love.pth"
         from evaluate_incremental_csgta5 import do_eval_offline
 
 
         def get_anneal(iter):
-            if iter <= 3000:
-                return 1
-            elif iter <= 16000:
-                return 1.0 / (iter - 3000)
+            if iter <= 10000:
+                return 1.0 / iter
             else:
                 return 0
 
 
         # Create network.
         handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True,
-                                                    get_anneal=get_anneal, netstyle=14)
+                                                    get_anneal=get_anneal, netstyle=1)
 
-        #saved_state_dict = torch.load(args.test_restore_from)
-        #student_model.load_state_dict(saved_state_dict)
+        # saved_state_dict = torch.load(args.test_restore_from)
+        # student_model.load_state_dict(saved_state_dict)
 
         handinhand_model.eval()
-        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num,handinhand=True)
+        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, is_save=True,
+                                    data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                    num_classes=student_class_num, handinhand=True)
 
         logger.info("test iou: {}".format(str(test_ious)))
         logger.info("test miou w bg= {}".format(np.mean(test_ious)))

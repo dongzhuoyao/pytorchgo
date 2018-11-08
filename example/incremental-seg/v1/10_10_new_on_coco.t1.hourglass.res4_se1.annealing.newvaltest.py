@@ -14,8 +14,7 @@ import os
 import os.path as osp
 from model_handinhand import get_handinhand_hourglass
 from loss import CrossEntropy2d
-from datasets_incremental_csgta5 import VOCDataSet
-from evaluate_incremental_csgta5 import do_eval
+from datasets_incremental import VOCDataSet
 import random
 import timeit
 from tqdm import tqdm
@@ -24,13 +23,13 @@ start = timeit.default_timer()
 IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
-DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
-DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_new/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_test.txt'
+DATA_DIRECTORY = '/home/tao/dataset/pascalvoc12/VOCdevkit/VOC2012'
+DATA_LIST_PATH = '../datalist_nonoverlap/class10+10_new_on_coco/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cocovoc_whole/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cocovoc_whole/current_incremental_test.txt'
 
 teacher_class_num = 10+1
-student_class_num = 18+1
+student_class_num = 20+1
 
 
 IGNORE_LABEL = 255
@@ -41,7 +40,7 @@ NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/csgta5.10_10_old/love.pth'
+RESTORE_FROM = 'train_log/10_10_old/love.pth'
 WEIGHT_DECAY = 0.0005
 
 
@@ -210,15 +209,13 @@ def main():
     cudnn.enabled = True
 
     def get_anneal(iter):
-        if iter <= 3000:
-            return 1
-        elif iter <= 16000:
-            return 1.0/(iter - 3000)
+        if iter <= 10000:
+            return 1.0 / iter
         else:
             return 0
 
     # Create network.
-    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=14)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=7, depth=1)
 
 
 
@@ -322,7 +319,7 @@ def main():
 
         if i_iter % args.save_pred_every == 0 and i_iter!=0:
             logger.info('validation...')
-
+            from evaluate_incremental import do_eval
             handinhand_model.eval()
             ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
             cur_miou = cal_iou(ious)
@@ -352,6 +349,7 @@ def main():
 
         if i_iter >= args.num_steps-1:
             logger.info('validation...')
+            from evaluate_incremental import do_eval
             handinhand_model.eval()
             ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
             cur_miou = cal_iou(ious)
@@ -373,6 +371,7 @@ def main():
             break
 
     logger.info('test result...')
+    from evaluate_incremental import do_eval
     handinhand_model.eval()
     test_ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
 
@@ -394,39 +393,15 @@ def main():
 
 if __name__ == '__main__':
     if args.test:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
-        os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res14.annealing_zu/love.pth"
-        from evaluate_incremental_csgta5 import do_eval_offline
+        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
+        from evaluate import do_eval
 
-
-        def get_anneal(iter):
-            if iter <= 3000:
-                return 1
-            elif iter <= 16000:
-                return 1.0 / (iter - 3000)
-            else:
-                return 0
-
-
-        # Create network.
-        handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True,
-                                                    get_anneal=get_anneal, netstyle=14)
-
+        student_model = Res_Deeplab(num_classes=student_class_num)
         #saved_state_dict = torch.load(args.test_restore_from)
         #student_model.load_state_dict(saved_state_dict)
 
-        handinhand_model.eval()
-        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, is_save=True,
-                                    data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
-                                    num_classes=student_class_num, handinhand=True)
-
-        logger.info("test iou: {}".format(str(test_ious)))
-        logger.info("test miou w bg= {}".format(np.mean(test_ious)))
-        logger.info("test miou w/o bg = {}".format(np.mean(test_ious[1:])))
-        logger.info("test miou for old class = {}".format(np.mean(test_ious[1:11])))
-        logger.info("test miou for new class = {}".format(np.mean(test_ious[11:])))
-
+        student_model.eval()
+        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
     else:
         logger.auto_set_dir()
         main()

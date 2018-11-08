@@ -197,9 +197,39 @@ def filter8_new(label_img):
         label_img[np.where(label_img_copy == i+10)] = i
     return is_needed, label_img
 
+
+def class19_filter10_old(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(10, 21):#10~20
+        label_img[np.where(label_img_copy==i)] = 0
+
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]) or ids == set([0]):
+        #print("empty label, skip")
+        is_needed = False
+    return is_needed, label_img
+
+def class19_filter9_new(label_img):
+    label_img_copy = np.copy(label_img)
+    for i in range(10):#from 0 to 9
+        label_img[np.where(label_img_copy==i)] = 0
+
+    ids = set(list(np.unique(label_img)))
+    is_needed = True
+    if ids == set([255, 0]) or ids == set([0]):
+        #print("empty label, skip")
+        is_needed = False
+        return is_needed, label_img
+
+    for i in range(0,9):#10-18
+        label_img[np.where(label_img_copy == i+10)] = i
+    return is_needed, label_img
+
 #conduct_filter(filter_func=filter10_old, valtest_filter_func = None, label_name ="cs_gta5_10+10_old")
 #conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_new")
 #conduct_filter(filter_func=None,  valtest_filter_func = None, label_name ="cs_gta5_10+8_whole")
-conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_single_new")
+#conduct_filter(filter_func=filter8_new,  valtest_filter_func = filter8_new, label_name ="cs_gta5_10+8_single_new")
+conduct_filter(filter_func=None,  valtest_filter_func = None, label_name ="cs_gta5_10+9_whole")
 
 
