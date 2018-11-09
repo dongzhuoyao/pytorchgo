@@ -323,16 +323,26 @@ def main():
 
 
 if __name__ == '__main__':
-    if args.test:
-        args.test_restore_from = "train_log/train.473.class19meaning.filtered.onlyseg_nodistill/VOC12_scenes_20000.pth"
-        from evaluate import do_eval
 
-        student_model = Res_Deeplab(num_classes=NUM_CLASSES)
+    if args.test:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+        args.test_restore_from = "train_log/csgta5.10_8.whole/love.pth"
+        from evaluate_incremental_csgta5 import do_eval_offline
+
+        model = Res_Deeplab(num_classes=NUM_CLASSES)
+
         #saved_state_dict = torch.load(args.test_restore_from)
         #student_model.load_state_dict(saved_state_dict)
 
-        student_model.eval()
-        do_eval(model=student_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=NUM_CLASSES)
+        model.eval()
+        test_ious = do_eval_offline(model=model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=NUM_CLASSES,handinhand=False)
+
+        logger.info("test iou: {}".format(str(test_ious)))
+        logger.info("test miou w bg= {}".format(np.mean(test_ious)))
+        logger.info("test miou w/o bg = {}".format(np.mean(test_ious[1:])))
+        logger.info("test miou for old class = {}".format(np.mean(test_ious[1:11])))
+        logger.info("test miou for new class = {}".format(np.mean(test_ious[11:])))
+
     else:
         logger.auto_set_dir()
         main()
