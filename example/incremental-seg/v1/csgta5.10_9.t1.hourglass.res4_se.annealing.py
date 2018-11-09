@@ -25,12 +25,12 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 
 BATCH_SIZE = 4
 DATA_DIRECTORY = '/home/tao/dataset/cityscapes'
-DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_new/current_incremental_train.txt'
-VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_val.txt'
-TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+8_whole/current_incremental_test.txt'
+DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_new/current_incremental_train.txt'
+VAL_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_val.txt'
+TEST_DATA_LIST_PATH = '../datalist_nonoverlap/cs_gta5_10+9_whole/current_incremental_test.txt'
 
-teacher_class_num = 10+1
-student_class_num = 18+1
+teacher_class_num = 10
+student_class_num = 19
 
 
 IGNORE_LABEL = 255
@@ -41,7 +41,7 @@ NUM_STEPS = 20000
 SAVE_PRED_EVERY = 1000
 POWER = 0.9
 RANDOM_SEED = 1234
-RESTORE_FROM = 'train_log/csgta5.10_10_old/love.pth'
+RESTORE_FROM = 'train_log/csgta5.10_9_old/love.pth'
 WEIGHT_DECAY = 0.0005
 
 
@@ -52,7 +52,7 @@ from pytorchgo.utils import logger
 
 
 def cal_iou(ious):
-    return np.mean(ious[1:])
+    return np.mean(ious)
 
 
 def get_arguments():
@@ -216,7 +216,7 @@ def main():
             return 0
 
     # Create network.
-    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=6)
+    handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True, get_anneal=get_anneal, netstyle=1, depth=3)
 
 
 
@@ -300,9 +300,8 @@ def main():
 
         pred_old_no_bg = teacher_output[:, :, :, :]  # 15 CLASSES
 
-        to_be_distill = student_output[:, :11, :, :]
-        new_class_part = torch.cat((student_output[:, 0:1, :, :], student_output[:, 11:, :, :]),
-                                   1)  # https://discuss.pytorch.org/t/solved-simple-question-about-keep-dim-when-slicing-the-tensor/9280
+        to_be_distill = student_output[:, :teacher_class_num, :, :]
+        new_class_part = student_output[:, teacher_class_num:, :, :]
         seg_loss = loss_calc(new_class_part, labels)
         distill_loss = distill_loss_fn(to_be_distill, pred_old_no_bg)
         loss = seg_loss + distill_loss
@@ -343,9 +342,8 @@ def main():
 
             logger.info("val iou: {}".format(str(best_val_ious)))
             logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
-            logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
-            logger.info("val miou for old class = {}".format(np.mean(best_val_ious[1:11])))
-            logger.info("val miou for new class = {}".format(np.mean(best_val_ious[11:])))
+            logger.info("val miou for old class = {}".format(np.mean(best_val_ious[:teacher_class_num])))
+            logger.info("val miou for new class = {}".format(np.mean(best_val_ious[teacher_class_num:])))
 
 
         if i_iter >= args.num_steps-1:
@@ -371,47 +369,52 @@ def main():
             break
 
     logger.info('test result...')
+    from evaluate_incremental_csgta5 import do_eval_offline
     handinhand_model.eval()
-    test_ious = do_eval(model=handinhand_model, data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH, num_classes=student_class_num, handinhand=True)
-
+    test_ious = do_eval_offline(model=handinhand_model, is_save=False,
+                                data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                num_classes=student_class_num, handinhand=True)
 
 
 
     logger.info("val iou: {}".format(str(best_val_ious)))
     logger.info("val miou w bg= {}".format(np.mean(best_val_ious)))
-    logger.info("val miou w/o bg = {}".format(np.mean(best_val_ious[1:])))
-    logger.info("val miou for old class = {}".format(np.mean(best_val_ious[1:11])))
-    logger.info("val miou for new class = {}".format(np.mean(best_val_ious[11:])))
+    logger.info("val miou for old class = {}".format(np.mean(best_val_ious[:teacher_class_num])))
+    logger.info("val miou for new class = {}".format(np.mean(best_val_ious[teacher_class_num:])))
 
     logger.info("test iou: {}".format(str(test_ious)))
     logger.info("test miou w bg= {}".format(np.mean(test_ious)))
-    logger.info("test miou w/o bg = {}".format(np.mean(test_ious[1:])))
-    logger.info("test miou for old class = {}".format(np.mean(test_ious[1:11])))
-    logger.info("test miou for new class = {}".format(np.mean(test_ious[11:])))
+    logger.info("test miou for old class = {}".format(np.mean(test_ious[:teacher_class_num])))
+    logger.info("test miou for new class = {}".format(np.mean(test_ious[teacher_class_num:])))
 
 
 if __name__ == '__main__':
     if args.test:
-        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res34.annealing/love.pth"
+        #remember to change restore_from and get_handinhand_hourglass!!!
+        args.test_restore_from = "train_log/csgta5.10_8.t1.hourglass.res4_se1.annealing/love.pth"
         from evaluate_incremental_csgta5 import do_eval_offline
 
 
         def get_anneal(iter):
-            if iter <= 10000:
-                return 1.0 / iter
+            if iter <= 3000:
+                return 1
+            elif iter <= 16000:
+                return 1.0 / (iter - 3000)
             else:
                 return 0
 
 
         # Create network.
         handinhand_model = get_handinhand_hourglass(teacher_class_num, student_class_num, annealing=True,
-                                                    get_anneal=get_anneal, netstyle=6)
+                                                    get_anneal=get_anneal, netstyle=1, depth=1)
 
-        #saved_state_dict = torch.load(args.test_restore_from)
-        #student_model.load_state_dict(saved_state_dict)
+        # saved_state_dict = torch.load(args.test_restore_from)
+        # student_model.load_state_dict(saved_state_dict)
 
         handinhand_model.eval()
-        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, data_dir=args.data_dir, data_list=VAL_DATA_LIST_PATH, num_classes=student_class_num,handinhand=True)
+        test_ious = do_eval_offline(model=handinhand_model, restore_from=args.test_restore_from, is_save=True,
+                                    data_dir=args.data_dir, data_list=TEST_DATA_LIST_PATH,
+                                    num_classes=student_class_num, handinhand=True)
 
         logger.info("test iou: {}".format(str(test_ious)))
         logger.info("test miou w bg= {}".format(np.mean(test_ious)))
