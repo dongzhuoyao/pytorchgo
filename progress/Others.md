@@ -12,4 +12,8 @@ time-dimension pooling in activity classification.
 
 RGB-D video for object localization.
 
-Factorized Bilinear Models for Image Recognition for video
+one or ten images, search the same object in a video, localize them timely and spacely.(Exploit the Unknown Gradually: One-Shot Video-Based Person
+Re-Identification by Stepwise Learning)
+
+End-to-End Joint Semantic Segmentation of
+Actors and Actions in Video

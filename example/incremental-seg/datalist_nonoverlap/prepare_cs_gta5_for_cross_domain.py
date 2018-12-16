@@ -203,11 +203,7 @@ def class19_filter10_old(label_img):
     for i in range(10, 21):#10~20
         label_img[np.where(label_img_copy==i)] = 0
 
-    ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]) or ids == set([0]):
-        #print("empty label, skip")
-        is_needed = False
     return is_needed, label_img
 
 def class19_filter9_new(label_img):
@@ -215,13 +211,7 @@ def class19_filter9_new(label_img):
     for i in range(10):#from 0 to 9
         label_img[np.where(label_img_copy==i)] = 0
 
-    ids = set(list(np.unique(label_img)))
     is_needed = True
-    if ids == set([255, 0]) or ids == set([0]):
-        #print("empty label, skip")
-        is_needed = False
-        return is_needed, label_img
-
     for i in range(0,9):#10-18
         label_img[np.where(label_img_copy == i+10)] = i
     return is_needed, label_img

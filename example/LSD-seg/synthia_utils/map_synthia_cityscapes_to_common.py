@@ -9,7 +9,7 @@ from synthia2cityscapes import synthia2common_dict, city2common_dict
 def synthia2common():
     data_dir = '/home/tao/dataset/RAND_CITYSCAPES'
     src_dir = os.path.join(data_dir, "GT/LABELS")
-    target_dir = os.path.join(data_dir, "synthia_mapped_to_common")
+    target_dir = os.path.join(data_dir, "synthia_mapped_to_common_gt")
     os.mkdir(target_dir)
     #print synthiaid2label[8].synthia_trainid
     files = os.listdir(src_dir)
