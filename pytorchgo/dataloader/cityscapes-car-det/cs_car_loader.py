@@ -57,7 +57,7 @@ class CsCarLoader(data.Dataset):
             img = Image.open(img_file).convert('RGB')
 
             if False:
-                print img_file
+                print(img_file)
 
             if self.img_transform:
                 img = self.img_transform(img)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
     for idx, data in enumerate(trainloader):
-        print idx
+        print(idx)
         #image, label = data
         #image = image.numpy()
         #label = label.numpy()

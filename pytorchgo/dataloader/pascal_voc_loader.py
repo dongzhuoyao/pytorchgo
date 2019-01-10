@@ -86,8 +86,8 @@ class pascalVOCLoader(data.Dataset):
         label = Image.open(label_file).convert("P")
 
         if False:
-            print img_file
-            print label_file
+            print(img_file)
+            print(label_file)
 
         if self.img_transform:
             img = self.img_transform(img)
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     n_classes = t_loader.n_classes
     trainloader = data.DataLoader(t_loader, batch_size=1, num_workers=1, shuffle=True)
     for idx, data in enumerate(trainloader):
-        print idx
+        print(idx)
         image, label = data
         #image = image.numpy()
         #label = label.numpy()

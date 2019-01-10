@@ -42,7 +42,7 @@ def CrossEntropyLoss2d_Seg(input, target, class_num, weight=None, size_average=T
     except:
         import traceback
         traceback.print_exc()
-        print "Exception: ", target.size()
+        print("Exception: {}".format(target.size()))
     log_p = log_p.view(-1, c)
 
     # target: (n*h*w,)
@@ -52,8 +52,8 @@ def CrossEntropyLoss2d_Seg(input, target, class_num, weight=None, size_average=T
     try:
         loss = F.nll_loss(log_p, target, weight=weight, size_average=size_average)
     except:
-        print "log_p size: {}".format(log_p.size())
-        print "target size: {}".format(target.size())
+        print("log_p size: {}".format(log_p.size()))
+        print("target size: {}".format(target.size()))
         import traceback
         traceback.print_exc()
         import ipdb
@@ -74,13 +74,13 @@ class BalanceLoss2d(nn.Module):
     def forward(self, inputs1, inputs2, class_num):
         prob1 = F.softmax(inputs1)[0, :class_num]
         prob2 = F.softmax(inputs2)[0, :class_num]
-        print prob1
+        print(prob1)
         prob1 = torch.mean(prob1, 0)
         prob2 = torch.mean(prob2, 0)
-        print prob1
+        print(prob1)
         entropy_loss = - torch.mean(torch.log(prob1 + 1e-6))
         entropy_loss -= torch.mean(torch.log(prob2 + 1e-6))
-        return entropy_loss
+        return(entropy_loss)
 
 
 class Entropy(nn.Module):
