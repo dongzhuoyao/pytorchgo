@@ -15,7 +15,8 @@ def set_gpu(gpu):
         gpu = str(gpu)
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    torch.cuda.set_device(0)
+    logger.warn("set gpu: {}").format(gpu)
+
 
 def model_summary(model_list):
     if not isinstance(model_list, list):
