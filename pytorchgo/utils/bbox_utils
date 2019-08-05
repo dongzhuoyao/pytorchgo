@@ -5,8 +5,7 @@
 import numpy as np
 import cv2
 
-__all__ = [ 'draw_det_box',
-           'draw_boxes']
+__all__ = ['draw_det_box','draw_boxes','draw_text']
 
 class BoxBase(object):
     __slots__ = ['x1', 'y1', 'x2', 'y2']
