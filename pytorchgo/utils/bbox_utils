@@ -1,7 +1,5 @@
 # Author: Tao Hu <taohu620@gmail.com>
 
-# -*- coding: utf-8 -*-
-# File: rect.py
 
 
 import numpy as np
