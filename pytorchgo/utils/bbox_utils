@@ -113,20 +113,23 @@ class FloatBox(BoxBase):
 
 
 
-def draw_det_box(img, boxes, class_name, color=(255,0,0)):
+def draw_det_box(img, boxes, class_name, color=(255,0,0),normalized=True):
     #boxes, shape:(4,)
     height, width, channels = img.shape
     images_cv = np.copy(img)
 
-    min_x = boxes[0]
-    min_y = boxes[1]
-    max_x = boxes[2]
-    max_y = boxes[3]
+    min_x = float(boxes[0])
+    min_y = float(boxes[1])
+    max_x = float(boxes[2])
+    max_y = float(boxes[3])
+    
+    assert min_x <= max_x and min_y <= max_y
 
-    min_x = float(min_x) * width  # normalize 1
-    max_x = float(max_x) * width
-    min_y = float(min_y) * height
-    max_y = float(max_y) * height
+    if normalized:
+        min_x = min_x * width  # normalize 1
+        max_x = max_x * width
+        min_y = min_y * height
+        max_y = max_y * height
 
     floatBox = FloatBox(min_x, min_y, max_x, max_y)
     floatBox.clip_by_shape((width, height))
