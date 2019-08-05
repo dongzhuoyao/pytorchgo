@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "pytorchgo",
-    version = "0.0.3",
+    version = "0.0.4",
     author = "Tao Hu",
     author_email = "taohu620@gmail.com",
     description = ("a simple scaffold of Pytorch, easy to customize, extremely boosting your research."),
