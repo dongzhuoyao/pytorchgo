@@ -47,6 +47,7 @@ def model_summary(model_list):
         )
 
         logger.info(model)
+        return all_param_num, trainable_param_num
 
 
 def optimizer_summary(optim_list):
