@@ -61,11 +61,11 @@ _FILE_HANDLER = None
 
 def warning_ddp(_str, gpu):
     if gpu==0:
-        _logger.warning(_str)
+        _logger.warning("GPU {}: {}".format(gpu,_str))
 
 def info_ddp(_str, gpu):
     if gpu==0:
-        _logger.info(_str)
+        _logger.info("GPU {}: {}".format(gpu,_str))
 
 def _set_file(path):
     global _FILE_HANDLER
