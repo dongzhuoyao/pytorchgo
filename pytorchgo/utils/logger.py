@@ -59,6 +59,14 @@ LOG_DIR = None
 _FILE_HANDLER = None
 
 
+def warning_ddp(_str, gpu):
+    if gpu==0:
+        locals()['warning'](_str)
+
+def info_ddp(_str, gpu):
+    if gpu==0:
+        locals()['info'](_str)
+
 def _set_file(path):
     global _FILE_HANDLER
     if os.path.isfile(path):
