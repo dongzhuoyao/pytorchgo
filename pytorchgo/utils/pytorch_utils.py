@@ -7,7 +7,7 @@ from tabulate import tabulate
 import warnings, os, sys
 
 if sys.version_info[0] >= 3:
-    logger.warn("use reduce from functools...")
+    #logger.warn("use reduce from functools...")
     from functools import reduce
 
 
