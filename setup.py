@@ -19,6 +19,10 @@ setup(
     url = "http://packages.python.org/an_example_pypi_project",
     packages=find_packages(),
     long_description=read('README.md'),
+    install_requires=[
+          'termcolor',
+          'tabulate',
+      ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
