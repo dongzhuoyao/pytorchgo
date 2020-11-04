@@ -1,2 +1,0 @@
-# human pose estimation
-
