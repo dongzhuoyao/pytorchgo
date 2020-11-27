@@ -16,7 +16,13 @@ def parse_args(args):
 def main(*args):
     args = parse_args(args)
     print(args)
-    ####### main experiment logic here #########
+    ########################
+    # PUT YOUR CODE HERE  #
+    #######################
+    #raise NotImplementedError
+    ########################
+    # END OF YOUR CODE    #
+    #######################
     gc = gspread.service_account(filename="/home/thu/pytorchgo-817f6e741d1c.json")
     sh = gc.open(args.save_xls)
     sh.sheet1.update(args.save_cell, "your result {}".format(args.dataset))
