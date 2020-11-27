@@ -1,4 +1,5 @@
 import argparse
+import gspread
 
 def parse_args(args):
   parser = argparse.ArgumentParser(description= 'few-shot script')
@@ -12,7 +13,6 @@ def parse_args(args):
 def main(*args):
     args = parse_args(args)
     print(args)
-    import gspread
     gc = gspread.service_account(filename="/home/thu/pytorchgo-817f6e741d1c.json")
     sh = gc.open("test_pytorchgo")
     sh.sheet1.update(args.save_xls,args.dataset)
