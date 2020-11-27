@@ -4,7 +4,10 @@ import gspread
 def parse_args(args):
   parser = argparse.ArgumentParser(description= 'few-shot script')
   parser.add_argument('-dataset', default='cars_default', help='')
-  parser.add_argument('-save_xls',type=str)
+  parser.add_argument('-save_xls', default="test_pytorchgo", type=str)
+  parser.add_argument('-save_cell',type=str)
+
+
   if len(args)==0:
       return parser.parse_args()
   else:
@@ -13,9 +16,10 @@ def parse_args(args):
 def main(*args):
     args = parse_args(args)
     print(args)
+    ####### main experiment logic here #########
     gc = gspread.service_account(filename="/home/thu/pytorchgo-817f6e741d1c.json")
-    sh = gc.open("test_pytorchgo")
-    sh.sheet1.update(args.save_xls,args.dataset)
+    sh = gc.open(args.save_xls)
+    sh.sheet1.update(args.save_cell, "your result {}".format(args.dataset))
     return args.dataset
 
 if __name__ == '__main__':
