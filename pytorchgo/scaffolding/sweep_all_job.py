@@ -2,16 +2,17 @@ import argparse
 import gspread
 
 def parse_args(args):
-  parser = argparse.ArgumentParser(description= 'few-shot script')
+  parser = argparse.ArgumentParser()
   parser.add_argument('-dataset', default='cars_default', help='')
+
   parser.add_argument('-save_xls', default="test_pytorchgo", type=str)
   parser.add_argument('-save_cell',type=str)
-
 
   if len(args)==0:
       return parser.parse_args()
   else:
       return parser.parse_args(args)
+
 
 def main(*args):
     args = parse_args(args)

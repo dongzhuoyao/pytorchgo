@@ -16,11 +16,10 @@ redis_conn = Redis()
 
 q = Queue(name=args.name, connection=redis_conn)  # no args implies the default queue
 
-
 job = q.enqueue(main, args=('-dataset','cars','-save_cell','A1'))
 job = q.enqueue(main, args=('-dataset','cars1','-save_cell','A2'))
 job = q.enqueue(main, args=('-dataset','cars2','-save_cell','A3'))
 job = q.enqueue(main, args=('-dataset','cars3','-save_cell','A4'))
 
-#print(job.result)   # => None
+
 
